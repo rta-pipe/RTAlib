@@ -76,10 +76,10 @@ clean:
 install:
 
 	# For conf files installation
-	$(COPY_FILE) $(INCLUDE_DIR)/* ./../dl2Sim/include/
+	#$(COPY_FILE) $(INCLUDE_DIR)/* ./../dl2Sim/include/
 
-	test -d ./../dl2Sim/lib || mkdir -p ./../dl2Sim/lib
-	$(COPY_FILE) $(LIB_DIR)/$(LIB_NAME) ./../dl2Sim/lib
+	#test -d ./../dl2Sim/lib || mkdir -p ./../dl2Sim/lib
+	#$(COPY_FILE) $(LIB_DIR)/$(LIB_NAME) ./../dl2Sim/lib
 
 
 #uninstall: delete all the installed files--the copies that the `install' target creates.

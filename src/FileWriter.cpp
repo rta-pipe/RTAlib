@@ -12,7 +12,7 @@
 
 FileWriter::FileWriter()
 {
-    //ctor 
+    //ctor
 }
 
 string FileWriter::convertToString(int number){
@@ -26,6 +26,11 @@ string FileWriter::convertToString(float number){
 	return out.str();
 }
 string FileWriter::convertToString(double number){
+	std::stringstream out;
+	out << number;
+	return out.str();
+}
+string FileWriter::convertToString(time_t number){
 	std::stringstream out;
 	out << number;
 	return out.str();

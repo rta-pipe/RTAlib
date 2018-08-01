@@ -12,6 +12,7 @@
 #define FILEWRITER_H
 
 #include <ctime>
+#include <sys/time.h>
 #include <fstream>
 #include <sstream>
 
@@ -28,9 +29,10 @@ class FileWriter
       static string convertToString(int number);
       static string convertToString(float number);
       static string convertToString(double number);
+      static string convertToString(time_t number);
 
     private:
-      FileWriter(); 
+      FileWriter();
 };
 
 #endif // FILEWRITER_H

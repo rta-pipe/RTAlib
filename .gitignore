@@ -51,3 +51,14 @@ conf/*
 *.fits
 *.json
 versione
+
+
+# Files in Subfolders
+src/python/activate_virtual_env.sh
+src/python/PyLibRTA/*.pyc
+src/python/PyLibRTA/__pycache__
+src/python/PyLibRTA/*-info
+src/python/PyLibRTA/DataLayers/*.pyc
+src/python/PyLibRTA/DataLayers/__pycache__
+src/python/PyLibRTA/DBConnectors/*.pyc
+src/python/PyLibRTA/DBConnectors/__pycache__

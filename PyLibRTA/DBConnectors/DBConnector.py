@@ -28,8 +28,6 @@ class DBConnector(ABC):
         self.username = username
         self.password = password
         self.conn = None;
-        self.dbEntities = ['evt2','evt3']
-        self.indexes = []
 
     def printConnectionInfo(self):
         print("url: {} \nusername: {} \npassword: {}".format(self.url,self.username,self.password))
@@ -37,8 +35,6 @@ class DBConnector(ABC):
 
     @abstractmethod
     def connect(self, db):
-        print("Connecting to url={} with user={} to db={}".format(self.url, self.username, db))
-
         pass
 
     @abstractmethod
@@ -47,4 +43,8 @@ class DBConnector(ABC):
 
     @abstractmethod
     def testConnection(self):
+        pass
+
+    @abstractmethod
+    def insertData(self, modelName, **kwargs):
         pass

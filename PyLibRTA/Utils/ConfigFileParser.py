@@ -38,7 +38,6 @@ RTALIB config file format:
 
 """
 
-import json
 import os
 
 def parseRTALIBConfigFile(filepath=''):
@@ -71,7 +70,7 @@ def parseRTALIBConfigFile(filepath=''):
             #else:
                 #print('Empty line')
 
-    return json.dumps(configs)
+    return configs
 
 
 def parseSectionName(line):

@@ -35,31 +35,40 @@ class RedisDBConnector(DBConnector):
     def decodeResponse(self, response):
         return response.decode("utf-8")
 
-    ### TODO Connecting with username and password
-    def connect(self, db=0):
-        super().connect(db)
-        self.conn = redis.StrictRedis(host=self.url, port=6379, db=db )
-        print("Connected to Redis")
-        return True
+    def connect(self, db = 0):
+        self.conn = redis.Redis(host=self.url, port=6379, db=db, password=self.password)
+        return self.testConnection()
 
     def disconnect(self):
         if self.conn != 0:
             self.conn.disconnect()
         print("Disconnected from Redis")
 
-    # TODO look for a smarter way
     def testConnection(self):
-        self.conn.set('testconnection', '1')
-        val = self.decodeResponse(self.conn.get('testconnection'))
-        if val == '1':
-            return True
-        else:
-            return False
+        if self.conn:
+            try:
+                self.conn.ping()
+                return True
+            except redis.exceptions.ResponseError as err:
+                print(err)
+                return False
+        return False
+
+    def insertData(self):
+        pass
+
+    def createIndex(self):
+        pass
+
+    def updateIndex(self):
+        pass
+
+
 
     """
 
     """
-    def createHash(self, key, expirationTime, **kwargs, *args):
+    def createHash(self, key, expirationTime, **kwargs):
         for key, value in kwargs.items():
             print("The value of {} is {}".format(key, value))
         for num in args:

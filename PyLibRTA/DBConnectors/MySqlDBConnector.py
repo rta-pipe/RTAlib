@@ -33,17 +33,10 @@ class MySqlDBConnector(DBConnector):
     # Connection argument
     # https://dev.mysql.com/doc/connector-python/en/connector-python-connectargs.html
     def connect(self, db):
-        super().connect(db)
         try:
-            self.conn = mysql.connector.connect(
-                                    user=self.username,
-                                    password=self.password,
-                                    host=self.url,
-                                    database=db
-                                )
+            self.conn = mysql.connector.connect(user=self.username, password=self.password, host=self.url, database=db)
             print("Connected to MySql")
             return True
-
         except mysql.connector.Error as err:
             print(err)
             self.conn = None
@@ -57,3 +50,43 @@ class MySqlDBConnector(DBConnector):
         if self.conn != 0:
             self.conn.close()
             self.conn = None
+
+
+
+    def insertData(self, tableName, **kwargs):
+        if self.checkTableExists(tableName):
+            cursor = cnx.cursor()
+            insertQuery = "INSERT INTO "+tableName+self.buildQueryHeaderAndValuesFromDictionary(kwargs)
+            print("[MySqlConnector] Executing {}..".format(insertQuery))
+            cursor.execute(insertQuery)
+            cnx.commit()
+            cursor.close()
+            return True
+        else:
+            print('[MySqlDBConnector Error] Table {} doesnt exist'.format(tableName))
+            return False
+
+    def checkTableExists(self, tablename):
+        dbcur = self.conn.cursor()
+        dbcur.execute("""
+        SELECT COUNT(*)
+        FROM information_schema.tables
+        WHERE table_name = '{0}'
+        """.format(tablename.replace('\'', '\'\'')))
+        if dbcur.fetchone()[0] == 1:
+            dbcur.close()
+            return True
+        dbcur.close()
+        return False
+
+    def buildQueryHeaderAndValuesFromDictionary(self, dict):
+        queryH = '('
+        queryV = 'VALUES ('
+        for key, val in dict.items():
+            queryH += str(key)+','
+            queryV += str(val)+','
+        queryH = queryH[:-1]
+        queryV = queryV[:-1]
+        queryH += ')'
+        queryV += ')'
+        return queryH+' '+queryV

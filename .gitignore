@@ -1,3 +1,20 @@
+# Files in PyLibRTA
+rtalibconfig
+activate_virtual_env.sh
+PyLibRTA/*.pyc
+PyLibRTA/__pycache__
+PyLibRTA/*-info
+PyLibRTA/DataModels/*.pyc
+PyLibRTA/DataModels/__pycache__
+PyLibRTA/DBConnectors/*.pyc
+PyLibRTA/DBConnectors/__pycache__
+PyLibRTA/RTAInterface/*.pyc
+PyLibRTA/RTAInterface/__pycache__
+PyLibRTA/Utils/*.pyc
+PyLibRTA/Utils/__pycache__
+
+
+
 sites
 *.d
 
@@ -50,15 +67,3 @@ conf/*
 *.gz
 *.fits
 *.json
-versione
-
-
-# Files in Subfolders
-src/python/activate_virtual_env.sh
-src/python/PyLibRTA/*.pyc
-src/python/PyLibRTA/__pycache__
-src/python/PyLibRTA/*-info
-src/python/PyLibRTA/DataLayers/*.pyc
-src/python/PyLibRTA/DataLayers/__pycache__
-src/python/PyLibRTA/DBConnectors/*.pyc
-src/python/PyLibRTA/DBConnectors/__pycache__

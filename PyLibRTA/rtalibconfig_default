@@ -1,0 +1,11 @@
+[MySql]
+server=
+username=
+password=
+dbname=
+
+[Redis]
+server=
+username=
+password=
+dbname=

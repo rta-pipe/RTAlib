@@ -26,7 +26,7 @@ class MySqlConnector(unittest.TestCase):
         mysqlConn = MySqlDBConnector('127.0.0.1', 'gioacchino', 'Giancarlo@2018#')
         self.assertEqual(False, mysqlConn.connect('evt_test'))
 
-    def test_connect_wrong_table(self):
+    def test_connect_wrong_database(self):
         mysqlConn = MySqlDBConnector('127.0.0.1', 'zollino', 'Giancarlo@2018#')
         self.assertEqual(False, mysqlConn.connect('evttttest'))
 
@@ -35,11 +35,15 @@ class MySqlConnector(unittest.TestCase):
         self.assertEqual(True, mysqlConn.connect('evt_test'))
 
 
-    def test_insert_data(self):
+    def test_insert_data_wrong_table(self):
         mysqlConn = MySqlDBConnector('127.0.0.1', 'zollino', 'Giancarlo@2018#')
         mysqlConn.connect('evt_test')
-        mysqlConn.insertData('test_table',a=1,b=2,c=3)
+        self.assertEqual(False, mysqlConn.insertData('lest_fable',a=1,b=2,c=3))
 
+    def test_insert_data_wrong_table(self):
+        mysqlConn = MySqlDBConnector('127.0.0.1', 'zollino', 'Giancarlo@2018#')
+        mysqlConn.connect('evt_test')
+        self.assertEqual(True, mysqlConn.insertData('test_table',a=1,b=2,c=3))
 
 
 if __name__ == '__main__':

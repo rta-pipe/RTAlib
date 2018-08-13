@@ -18,6 +18,16 @@
 #
 # ==========================================================================
 
-class EVT3-CTA():
+class EVT3-ASTRI():
     def __init__():
+        self.EVENT_ID = None
+        self.TIME = None
+        self.RA = None
+        self.DEC = None
+        self.ENERGY = None
+        self.DETX = None
+        self.DETY = None
+        self.ALT = None
+        self.AZ = None
+        self.GAMMANESS = None
         pass

@@ -21,30 +21,85 @@
 from .DBConnector import DBConnector
 import redis
 
+"""
+Redis wrapper that exposes a connect/disconnet/insert API.
+
+It uses HASH-SETs as data structure. Fot each data model (e.g. evt3astri) we have:
+    - the HASH-SET of the model (e.g. evt3astri:id)
+    - a STRING for the generation of unique IDs (evt3astri:uniqueid)
+    - a LIST to store the keys name that must be associated to an INDEX (e.g. evt3astri:indexlist)
+    - a ZSET for each key associated to an INDEX (e.g. evt3astri:time)
+"""
+
+
 
 
 class RedisDBConnector(DBConnector):
     def __init__(self, url, username='', password=''):
         super().__init__(url, username, password)
-        self.conn = None;
+        self.indexLists = []
 
 
-    """
-    By default, all responses are returned as bytes in Python 3
-    """
     def decodeResponse(self, response):
+        """By default, all Redis responses are returned as bytes in Python 3. This
+        function converts the bytecode back to utf-8
+
+        Keyword arguments:
+        response -- Redis bytecode response (required)
+
+        Return value:
+        The utf-8 decoding of the response
+        """
         return response.decode("utf-8")
 
+
+
     def connect(self, db = 0):
+        """Connects to Redis. When connection is established it downloads from Redis
+        the indexlists and caches it.
+
+        Keyword arguments:
+        db -- the database name (default 0)
+
+        Return value:
+        True  -- if connection is established
+        False -- otherwise
+        """
         self.conn = redis.Redis(host=self.url, port=6379, db=db, password=self.password)
-        return self.testConnection()
+        if self.testConnection():
+            # TODO Download all the indexlists (we cache the indexlists)
+            return True
+        else
+            return False
+        return
+
+
 
     def disconnect(self):
+        """
+
+        Keyword arguments:
+         -- (default 0)
+
+        Return value:
+
+        """
         if self.conn != 0:
             self.conn.disconnect()
         print("Disconnected from Redis")
 
+
+
     def testConnection(self):
+        """ Check if connection is alive.
+
+        Keyword arguments:
+        --
+
+        Return value:
+        True  -- if connection is alive
+        False -- otherwise
+        """
         if self.conn:
             try:
                 self.conn.ping()
@@ -54,26 +109,48 @@ class RedisDBConnector(DBConnector):
                 return False
         return False
 
-    def insertData(self):
+
+
+    def insertData(self, hashName, **kwargs):
+        """ Inserts the input dictionary data 'kwargs' into the hashset 'hashName'.
+        It computes a new uniqueid for the 'hashName' HASHSET.
+
+        Keyword arguments:
+         -- (default 0)
+
+        Return value:
+
+        """
         pass
 
-    def createIndex(self):
+    def createIndex(self, hashName, keyName):
+        """ Creates a new indexlist for the key 'keyName' in the HASHSET 'hashName'.
+        It downloads all the HASHSET 'hashName' and inserts into the ZSET all the
+        value associated to the key 'keyName'.
+        It also updates the local self.indexLists.
+
+        Keyword arguments:
+        hashName -- the name of the HASHSET in which the key is located (required)
+        keyName  -- the name of the key that is need to be indexed (required)
+
+        Return value:
+        True  - if no exception occurs
+        False - otherwise
+        """
         pass
 
-    def updateIndex(self):
+
+
+    def updateIndex(self, hashName, keyName, value):
+        """ Update the ZSET 'hashName':'keyName', inserting the new value.
+
+        Keyword arguments:
+        hashName -- the name of the HASHSET in which the key is located (required)
+        keyName  -- the name of the key that is need to be indexed (required)
+        value    -- the value to be inserted in the ZSET
+
+        Return value:
+        True  - if no exception occurs
+        False - otherwise
+        """
         pass
-
-
-
-    """
-
-    """
-    def createHash(self, key, expirationTime, **kwargs):
-        for key, value in kwargs.items():
-            print("The value of {} is {}".format(key, value))
-        for num in args:
-            print(num)
-
-        # Create Indexes
-
-        #

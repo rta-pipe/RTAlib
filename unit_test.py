@@ -40,7 +40,7 @@ class MySqlConnector(unittest.TestCase):
         mysqlConn.connect('evt_test')
         self.assertEqual(False, mysqlConn.insertData('lest_fable',a=1,b=2,c=3))
 
-    def test_insert_data_wrong_table(self):
+    def test_insert_data(self):
         mysqlConn = MySqlDBConnector('127.0.0.1', 'zollino', 'Giancarlo@2018#')
         mysqlConn.connect('evt_test')
         self.assertEqual(True, mysqlConn.insertData('test_table',a=1,b=2,c=3))

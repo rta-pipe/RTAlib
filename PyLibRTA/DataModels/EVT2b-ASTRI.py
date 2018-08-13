@@ -17,3 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # ==========================================================================
+
+class EVT2b-ASTRI():
+    def __init__():
+        pass

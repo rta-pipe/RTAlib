@@ -28,20 +28,19 @@ class MySqlDBConnector(DBConnector):
 
     def __init__(self, url, username, password):
         super().__init__(url, username, password);
-        self.conn = None;
 
 
     # https://dev.mysql.com/doc/connector-python/en/connector-python-connectargs.html
     def connect(self, db):
-    """Connects to MySql.
+        """Connects to MySql.
 
-    Keyword arguments:
-    db -- the db name (required)
+        Keyword arguments:
+        db -- the db name (required)
 
-    Return value:
-    True  -- if the connection is estrablished
-    False -- otherwise
-    """
+        Return value:
+        True  -- if the connection is estrablished
+        False -- otherwise
+        """
         try:
             self.conn = mysql.connector.connect(user=self.username, password=self.password, host=self.url, database=db)
             print("Connected to MySql")
@@ -55,14 +54,14 @@ class MySqlDBConnector(DBConnector):
         return self.conn.is_connected()
 
     def disconnect(self):
-    """Disconnects to MySql.
+        """Disconnects to MySql.
 
-    Keyword arguments:
-    --
+        Keyword arguments:
+        --
 
-    Return value:
-    --
-    """
+        Return value:
+        --
+        """
         print("MySql disconnection")
         if self.conn != 0:
             self.conn.close()
@@ -70,23 +69,23 @@ class MySqlDBConnector(DBConnector):
 
 
     def insertData(self, tableName, **kwargs):
-    """Inserts the input dictionary data 'kwargs' into the table 'tableName'.
+        """Inserts the input dictionary data 'kwargs' into the table 'tableName'.
 
-    Keyword arguments:
-    tableName -- the name of the table in which the data is inserted to (required)
-    kwargs    -- the dictionary that holds the data in terms of column name - column value
+        Keyword arguments:
+        tableName -- the name of the table in which the data is inserted to (required)
+        kwargs    -- the dictionary that holds the data in terms of column name - column value
 
-    Return value:
-    True  -- if the data is inserted correctly
-    False -- otherwise
-    """
+        Return value:
+        True  -- if the data is inserted correctly
+        False -- otherwise
+        """
         if self.conn:
             insertQuery = "INSERT INTO "+tableName+self.buildQueryHeaderAndValuesFromDictionary(kwargs)
             print("[MySqlConnector] Executing {}..".format(insertQuery))
             try:
                 cursor = self.conn.cursor()
                 cursor.execute(insertQuery)
-                cnx.commit()
+                self.conn.commit()
                 cursor.close()
                 return True
             except mysql.connector.Error as err:
@@ -98,7 +97,7 @@ class MySqlDBConnector(DBConnector):
 
 
     def checkIfTableExist(self, tablename):
-        """Check if table 'tableName' exists in the database.
+        """Check if table 'tableName' exists in the database. (FOR NOW THIS METHOD IS NOT USED)
 
         Keyword arguments:
         tableName -- the table name (required)

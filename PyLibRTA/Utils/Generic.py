@@ -18,40 +18,11 @@
 #
 # ==========================================================================
 
-from abc import ABC, abstractmethod
-from ..Utils import parseRTALIBConfigFile
+import random
+import string
 
-class DBConnector(ABC):
+def getRandomString(self, N='6'):
+    """ For testing purpose.
 
-
-    def __init__(self, configFilePath=''):
-        super().__init__()
-        self.configs = parseRTALIBConfigFile(configFilePath)
-        self.conn = None;
-
-
-    def printConnectionInfo(self):
-        """ For testing purpose.
-
-        """
-        print("host: {} \nusername: {} \npassword: {}\ndatabase: {}".format(self.host, self.username, self.password, self.dbname))
-        
-
-    def getConfigs(self):
-        return self.configs
-
-    @abstractmethod
-    def connect(self, db):
-        pass
-
-    @abstractmethod
-    def disconnect(self):
-        pass
-
-    @abstractmethod
-    def testConnection(self):
-        pass
-
-    @abstractmethod
-    def insertData(self, modelName, **kwargs):
-        pass
+    """
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))

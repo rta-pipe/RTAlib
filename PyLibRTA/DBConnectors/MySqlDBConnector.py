@@ -26,23 +26,27 @@ from mysql.connector import errorcode
 
 class MySqlDBConnector(DBConnector):
 
-    def __init__(self, url, username, password):
-        super().__init__(url, username, password);
+    def __init__(self, configFilePath=''):
+        super().__init__(configFilePath);
+        self.host = self.configs['MySql']['host']
+        self.username = self.configs['MySql']['username']
+        self.password = self.configs['MySql']['password']
+        self.dbname = self.configs['MySql']['dbname']
 
 
     # https://dev.mysql.com/doc/connector-python/en/connector-python-connectargs.html
-    def connect(self, db):
+    def connect(self):
         """Connects to MySql.
 
         Keyword arguments:
-        db -- the db name (required)
+        --
 
         Return value:
         True  -- if the connection is estrablished
         False -- otherwise
         """
         try:
-            self.conn = mysql.connector.connect(user=self.username, password=self.password, host=self.url, database=db)
+            self.conn = mysql.connector.connect(user=self.username, password=self.password, host=self.host, database=self.dbname)
             print("Connected to MySql")
             return True
         except mysql.connector.Error as err:
@@ -93,6 +97,7 @@ class MySqlDBConnector(DBConnector):
                 return False
         else:
             print("[insertData] Please connect to MySql before inserting data (self.conn = None)")
+            return False
 
 
 

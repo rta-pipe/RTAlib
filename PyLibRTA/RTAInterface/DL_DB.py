@@ -17,3 +17,26 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # ==========================================================================
+
+from PyLibRTA.DBConnectors import RedisDBConnector, MySqlDBConnector
+
+
+class DL_DB():
+    def __init__(self, database, configFilePath = ''):
+        self.dbConnector = None
+        if database == 'mysql':
+            self.dbConnector = MySqlDBConnector(configFilePath)
+        elif database == 'redis':
+            self.dbConnector = RedisDBConnector(configFilePath)
+        else:
+            print("[DL_DB] Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis'))
+
+        self.dbConnector.connect()
+
+
+
+    def insertEvent(self, **kwargs):
+        return self.dbConnector.insertData(kwargs)
+
+    def isConnectionAlive(self):
+        return self.dbConnector.testConnection()

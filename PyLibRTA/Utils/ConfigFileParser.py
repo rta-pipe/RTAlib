@@ -53,22 +53,26 @@ def parseRTALIBConfigFile(filepath=''):
 
     configs = {}
 
-    with open(filepath) as f:
-        content = f.readlines()
-        content = [x.strip() for x in content]
+    try:
+        with open(filepath) as f:
+            content = f.readlines()
+            content = [x.strip() for x in content]
 
-        sectionTempName = ''
-        sectionTempValue = ()
-        for line in content:
-            if line and (line.find('[') != -1) :
-                sectionTempName = parseSectionName(line)
-                configs[sectionTempName] = {}
-            elif line and (line.find('=') != -1) :
-                sectionValue = parseLine(line)
-                if sectionValue[1]:
-                    configs[sectionTempName][sectionValue[0]] = sectionValue[1]
-            #else:
-                #print('Empty line')
+            sectionTempName = ''
+            sectionTempValue = ()
+            for line in content:
+                if line and (line.find('[') != -1) :
+                    sectionTempName = parseSectionName(line)
+                    configs[sectionTempName] = {}
+                elif line and (line.find('=') != -1) :
+                    sectionValue = parseLine(line)
+                    if sectionValue[1]:
+                        configs[sectionTempName][sectionValue[0]] = sectionValue[1]
+                #else:
+                    #print('Empty line')
+    except FileNotFoundError:
+        print('[ParserError] File not found at {}'.format(filepath))
+        return False
 
     return configs
 

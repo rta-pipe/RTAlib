@@ -1,11 +1,14 @@
+[Configuration]
+batchsize=
+
 [MySql]
-server=
+host=
 username=
 password=
 dbname=
 
 [Redis]
-server=
+host=
 username=
 password=
 dbname=

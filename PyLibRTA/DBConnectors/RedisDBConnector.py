@@ -37,9 +37,9 @@ It uses HASH-SETs as data structure. Fot each data model (e.g. evt3astri) we hav
 class RedisDBConnector(DBConnector):
     def __init__(self, configFilePath=''):
         super().__init__(configFilePath)
-        self.url = self.configs['Redis']['host']
+        self.host     = self.configs['Redis']['host']
         self.password = self.configs['Redis']['password']
-        self.dbname = self.configs['Redis']['dbname']
+        self.dbname   = self.configs['Redis']['dbname']
         self.indexLists = []
 
 
@@ -68,7 +68,7 @@ class RedisDBConnector(DBConnector):
         True  -- if connection is established
         False -- otherwise
         """
-        self.conn = redis.Redis(host=self.url, port=6379, db=self.dbname, password=self.password)
+        self.conn = redis.Redis(host=self.host, port=6379, db=self.dbname, password=self.password)
         if self.testConnection():
             # TODO Download all the indexlists (we cache the indexlists)
             return True

@@ -1,10 +1,30 @@
+# ==========================================================================
+#
+# Copyright (C) 2018 INAF - OAS Bologna
+# Author: Leonardo Baroncelli <leonardo.baroncelli26@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# ==========================================================================
+
 import unittest
 import os
 from random import randint, uniform
 
-from PyLibRTA.Utils import parseRTALIBConfigFile
-from PyLibRTA.DBConnectors import RedisDBConnector, MySqlDBConnector
-from PyLibRTA.RTAInterface import DL_DB
+from PyLibRTA.Utils         import parseRTALIBConfigFile
+from PyLibRTA.DBConnectors  import RedisDBConnector, MySqlDBConnector
+from PyLibRTA.RTAInterface  import RTA_DL_DB
 
 class FileParser(unittest.TestCase):
 
@@ -80,16 +100,17 @@ class DLDBInterface(unittest.TestCase):
     os.environ['RTACONFIGFILE'] = './'
 
     def test_connection_mysql(self):
-        DLDB = DL_DB('mysql')
-        self.assertEqual(True, DLDB.isConnectionAlive())
+        RTADLDB = RTA_DL_DB('mysql')
+        self.assertEqual(True, RTADLDB.isConnectionAlive())
 
     def test_connection_redis(self):
-        DLDB = DL_DB('redis')
-        self.assertEqual(True, DLDB.isConnectionAlive())
+        RTADLDB = RTA_DL_DB('redis')
+        self.assertEqual(True, RTADLDB.isConnectionAlive())
 
     def test_insert_mysql(self):
-        DLDB = DL_DB('mysql')
-        res = DLDB.insertEvent(     evtid=randint(0, 9999999),
+        RTADLDB = RTA_DL_DB('mysql')
+        res = RTADLDB.insertEvent(  'evt',
+                                    evtid=randint(0, 9999999),
                                     eventidfits=randint(0, 9999999),
                                     observationid=randint(0, 9999999),
                                     datarepositoryid=randint(0, 9999999),
@@ -103,14 +124,15 @@ class DLDBInterface(unittest.TestCase):
                                     timerealtt=randint(0, 99999999),
                                     insert_time=randint(0, 99999999)
                                 )
-        self.assertEqual(True, DLDB.isConnectionAlive())
+        self.assertEqual(True, RTADLDB.isConnectionAlive())
 
 
 
 
     def test_insert_redis(self):
-        DLDB = DL_DB('redis')
-        res = DLDB.insertEvent(     evtid=randint(0, 9999999),
+        RTADLDB = RTA_DL_DB('redis')
+        res = RTADLDB.insertEvent(  'evt3-astri',
+                                    evtid=randint(0, 9999999),
                                     eventidfits=randint(0, 9999999),
                                     observationid=randint(0, 9999999),
                                     datarepositoryid=randint(0, 9999999),

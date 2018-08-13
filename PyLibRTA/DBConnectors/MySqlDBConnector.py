@@ -28,10 +28,10 @@ class MySqlDBConnector(DBConnector):
 
     def __init__(self, configFilePath=''):
         super().__init__(configFilePath);
-        self.host = self.configs['MySql']['host']
+        self.host     = self.configs['MySql']['host']
         self.username = self.configs['MySql']['username']
         self.password = self.configs['MySql']['password']
-        self.dbname = self.configs['MySql']['dbname']
+        self.dbname   = self.configs['MySql']['dbname']
 
 
     # https://dev.mysql.com/doc/connector-python/en/connector-python-connectargs.html

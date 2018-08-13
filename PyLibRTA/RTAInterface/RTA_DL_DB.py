@@ -21,7 +21,7 @@
 from PyLibRTA.DBConnectors import RedisDBConnector, MySqlDBConnector
 
 
-class DL_DB():
+class RTA_DL_DB():
     def __init__(self, database, configFilePath = ''):
         self.dbConnector = None
         if database == 'mysql':
@@ -29,14 +29,14 @@ class DL_DB():
         elif database == 'redis':
             self.dbConnector = RedisDBConnector(configFilePath)
         else:
-            print("[DL_DB] Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis'))
+            print("[RTA_DL_DB] Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis'))
 
         self.dbConnector.connect()
 
 
 
-    def insertEvent(self, **kwargs):
-        return self.dbConnector.insertData(kwargs)
+    def insertEvent(self, modelName, **kwargs):
+        return self.dbConnector.insertData(modelName, **kwargs)
 
     def isConnectionAlive(self):
         return self.dbConnector.testConnection()

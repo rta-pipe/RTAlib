@@ -35,8 +35,8 @@ class RTA_DL_DB():
 
 
 
-    def insertEvent(self, modelName, **kwargs):
-        return self.dbConnector.insertData(modelName, **kwargs)
+    def insertEvent(self, **kwargs):
+        return self.dbConnector.insertData('evt', **kwargs)
 
     def isConnectionAlive(self):
         return self.dbConnector.testConnection()

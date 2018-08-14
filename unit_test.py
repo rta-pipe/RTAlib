@@ -109,8 +109,7 @@ class DLDBInterface(unittest.TestCase):
 
     def test_insert_mysql(self):
         RTADLDB = RTA_DL_DB('mysql')
-        res = RTADLDB.insertEvent(  'evt',
-                                    evtid=randint(0, 9999999),
+        res = RTADLDB.insertEvent(  evtid=randint(0, 9999999),
                                     eventidfits=randint(0, 9999999),
                                     observationid=randint(0, 9999999),
                                     datarepositoryid=randint(0, 9999999),
@@ -119,7 +118,7 @@ class DLDBInterface(unittest.TestCase):
                                     energy=uniform(0, 0.5),
                                     detx=uniform(0, 0.1),
                                     dety=uniform(0, 0.1),
-                                	mcid=1,
+                                    mcid=1,
                                     status=0,
                                     timerealtt=randint(0, 99999999),
                                     insert_time=randint(0, 99999999)
@@ -131,8 +130,7 @@ class DLDBInterface(unittest.TestCase):
 
     def test_insert_redis(self):
         RTADLDB = RTA_DL_DB('redis')
-        res = RTADLDB.insertEvent(  'evt3-astri',
-                                    evtid=randint(0, 9999999),
+        res = RTADLDB.insertEvent(  evtid=randint(0, 9999999),
                                     eventidfits=randint(0, 9999999),
                                     observationid=randint(0, 9999999),
                                     datarepositoryid=randint(0, 9999999),

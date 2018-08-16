@@ -40,7 +40,7 @@ RTALIB config file format:
 
 import os
 
-def parseRTALIBConfigFile(filepath=''):
+def parseRTALIBConfigFile(filepath='', sectionName=''):
 
     if not filepath:
         if 'RTACONFIGFILE' in os.environ:
@@ -74,6 +74,9 @@ def parseRTALIBConfigFile(filepath=''):
         print('[ParserError] File not found at {}'.format(filepath))
         return False
 
+    if sectionName:
+        return configs[sectionName]
+        
     return configs
 
 

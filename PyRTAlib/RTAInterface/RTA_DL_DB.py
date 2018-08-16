@@ -18,11 +18,15 @@
 #
 # ==========================================================================
 
-from PyLibRTA.DBConnectors import RedisDBConnector, MySqlDBConnector
+from abc import ABC, abstractmethod
+from PyRTAlib.DBConnectors import RedisDBConnector, MySqlDBConnector
+from ..Utils import parseRTALIBConfigFile
 
 
-class RTA_DL_DB():
+class RTA_DL_DB(ABC):
+
     def __init__(self, database, configFilePath = ''):
+        super().__init__()
         self.dbConnector = None
         if database == 'mysql':
             self.dbConnector = MySqlDBConnector(configFilePath)
@@ -33,10 +37,23 @@ class RTA_DL_DB():
 
         self.dbConnector.connect()
 
+        self.configs = parseRTALIBConfigFile(configFilePath, 'General')
 
+    def __enter__(self):
+        return self
 
-    def insertEvent(self, **kwargs):
-        return self.dbConnector.insertData('evt', **kwargs)
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
 
     def isConnectionAlive(self):
         return self.dbConnector.testConnection()
+
+
+    @abstractmethod
+    def insertEvent(self, *args):
+        pass
+
+    
+    def close(self):
+        self.dbConnector.close()

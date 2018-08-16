@@ -32,6 +32,14 @@ class MySqlDBConnector(DBConnector):
         self.username = self.configs['MySql']['username']
         self.password = self.configs['MySql']['password']
         self.dbname   = self.configs['MySql']['dbname']
+        self.cursor = None
+
+
+    def close(self):
+        if self.conn and self.conn.is_connected() and self.conn.in_transaction:
+            print("[MySqlConnector] Commiting last transaction before exiting")
+            self.conn.commit()
+        self.disconnect()
 
 
     # https://dev.mysql.com/doc/connector-python/en/connector-python-connectargs.html
@@ -47,6 +55,7 @@ class MySqlDBConnector(DBConnector):
         """
         try:
             self.conn = mysql.connector.connect(user=self.username, password=self.password, host=self.host, database=self.dbname)
+            self.cursor = self.conn.cursor()
             print("Connected to MySql")
             return True
         except mysql.connector.Error as err:
@@ -66,38 +75,79 @@ class MySqlDBConnector(DBConnector):
         Return value:
         --
         """
-        print("MySql disconnection")
-        if self.conn != 0:
+        if self.conn and self.conn.is_connected():
+            print("[MySqlConnector] Disconnected")
+            self.cursor.close()
             self.conn.close()
-            self.conn = None
 
 
-    def insertData(self, tableName, **kwargs):
-        """Inserts the input dictionary data 'kwargs' into the table 'tableName'.
+
+    def insertData(self, tableName, *args):
+        """Inserts the input list data 'args' into the table 'tableName' within a transaction.
+        Before committing the transaction it waits until the number of commands sent is equal to
+        Config.General.batchsize.
+        If the batchsize is equal to 1, no explicit transaction is executed.
+        The 'is_connected' test is skipped here to decrease latency.
 
         Keyword arguments:
         tableName -- the name of the table in which the data is inserted to (required)
-        kwargs    -- the dictionary that holds the data in terms of column name - column value
+        args    -- the list holding the data in terms of columns values
 
         Return value:
         True  -- if the data is inserted correctly
         False -- otherwise
         """
         if self.conn:
-            insertQuery = "INSERT INTO "+tableName+self.buildQueryHeaderAndValuesFromDictionary(kwargs)
+            insertQuery = self.buildQueryFromList(tableName, *args)
             print("[MySqlConnector] Executing {}..".format(insertQuery))
+
+            if self.commandsSent == 0 and self.batchsize > 1:
+
+                print("[MySqlConnector] Starting transaction..")
+                try:
+                    self.conn.start_transaction(consistent_snapshot=True, isolation_level=None)
+
+                except mysql.connector.Error as err:
+                    print("[MySqlConnector] Err: {}".format(err))
+                    return False
+
             try:
-                cursor = self.conn.cursor()
-                cursor.execute(insertQuery)
+                self.cursor.execute(insertQuery)
+
+            except mysql.connector.Error as err:
+                print("[MySqlConnector] Error from database: {}".format(err))
+                return False
+
+
+            self.commandsSent += 1
+
+            if self.commandsSent >= self.batchsize or self.batchsize == 1:
+                try:
+                    print("[MySqlConnector] Committing transaction..")
+                    self.conn.commit()
+                    self.commandsSent = 0
+                    return True
+
+                except mysql.connector.Error as err:
+                    print("[MySqlConnector] Failed to commit transaction to database: {}".format(err))
+                    return False
+            else:
+                    return True
+        else:
+            print("[MySqlConnector] Error, self.conn is None")
+
+
+    def executeQuery(self, query):
+        if self.conn and not self.conn.in_transaction:
+            try:
+                self.cursor.close()
+                self.cursor = self.conn.cursor()
+                self.cursor.execute(query)
                 self.conn.commit()
-                cursor.close()
                 return True
             except mysql.connector.Error as err:
-                print(err)
+                print("[MySqlConnector] Failed to execute query {}. Error: {}".format(query, err))
                 return False
-        else:
-            print("[insertData] Please connect to MySql before inserting data (self.conn = None)")
-            return False
 
 
 
@@ -124,16 +174,17 @@ class MySqlDBConnector(DBConnector):
         dbcur.close()
         return False
 
-    def buildQueryHeaderAndValuesFromDictionary(self, dict):
-        """Using the key/value of the input dictionary, build the right part of
-        the INSERT query e.g. (column1, column2) VALUES(value1, value2)
+    def buildQueryFromDictionary(self, tableName, dict):
+        """Using the key/value of the input dictionary, builds the the INSERT query
+        INSERT INTO table_name(column1, column2) VALUES(value1, value2)
 
         Keyword arguments:
         dict -- the dictionary (required)
 
         Return value:
-        The right part of the INSERT query
+        The the INSERT query
         """
+        queryS = "INSERT INTO "+tableName
         queryH = '('
         queryV = 'VALUES ('
         for key, val in dict.items():
@@ -143,4 +194,23 @@ class MySqlDBConnector(DBConnector):
         queryV = queryV[:-1]
         queryH += ')'
         queryV += ')'
-        return queryH+' '+queryV
+        return queryS+queryH+' '+queryV
+
+    def buildQueryFromList(self, tableName, *args):
+        """Using the values of the input list, build the the INSERT query
+        INSERT INTO table_name VALUES(value1, value2)
+
+        Keyword arguments:
+        list -- the dictionary (required)
+
+        Return value:
+        The right part of the INSERT query
+        """
+
+        queryS = "INSERT INTO "+tableName+" "
+        queryV = 'VALUES ('
+        for val in args:
+            queryV += str(val)+','
+        queryV = queryV[:-1]
+        queryV += ')'
+        return queryS+queryV

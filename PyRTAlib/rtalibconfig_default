@@ -1,5 +1,6 @@
-[Configuration]
+[General]
 batchsize=
+evt3modelname=
 
 [MySql]
 host=

@@ -22,9 +22,9 @@ import unittest
 import os
 from random import randint, uniform
 
-from PyLibRTA.Utils         import parseRTALIBConfigFile
-from PyLibRTA.DBConnectors  import RedisDBConnector, MySqlDBConnector
-from PyLibRTA.RTAInterface  import RTA_DL_DB
+from PyRTAlib.Utils         import parseRTALIBConfigFile
+from PyRTAlib.DBConnectors  import RedisDBConnector, MySqlDBConnector
+from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
 
 class FileParser(unittest.TestCase):
 
@@ -55,30 +55,66 @@ class MySqlConnector(unittest.TestCase):
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.password = 'asdasd'
         self.assertEqual(False, mysqlConn.connect())
+        mysqlConn.close()
 
     def test_connect_wrong_username(self):
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.username = 'gioacchino'
         self.assertEqual(False, mysqlConn.connect())
+        mysqlConn.close()
 
     def test_connect_wrong_database(self):
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.dbname = 'evttttest'
         self.assertEqual(False, mysqlConn.connect())
-
-    def test_connect_success(self):
-        mysqlConn = MySqlDBConnector('./')
-        self.assertEqual(True, mysqlConn.connect())
+        mysqlConn.close()
 
     def test_insert_data_wrong_table(self):
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(False, mysqlConn.insertData('lest_fable',a=1,b=2,c=3))
+        self.assertEqual(False, mysqlConn.insertData('lest_fable',1,2,3))
+        mysqlConn.close()
 
-    def test_insert_data(self):
+    def test_insert_data_not_enough_data(self):
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.insertData('test_table',a=1,b=2,c=3))
+        self.assertEqual(False, mysqlConn.insertData('test_table',1,2))
+        mysqlConn.close()
+
+    def test_connect_success(self):
+        mysqlConn = MySqlDBConnector('./')
+        self.assertEqual(True, mysqlConn.connect())
+        mysqlConn.close()
+
+    def test_insert_data_normal_use(self):
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+        self.assertEqual(True, mysqlConn.insertData('test_table',5,6,7,8))
+        mysqlConn.close()
+
+    def test_transaction(self):
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+
+        mysqlConn.batchsize = 3
+        self.assertEqual(True,mysqlConn.executeQuery('delete from test_table'))
+
+        self.assertEqual(True, mysqlConn.insertData('test_table',1,2,3,4))
+        self.assertEqual(1, mysqlConn.conn.in_transaction)
+        self.assertEqual(1, mysqlConn.commandsSent)
+
+        self.assertEqual(True, mysqlConn.insertData('test_table',5,6,7,8))
+        self.assertEqual(1, mysqlConn.conn.in_transaction)
+        self.assertEqual(2, mysqlConn.commandsSent)
+
+        self.assertEqual(True, mysqlConn.insertData('test_table',9,10,11,12))
+        self.assertEqual(0, mysqlConn.conn.in_transaction)
+        self.assertEqual(0, mysqlConn.commandsSent)
+
+
+
+
+
 
 
 class RedisConnector(unittest.TestCase):
@@ -95,56 +131,63 @@ class RedisConnector(unittest.TestCase):
         self.assertEqual(True, redisConn.testConnection())
 
 
-class DLDBInterface(unittest.TestCase):
+
+class DL3ASTRIDBInterface(unittest.TestCase):
 
     os.environ['RTACONFIGFILE'] = './'
 
     def test_connection_mysql(self):
-        RTADLDB = RTA_DL_DB('mysql')
-        self.assertEqual(True, RTADLDB.isConnectionAlive())
-
-    def test_connection_redis(self):
-        RTADLDB = RTA_DL_DB('redis')
-        self.assertEqual(True, RTADLDB.isConnectionAlive())
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+        self.assertEqual(True, RTA_DL3ASTRI.isConnectionAlive())
+        RTA_DL3ASTRI.close()
 
     def test_insert_mysql(self):
-        RTADLDB = RTA_DL_DB('mysql')
-        res = RTADLDB.insertEvent(  evtid=randint(0, 9999999),
-                                    eventidfits=randint(0, 9999999),
-                                    observationid=randint(0, 9999999),
-                                    datarepositoryid=randint(0, 9999999),
-                                    ra_deg=uniform(-180,180),
-                                    dec_deg=uniform(-90, 90),
-                                    energy=uniform(0, 0.5),
-                                    detx=uniform(0, 0.1),
-                                    dety=uniform(0, 0.1),
-                                    mcid=1,
-                                    status=0,
-                                    timerealtt=randint(0, 99999999),
-                                    insert_time=randint(0, 99999999)
-                                )
-        self.assertEqual(True, RTADLDB.isConnectionAlive())
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+        res = RTA_DL3ASTRI.insertEvent( randint(0, 9999999), #evtid=randint(0, 9999999),
+                                        randint(0, 9999999), #eventidfits=randint(0, 9999999),
+                                        randint(0, 9999999), #observationid=randint(0, 9999999),
+                                        randint(0, 9999999), #datarepositoryid=randint(0, 9999999),
+                                        uniform(-180,180),   #ra_deg=uniform(-180,180),
+                                        uniform(-90, 90),    #dec_deg=uniform(-90, 90),
+                                        uniform(0, 0.5),     #energy=uniform(0, 0.5),
+                                        uniform(0, 0.1),     #detx=uniform(0, 0.1),
+                                        uniform(0, 0.1),     #dety=uniform(0, 0.1),
+                                    	1,                   #mcid=1,
+                                        0,                   #status=0,
+                                        randint(0, 99999999),#timerealtt=randint(0, 99999999),
+                                        randint(0, 99999999) #insert_time=randint(0, 99999999)
+                                      )
+        self.assertEqual(True, res)
+
+        RTA_DL3ASTRI.close()
+
+        # close() is called automagically :)
 
 
+    """
+    def test_connection_redis(self):
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('redis')
+        self.assertEqual(True, RTA_DL3ASTRI.isConnectionAlive())
 
 
     def test_insert_redis(self):
-        RTADLDB = RTA_DL_DB('redis')
-        res = RTADLDB.insertEvent(  evtid=randint(0, 9999999),
-                                    eventidfits=randint(0, 9999999),
-                                    observationid=randint(0, 9999999),
-                                    datarepositoryid=randint(0, 9999999),
-                                    ra_deg=uniform(-180,180),
-                                    dec_deg=uniform(-90, 90),
-                                    energy=uniform(0, 0.5),
-                                    detx=uniform(0, 0.1),
-                                    dety=uniform(0, 0.1),
-                                	mcid=1,
-                                    status=0,
-                                    timerealtt=randint(0, 99999999),
-                                    insert_time=randint(0, 99999999)
-                                )
-
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('redis')
+        res = RTA_DL3ASTRI.insertEvent( randint(0, 9999999),
+                                        randint(0, 9999999),
+                                        randint(0, 9999999),
+                                        randint(0, 9999999),
+                                        uniform(-180,180),
+                                        uniform(-90, 90),
+                                        uniform(0, 0.5),
+                                        uniform(0, 0.1),
+                                        uniform(0, 0.1),
+                                    	1,
+                                        0,
+                                        randint(0, 99999999),
+                                        randint(0, 99999999)
+                                    )
+        self.assertEqual(True, res)
+    """
 
 
 if __name__ == '__main__':

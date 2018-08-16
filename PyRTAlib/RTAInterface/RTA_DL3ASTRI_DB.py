@@ -18,40 +18,13 @@
 #
 # ==========================================================================
 
-from abc import ABC, abstractmethod
-from ..Utils import parseRTALIBConfigFile
-
-class DBConnector(ABC):
+from .RTA_DL_DB import RTA_DL_DB
 
 
-    def __init__(self, configFilePath=''):
-        super().__init__()
-        self.configs = parseRTALIBConfigFile(configFilePath)
-        self.conn = None;
+class RTA_DL3ASTRI_DB(RTA_DL_DB):
 
+    def __init__(self, database, configFilePath = ''):
+        super().__init__(database, configFilePath = '')
 
-    def printConnectionInfo(self):
-        """ For testing purpose.
-
-        """
-        print("host: {} \nusername: {} \npassword: {}\ndatabase: {}".format(self.host, self.username, self.password, self.dbname))
-        
-
-    def getConfigs(self):
-        return self.configs
-
-    @abstractmethod
-    def connect(self, db):
-        pass
-
-    @abstractmethod
-    def disconnect(self):
-        pass
-
-    @abstractmethod
-    def testConnection(self):
-        pass
-
-    @abstractmethod
-    def insertData(self, modelName, **kwargs):
-        pass
+    def insertEvent(self, *args):
+        return self.dbConnector.insertData(self.configs['evt3modelname'], *args)

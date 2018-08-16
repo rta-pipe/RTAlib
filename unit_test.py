@@ -161,7 +161,26 @@ class DL3ASTRIDBInterface(unittest.TestCase):
 
         RTA_DL3ASTRI.close()
 
-        # close() is called automagically :)
+
+
+        def test_insert_mysql_package_version(self):
+            with RTA_DL3ASTRI_DB('mysql') as RTA_DL3ASTRI:
+                res = RTA_DL3ASTRI.insertEvent( randint(0, 9999999), #evtid=randint(0, 9999999),
+                                                randint(0, 9999999), #eventidfits=randint(0, 9999999),
+                                                randint(0, 9999999), #observationid=randint(0, 9999999),
+                                                randint(0, 9999999), #datarepositoryid=randint(0, 9999999),
+                                                uniform(-180,180),   #ra_deg=uniform(-180,180),
+                                                uniform(-90, 90),    #dec_deg=uniform(-90, 90),
+                                                uniform(0, 0.5),     #energy=uniform(0, 0.5),
+                                                uniform(0, 0.1),     #detx=uniform(0, 0.1),
+                                                uniform(0, 0.1),     #dety=uniform(0, 0.1),
+                                            	1,                   #mcid=1,
+                                                0,                   #status=0,
+                                                randint(0, 99999999),#timerealtt=randint(0, 99999999),
+                                                randint(0, 99999999) #insert_time=randint(0, 99999999)
+                                              )
+                self.assertEqual(True, res)
+                # close() is called automagically :)
 
 
     """

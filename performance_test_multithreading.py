@@ -52,13 +52,13 @@ def threadInsertData(threadid, batchsize, dataSafeIndex, obsIdSafeIndex):
     rta_dl3astri = RTA_DL3ASTRI_DB('mysql')
     rta_dl3astri.dbConnector.batchsize = batchsize
 
-    start_perf = time.perf_counter()
     obsId = obsIdSafeIndex.getSafeIndex()
 
     numberOfEventsToInsert = int(int(numberOfEvents)/int(numberOfThreads))
 
     #print("Thread {}. I am going to insert {} events".format(threadid, numberOfEventsToInsert))
 
+    start_perf = time.perf_counter()
     for i in range(numberOfEventsToInsert):
         index = dataSafeIndex.getSafeIndex()
         rta_dl3astri.insertEvent(  evt3data[index][0],
@@ -73,6 +73,8 @@ def threadInsertData(threadid, batchsize, dataSafeIndex, obsIdSafeIndex):
                                  )
     rta_dl3astri.close()
     end_perf = time.perf_counter()
+
+
     executionTime = end_perf - start_perf
     eventSec = numberOfEventsToInsert/executionTime
 

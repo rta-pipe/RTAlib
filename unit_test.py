@@ -24,6 +24,7 @@ from random import randint, uniform
 
 from PyRTAlib.Utils         import parseRTALIBConfigFile
 from PyRTAlib.DBConnectors  import RedisDBConnector, MySqlDBConnector
+from PyRTAlib.DataModels    import EVT3_ASTRI
 from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
 
 class FileParser(unittest.TestCase):
@@ -131,8 +132,21 @@ class RedisConnector(unittest.TestCase):
         self.assertEqual(True, redisConn.testConnection())
 
 
+class EVT3ASTRI_datamodel(unittest.TestCase):
 
-class DL3ASTRIDBInterface(unittest.TestCase):
+    def test_get_query(self):
+        evt3 = EVT3_ASTRI(1,2,3,4,5,6,7,8,9,10,11,12,13)
+        query = 'INSERT INTO test_evt3(evtid, eventidfits, observationid, datarepositoryid, ra_deg, dec_deg, energy, detx, dety, mcid, status, timerealtt, insert_time) VALUES(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)'
+        evt3query = evt3.getInsertQuery('test_evt3')
+        self.assertEqual(len(query), len(evt3query))
+        queryHalf = int(len(query)/2)
+        self.assertEqual(query[:queryHalf], evt3query[:queryHalf])
+        self.assertEqual(query[queryHalf:], evt3query[queryHalf:])
+
+
+
+
+class DL3ASTRIDB_interface(unittest.TestCase):
 
     os.environ['RTACONFIGFILE'] = './'
 
@@ -141,9 +155,11 @@ class DL3ASTRIDBInterface(unittest.TestCase):
         self.assertEqual(True, RTA_DL3ASTRI.isConnectionAlive())
         RTA_DL3ASTRI.close()
 
-    def test_insert_mysql(self):
+
+    def test_insert_1_mysql(self):
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
-        res = RTA_DL3ASTRI.insertEvent( randint(0, 9999999), #evtid=randint(0, 9999999),
+        RTA_DL3ASTRI.dbConnector.batchsize = 1
+        res = RTA_DL3ASTRI.insertEvent_1( randint(0, 9999999), #evtid=randint(0, 9999999),
                                         randint(0, 9999999), #eventidfits=randint(0, 9999999),
                                         randint(0, 9999999), #observationid=randint(0, 9999999),
                                         randint(0, 9999999), #datarepositoryid=randint(0, 9999999),
@@ -161,26 +177,68 @@ class DL3ASTRIDBInterface(unittest.TestCase):
 
         RTA_DL3ASTRI.close()
 
+    def test_insert_mysql(self):
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+        RTA_DL3ASTRI.dbConnector.batchsize = 1
+        res = RTA_DL3ASTRI.insertEvent( randint(0, 9999999), #evtid=randint(0, 9999999),
+                                        randint(0, 9999999), #eventidfits=randint(0, 9999999),
+                                        randint(0, 9999999), #observationid=randint(0, 9999999),
+                                        randint(0, 9999999), #datarepositoryid=randint(0, 9999999),
+                                        uniform(-180,180),   #ra_deg=uniform(-180,180),
+                                        uniform(-90, 90),    #dec_deg=uniform(-90, 90),
+                                        uniform(0, 0.5),     #energy=uniform(0, 0.5),
+                                        uniform(0, 0.1),     #detx=uniform(0, 0.1),
+                                        uniform(0, 0.1),     #dety=uniform(0, 0.1),
+                                    	2,                   #mcid=1,
+                                        0,                   #status=0,
+                                        randint(0, 99999999),#timerealtt=randint(0, 99999999),
+                                        randint(0, 99999999) #insert_time=randint(0, 99999999)
+                                      )
+        self.assertEqual(True, res)
+
+        RTA_DL3ASTRI.close()
+
+    def test_insert_3_mysql(self):
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+        RTA_DL3ASTRI.dbConnector.batchsize = 1
+        res = RTA_DL3ASTRI.insertEvent_3(   evtid=randint(0, 9999999),
+                                            eventidfits=randint(0, 9999999),
+                                            observationid=randint(0, 9999999),
+                                            datarepositoryid=randint(0, 9999999),
+                                            ra_deg=uniform(-180,180),
+                                            dec_deg=uniform(-90, 90),
+                                            energy=uniform(0, 0.5),
+                                            detx=uniform(0, 0.1),
+                                            dety=uniform(0, 0.1),
+                                        	mcid=3,
+                                            status=0,
+                                            timerealtt=randint(0, 99999999),
+                                            insert_time=randint(0, 99999999)
+                                      )
+        self.assertEqual(True, res)
+
+        RTA_DL3ASTRI.close()
 
 
-        def test_insert_mysql_package_version(self):
-            with RTA_DL3ASTRI_DB('mysql') as RTA_DL3ASTRI:
-                res = RTA_DL3ASTRI.insertEvent( randint(0, 9999999), #evtid=randint(0, 9999999),
-                                                randint(0, 9999999), #eventidfits=randint(0, 9999999),
-                                                randint(0, 9999999), #observationid=randint(0, 9999999),
-                                                randint(0, 9999999), #datarepositoryid=randint(0, 9999999),
-                                                uniform(-180,180),   #ra_deg=uniform(-180,180),
-                                                uniform(-90, 90),    #dec_deg=uniform(-90, 90),
-                                                uniform(0, 0.5),     #energy=uniform(0, 0.5),
-                                                uniform(0, 0.1),     #detx=uniform(0, 0.1),
-                                                uniform(0, 0.1),     #dety=uniform(0, 0.1),
-                                            	1,                   #mcid=1,
-                                                0,                   #status=0,
-                                                randint(0, 99999999),#timerealtt=randint(0, 99999999),
-                                                randint(0, 99999999) #insert_time=randint(0, 99999999)
-                                              )
-                self.assertEqual(True, res)
-                # close() is called automagically :)
+
+    def test_insert_mysql_package_version(self):
+        with RTA_DL3ASTRI_DB('mysql') as RTA_DL3ASTRI:
+            res = RTA_DL3ASTRI.insertEvent( randint(0, 9999999), #evtid=randint(0, 9999999),
+                                            randint(0, 9999999), #eventidfits=randint(0, 9999999),
+                                            randint(0, 9999999), #observationid=randint(0, 9999999),
+                                            randint(0, 9999999), #datarepositoryid=randint(0, 9999999),
+                                            uniform(-180,180),   #ra_deg=uniform(-180,180),
+                                            uniform(-90, 90),    #dec_deg=uniform(-90, 90),
+                                            uniform(0, 0.5),     #energy=uniform(0, 0.5),
+                                            uniform(0, 0.1),     #detx=uniform(0, 0.1),
+                                            uniform(0, 0.1),     #dety=uniform(0, 0.1),
+                                        	4,                   #mcid=1,
+                                            0,                   #status=0,
+                                            randint(0, 99999999),#timerealtt=randint(0, 99999999),
+                                            randint(0, 99999999) #insert_time=randint(0, 99999999)
+                                          )
+            self.assertEqual(True, res)
+            # close() is called automagically :)
 
 
     """

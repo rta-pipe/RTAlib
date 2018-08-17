@@ -19,7 +19,7 @@
 # ==========================================================================
 
 from abc import ABC, abstractmethod
-from PyRTAlib.DBConnectors import RedisDBConnector, MySqlDBConnector
+from ..DBConnectors import RedisDBConnector, MySqlDBConnector
 from ..Utils import parseRTALIBConfigFile
 
 
@@ -39,12 +39,12 @@ class RTA_DL_DB(ABC):
 
         self.configs = parseRTALIBConfigFile(configFilePath, 'General')
 
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
-
 
     def isConnectionAlive(self):
         return self.dbConnector.testConnection()
@@ -54,6 +54,6 @@ class RTA_DL_DB(ABC):
     def insertEvent(self, *args):
         pass
 
-    
+
     def close(self):
         self.dbConnector.close()

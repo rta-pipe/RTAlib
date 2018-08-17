@@ -81,6 +81,48 @@ class MySqlDBConnector(DBConnector):
             self.conn.close()
 
 
+    def insertData(self):
+        pass
+
+    def insertData_1(self, query):
+
+        if self.conn:
+            print("[MySqlConnector] Executing {}..".format(query))
+
+            if self.commandsSent == 0 and self.batchsize > 1:
+
+                print("[MySqlConnector] Starting transaction..")
+                try:
+                    self.conn.start_transaction(consistent_snapshot=True, isolation_level=None)
+
+                except mysql.connector.Error as err:
+                    print("[MySqlConnector] Err: {}".format(err))
+                    return False
+
+            try:
+                self.cursor.execute(query)
+
+            except mysql.connector.Error as err:
+                print("[MySqlConnector] Error from database: {}".format(err))
+                return False
+
+
+            self.commandsSent += 1
+
+            if self.commandsSent >= self.batchsize or self.batchsize == 1:
+                try:
+                    print("[MySqlConnector] Committing transaction..")
+                    self.conn.commit()
+                    self.commandsSent = 0
+                    return True
+
+                except mysql.connector.Error as err:
+                    print("[MySqlConnector] Failed to commit transaction to database: {}".format(err))
+                    return False
+            else:
+                    return True
+        else:
+            print("[MySqlConnector] Error, self.conn is None")
 
     def insertData(self, tableName, *args):
         """Inserts the input list data 'args' into the table 'tableName' within a transaction.
@@ -99,6 +141,48 @@ class MySqlDBConnector(DBConnector):
         """
         if self.conn:
             insertQuery = self.buildQueryFromList(tableName, *args)
+            print("[MySqlConnector] Executing {}..".format(insertQuery))
+
+            if self.commandsSent == 0 and self.batchsize > 1:
+
+                print("[MySqlConnector] Starting transaction..")
+                try:
+                    self.conn.start_transaction(consistent_snapshot=True, isolation_level=None)
+
+                except mysql.connector.Error as err:
+                    print("[MySqlConnector] Err: {}".format(err))
+                    return False
+
+            try:
+                self.cursor.execute(insertQuery)
+
+            except mysql.connector.Error as err:
+                print("[MySqlConnector] Error from database: {}".format(err))
+                return False
+
+
+            self.commandsSent += 1
+
+            if self.commandsSent >= self.batchsize or self.batchsize == 1:
+                try:
+                    print("[MySqlConnector] Committing transaction..")
+                    self.conn.commit()
+                    self.commandsSent = 0
+                    return True
+
+                except mysql.connector.Error as err:
+                    print("[MySqlConnector] Failed to commit transaction to database: {}".format(err))
+                    return False
+            else:
+                    return True
+        else:
+            print("[MySqlConnector] Error, self.conn is None")
+
+
+    def insertData_3(self, tableName, **kwargs):
+
+        if self.conn:
+            insertQuery = self.buildQueryFromDictionary(tableName, **kwargs)
             print("[MySqlConnector] Executing {}..".format(insertQuery))
 
             if self.commandsSent == 0 and self.batchsize > 1:
@@ -174,12 +258,12 @@ class MySqlDBConnector(DBConnector):
         dbcur.close()
         return False
 
-    def buildQueryFromDictionary(self, tableName, dict):
+    def buildQueryFromDictionary(self, tableName, **kwargs):
         """Using the key/value of the input dictionary, builds the the INSERT query
         INSERT INTO table_name(column1, column2) VALUES(value1, value2)
 
         Keyword arguments:
-        dict -- the dictionary (required)
+        kwargs -- the dictionary (required)
 
         Return value:
         The the INSERT query
@@ -187,7 +271,7 @@ class MySqlDBConnector(DBConnector):
         queryS = "INSERT INTO "+tableName
         queryH = '('
         queryV = 'VALUES ('
-        for key, val in dict.items():
+        for key, val in kwargs.items():
             queryH += str(key)+','
             queryV += str(val)+','
         queryH = queryH[:-1]

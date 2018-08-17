@@ -2,17 +2,17 @@
 __pycache__
 rtalibconfig
 activate_virtual_env.sh
-PyLibRTA/*.pyc
-PyLibRTA/__pycache__
-PyLibRTA/*-info
-PyLibRTA/DataModels/*.pyc
-PyLibRTA/DataModels/__pycache__
-PyLibRTA/DBConnectors/*.pyc
-PyLibRTA/DBConnectors/__pycache__
-PyLibRTA/RTAInterface/*.pyc
-PyLibRTA/RTAInterface/__pycache__
-PyLibRTA/Utils/*.pyc
-PyLibRTA/Utils/__pycache__
+PyRTAlib/*.pyc
+PyRTAlib/__pycache__
+PyRTAlib/*-info
+PyRTAlib/DataModels/*.pyc
+PyRTAlib/DataModels/__pycache__
+PyRTAlib/DBConnectors/*.pyc
+PyRTAlib/DBConnectors/__pycache__
+PyRTAlib/RTAInterface/*.pyc
+PyRTAlib/RTAInterface/__pycache__
+PyRTAlib/Utils/*.pyc
+PyRTAlib/Utils/__pycache__
 
 
 

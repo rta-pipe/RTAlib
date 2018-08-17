@@ -1,7 +1,6 @@
 # ==========================================================================
 #
-# Copyright (C) 2018 INAF - OAS Bologna
-# Author: Leonardo Baroncelli <leonardo.baroncelli26@gmail.com>
+# Copyright (C) 2018 Leonardo  Baroncelli
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +17,25 @@
 #
 # ==========================================================================
 
-class EVT3-CTA():
-    def __init__():
-        pass
+from astropy.io import fits
+#from operator import itemgetter
+
+def read_data_from_fits(fits_file_path):
+
+    # Read the fit file
+    hdulist = fits.open(fits_file_path)
+    hdulist.info()
+    tbdata = hdulist[1].data
+    print("no of elements: " +  str(len(tbdata)))
+    return tbdata
+    """
+    time = str(float(event[1])-timestart)
+    eventidfits = str(event[0])
+    timestart = float(event[1])
+    ra = str(event[2])
+    dec = str(event[3])
+    energy = str(event[4])
+    detx = str(event[5])
+    dety = str(event[6])
+    mc_id = str(event[7])
+    """

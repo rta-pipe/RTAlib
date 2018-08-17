@@ -35,12 +35,16 @@ from PyRTAlib.Utils         import read_data_from_fits
 def test(batchsize):
 
     eventSecList = []
+    executionTimeList = []
 
-    for jj in range(10):
+    for jj in range(5):
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
         RTA_DL3ASTRI.dbConnector.batchsize = batchsize
 
         start_perf = time.perf_counter()
+
+        obsId = getUniqueObservationId()
+
         for i in range(int(numberOfEvents)):
             RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
                                        evt3data[i][1],
@@ -50,24 +54,34 @@ def test(batchsize):
                                        evt3data[i][5],
                                        evt3data[i][6],
                                        evt3data[i][7],
-                                       getUniqueObservationId()
+                                       obsId
                                      )
         RTA_DL3ASTRI.close()
         end_perf = time.perf_counter()
         executionTime = end_perf - start_perf
         eventSec = int(numberOfEvents)/executionTime
         eventSecList.append(eventSec)
+        executionTimeList.append(executionTime)
 
-    avg = statistics.mean(eventSecList)
-    stddev = statistics.stdev(eventSecList)
+
     Perf = collections.namedtuple('res', ['avg', 'stddev'])
-    p = Perf(avg, stddev)
+
+    avgES = statistics.mean(eventSecList)
+    stddevES = statistics.stdev(eventSecList)
+    ES = Perf(avgES, stddevES)
+
+    avgET = statistics.mean(executionTimeList)
+    stddevET = statistics.stdev(executionTimeList)
+    ET = Perf(avgET, stddevET)
 
     print("Number of events: {}".format(numberOfEvents))
     print("Batch size: {}".format(batchsize))
-    print("Events/Sec: {} +- {}".format(p.avg, p.stddev))
+    print("Execution Time: {} +-  {}".format(ET.avg, ET.stddev))
+    print("Events/Sec: {} +- {}".format(ES.avg, ES.stddev))
     print("\n\n")
-    return p
+    return ES
+
+
 
 
 def getUniqueObservationId():
@@ -122,6 +136,13 @@ if __name__ == '__main__':
     y.append(p[0])
     erry.append(p[1])
 
+
+    # TEST - BATCHSIZE = 2
+    p = test(2)
+    x.append(2)
+    y.append(p[0])
+    erry.append(p[1])
+
     # TEST - BATCHSIZE = 50
     p = test(50)
     x.append(50)
@@ -155,12 +176,12 @@ if __name__ == '__main__':
     y.append(p[0])
     erry.append(p[1])
 
-    # TEST - BATCHSIZE = 1600
-    p = test(1600)
-    x.append(1600)
+    # TEST - BATCHSIZE = 1000
+    p = test(1000)
+    x.append(1000)
     y.append(p[0])
     erry.append(p[1])
-    
+
 
     # Two subplots, the axes array is 1-d
     f, ax = plt.subplots(1)
@@ -169,5 +190,8 @@ if __name__ == '__main__':
     ax.grid()
     ax.set_title('Event/Sec')
     ax.errorbar(x, y, yerr=erry)
+
+    plt.xlabel('Batch size')
+    plt.xlabel('Event/Sec')
 
     plt.show()

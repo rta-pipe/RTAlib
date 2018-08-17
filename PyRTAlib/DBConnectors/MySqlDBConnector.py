@@ -55,8 +55,8 @@ class MySqlDBConnector(DBConnector):
         False -- otherwise
         """
         try:
-            self.conn = mysql.connector.connect(user=self.username, password=self.password, host=self.host, database=self.dbname)
-            self.cursor = self.conn.cursor()
+            self.conn = mysql.connector.connect(user=self.username, password=self.password, host=self.host, database=self.dbname, use_pure=False)
+            self.cursor = self.conn.cursor(raw=True)
             if self.debug:
                 print("Connected to MySql")
             return True
@@ -84,8 +84,7 @@ class MySqlDBConnector(DBConnector):
             self.conn.close()
 
 
-    def insertData(self):
-        pass
+    
 
     def insertData(self, query):
         """Execute the input query within a transaction.
@@ -228,7 +227,7 @@ class MySqlDBConnector(DBConnector):
         if self.conn and not self.conn.in_transaction:
             try:
                 self.cursor.close()
-                self.cursor = self.conn.cursor()
+                self.cursor = self.conn.cursor(raw=True)
                 self.cursor.execute(query)
                 self.conn.commit()
                 return True
@@ -249,7 +248,7 @@ class MySqlDBConnector(DBConnector):
         False -- otherwise
         """
 
-        dbcur = self.conn.cursor()
+        dbcur = self.conn.cursor(raw=True)
         dbcur.execute("""
         SELECT COUNT(*)
         FROM information_schema.tables

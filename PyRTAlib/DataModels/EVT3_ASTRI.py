@@ -51,7 +51,7 @@ class EVT3_ASTRI():
                             +str(self.dety)+', '              \
                             +str(self.mcid)+', '              \
                             +str(self.timerealtt)+', '        \
-                            +str(self.insert_time)+', '        \
+                            +str(self.insert_time)+', '       \
                             +str(self.observationid)+', '     \
                             +str(self.datarepositoryid)+', '  \
                             +str(self.status)+')'

@@ -76,12 +76,7 @@ def threadInsertData(threadid, batchsize, dataSafeIndex, obsIdSafeIndex):
     executionTime = end_perf - start_perf
     eventSec = numberOfEventsToInsert/executionTime
 
-    Perf = collections.namedtuple('res', ['avg', 'stddev'])
-
-    ES = Perf(eventSec, 0)
-    ET = Perf(executionTime, 0)
-
-    print("Thread {}.\n  Inserted {} events.\n  Execution time: {}.\n  Event/Sec: {}.\n\n".format(threadid, numberOfEventsToInsert,numberOfEventsToInsert,ET.avg,ES.avg))
+    print("Thread {}.\n  Inserted {} events.\n  Execution time: {}.\n  Event/Sec: {}.".format(threadid, numberOfEventsToInsert, executionTime, eventSec))
 
 
 
@@ -141,14 +136,18 @@ if __name__ == '__main__':
     print("\n")
 
     # TEST - BATCHSIZE = 50
-    print("\nTEST - Batch size: 1")
+    print("\n\nTEST - Batch size: 1")
     p = test_multithread(1, dataSafeIndex, obsIdSafeIndex)
 
     # TEST - BATCHSIZE = 50
-    print("\nTEST - Batch size: 50")
+    print("\n\nTEST - Batch size: 50")
     p = test_multithread(50, dataSafeIndex, obsIdSafeIndex)
 
 
     # TEST - BATCHSIZE = 200
-    print("\nTEST - Batch size: 200")
+    print("\n\nTEST - Batch size: 200")
     p = test_multithread(200, dataSafeIndex, obsIdSafeIndex)
+
+    # TEST - BATCHSIZE = 500
+    print("\n\nTEST - Batch size: 500")
+    p = test_multithread(500, dataSafeIndex, obsIdSafeIndex)

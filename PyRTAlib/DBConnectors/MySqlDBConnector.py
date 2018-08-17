@@ -37,7 +37,8 @@ class MySqlDBConnector(DBConnector):
 
     def close(self):
         if self.conn and self.conn.is_connected() and self.conn.in_transaction:
-            print("[MySqlConnector] Commiting last transaction before exiting")
+            if self.debug:
+                print("[MySqlConnector] Commiting last transaction before exiting")
             self.conn.commit()
         self.disconnect()
 
@@ -56,7 +57,8 @@ class MySqlDBConnector(DBConnector):
         try:
             self.conn = mysql.connector.connect(user=self.username, password=self.password, host=self.host, database=self.dbname)
             self.cursor = self.conn.cursor()
-            print("Connected to MySql")
+            if self.debug:
+                print("Connected to MySql")
             return True
         except mysql.connector.Error as err:
             print(err)
@@ -76,7 +78,8 @@ class MySqlDBConnector(DBConnector):
         --
         """
         if self.conn and self.conn.is_connected():
-            print("[MySqlConnector] Disconnected")
+            if self.debug:
+                print("[MySqlConnector] Disconnected")
             self.cursor.close()
             self.conn.close()
 
@@ -84,14 +87,26 @@ class MySqlDBConnector(DBConnector):
     def insertData(self):
         pass
 
-    def insertData_1(self, query):
+    def insertData(self, query):
+        """Execute the input query within a transaction.
+        Before committing the transaction it waits until the number of commands sent is equal to
+        Config.General.batchsize.
+        If the batchsize is equal to 1, no explicit transaction is executed.
+        The 'is_connected' test is skipped here to decrease latency.
 
+        Keyword arguments:
+        query -- the input query (required)
+
+        Return value:
+        True  -- if no error occurs
+        False -- otherwise
+        """
         if self.conn:
-            print("[MySqlConnector] Executing {}..".format(query))
+            # print("[MySqlConnector] Executing {}..".format(query))
 
             if self.commandsSent == 0 and self.batchsize > 1:
 
-                print("[MySqlConnector] Starting transaction..")
+                #print("[MySqlConnector] Starting transaction..")
                 try:
                     self.conn.start_transaction(consistent_snapshot=True, isolation_level=None)
 
@@ -111,7 +126,7 @@ class MySqlDBConnector(DBConnector):
 
             if self.commandsSent >= self.batchsize or self.batchsize == 1:
                 try:
-                    print("[MySqlConnector] Committing transaction..")
+                    # print("[MySqlConnector] Committing transaction..")
                     self.conn.commit()
                     self.commandsSent = 0
                     return True
@@ -124,21 +139,9 @@ class MySqlDBConnector(DBConnector):
         else:
             print("[MySqlConnector] Error, self.conn is None")
 
+    """
     def insertData(self, tableName, *args):
-        """Inserts the input list data 'args' into the table 'tableName' within a transaction.
-        Before committing the transaction it waits until the number of commands sent is equal to
-        Config.General.batchsize.
-        If the batchsize is equal to 1, no explicit transaction is executed.
-        The 'is_connected' test is skipped here to decrease latency.
 
-        Keyword arguments:
-        tableName -- the name of the table in which the data is inserted to (required)
-        args    -- the list holding the data in terms of columns values
-
-        Return value:
-        True  -- if the data is inserted correctly
-        False -- otherwise
-        """
         if self.conn:
             insertQuery = self.buildQueryFromList(tableName, *args)
             print("[MySqlConnector] Executing {}..".format(insertQuery))
@@ -219,7 +222,7 @@ class MySqlDBConnector(DBConnector):
                     return True
         else:
             print("[MySqlConnector] Error, self.conn is None")
-
+    """
 
     def executeQuery(self, query):
         if self.conn and not self.conn.in_transaction:

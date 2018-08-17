@@ -17,38 +17,42 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # ==========================================================================
+import time
+from ..Utils import time_mjd_to_tt
+
 
 class EVT3_ASTRI():
-    def __init__(self, evtid, eventidfits, observationid, datarepositoryid, ra_deg, dec_deg, energy, detx, dety, mcid, status, timerealtt, insert_time):
-        self.evtid = evtid
+    def __init__(self, eventidfits, timemjd, ra_deg, dec_deg, energy, detx, dety, mcid, mjdref, observationid, datarepositoryid, status):
         self.eventidfits = eventidfits
-        self.observationid = observationid
-        self.datarepositoryid = datarepositoryid
         self.ra_deg = ra_deg
         self.dec_deg = dec_deg
         self.energy = energy
         self.detx = detx
         self.dety = dety
         self.mcid = mcid
+
+        self.timerealtt = time_mjd_to_tt(mjdref) + float(timemjd)
+        self.insert_time = time.time()
+
+        self.observationid = observationid
+        self.datarepositoryid = datarepositoryid
         self.status = status
-        self.timerealtt = timerealtt
-        self.insert_time = insert_time
+
         pass
 
     def getInsertQuery(self, table):
         query = 'INSERT INTO '+table
-        queryK = '(evtid, eventidfits, observationid, datarepositoryid, ra_deg, dec_deg, energy, detx, dety, mcid, status, timerealtt, insert_time) '
-        queryV = 'VALUES('  +str(self.evtid)+', '             \
-                            +str(self.eventidfits)+', '       \
-                            +str(self.observationid)+', '     \
-                            +str(self.datarepositoryid)+', '  \
+        queryK = '(eventidfits, ra_deg, dec_deg, energy, detx, dety, mcid, timerealtt, insert_time, observationid, datarepositoryid, status) '
+        queryV = 'VALUES('  +str(self.eventidfits)+', '       \
                             +str(self.ra_deg)+', '            \
                             +str(self.dec_deg)+', '           \
                             +str(self.energy)+', '            \
                             +str(self.detx)+', '              \
                             +str(self.dety)+', '              \
                             +str(self.mcid)+', '              \
-                            +str(self.status)+', '            \
                             +str(self.timerealtt)+', '        \
-                            +str(self.insert_time)+')'
+                            +str(self.insert_time)+', '        \
+                            +str(self.observationid)+', '     \
+                            +str(self.datarepositoryid)+', '  \
+                            +str(self.status)+')'
         return query+queryK+queryV

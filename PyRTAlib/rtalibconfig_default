@@ -1,6 +1,8 @@
 [General]
 batchsize=
 evt3modelname=
+mjdref=
+debug=
 
 [MySql]
 host=

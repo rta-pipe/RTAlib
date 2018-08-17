@@ -25,6 +25,7 @@ def read_data_from_fits(fits_file_path):
     # Read the fit file
     hdulist = fits.open(fits_file_path)
     hdulist.info()
+    print(hdulist[1].columns)
     tbdata = hdulist[1].data
     print("no of elements: " +  str(len(tbdata)))
     return tbdata
@@ -39,3 +40,9 @@ def read_data_from_fits(fits_file_path):
     dety = str(event[6])
     mc_id = str(event[7])
     """
+
+def time_mjd_to_tt(mjd):
+    return (float(mjd) - 53005.0) * 86400.0
+
+def time_tt_to_mjd(tt):
+    return (float(tt) / 86400.0) + 53005.0

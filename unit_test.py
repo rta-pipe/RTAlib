@@ -93,9 +93,13 @@ class MySqlConnector(unittest.TestCase):
         self.assertEqual(True, mysqlConn.insertData('INSERT INTO test_table VALUES(1,2,3,4)'))
         mysqlConn.close()
 
-    ##############################
-    # TODO table doesnt exist
-    ##############################
+
+    def test_print_statistics(self):
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+        statistics = mysqlConn.conn.cmd_statistics()
+        print(statistics)
+        self.assertEqual(True, len(statistics)>2)
 
     def test_batch(self):
         mysqlConn = MySqlDBConnector('./')
@@ -144,9 +148,29 @@ class MySqlConnector(unittest.TestCase):
 
         mysqlConn.close()
 
+    def test_batch_connection_close_before_finish(self):
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+
+        mysqlConn.batchsize = 2
+        self.assertEqual(True,mysqlConn.executeQuery('delete from test_table'))
+
+        self.assertEqual(True, mysqlConn.insertData('INSERT INTO test_table VALUES(1,2,3,4)'))
+        self.assertEqual(1, mysqlConn.conn.in_transaction)
+        self.assertEqual(1, mysqlConn.commandsSent)
+
+        mysqlConn.close()
+
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM test_table'))
+        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
+        self.assertEqual(1, numberOfRows)
+
+        mysqlConn.close()
 
 
-    
 
 
 

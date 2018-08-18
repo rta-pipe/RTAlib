@@ -144,7 +144,7 @@ if __name__ == '__main__':
     print("\n")
 
     # TEST - BATCHSIZE = 50
-    print("\n\nTEST - Batch size: 1")
+    print("\n\nTEST - Batch size: 1 (Streaming)")
     p = test_multithread(1, dataSafeIndex, obsIdSafeIndex)
 
     # TEST - BATCHSIZE = 50

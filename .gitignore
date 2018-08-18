@@ -13,7 +13,7 @@ PyRTAlib/RTAInterface/*.pyc
 PyRTAlib/RTAInterface/__pycache__
 PyRTAlib/Utils/*.pyc
 PyRTAlib/Utils/__pycache__
-
+unit_test2.py
 
 
 sites

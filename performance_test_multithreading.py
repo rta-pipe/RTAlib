@@ -78,12 +78,13 @@ def threadInsertData(threadid, batchsize, dataSafeIndex, obsIdSafeIndex):
     executionTime = end_perf - start_perf
     eventSec = numberOfEventsToInsert/executionTime
 
-    print("Thread {}.\n  Inserted {} events.\n  Execution time: {}.\n  Event/Sec: {}.".format(threadid, numberOfEventsToInsert, executionTime, eventSec))
+    print("Thread {}.\n  Execution time: {}.\n  Event/Sec: {}.".format(threadid, executionTime, eventSec))
 
 
 
 def test_multithread(batchsize, dataSafeIndex, obsIdSafeIndex):
 
+    start_perf = time.perf_counter()
     for jj in range(int(numberOfThreads)):
 
         t = threading.Thread(target=threadInsertData, args=(jj, batchsize, dataSafeIndex, obsIdSafeIndex,))
@@ -94,6 +95,10 @@ def test_multithread(batchsize, dataSafeIndex, obsIdSafeIndex):
     for t in threading.enumerate():
         if t is not main_thread:
             t.join()
+    end_perf = time.perf_counter()
+    executionTime = end_perf - start_perf
+
+    print("Test terminated. Total time: {}.".format(executionTime))
 
 
 
@@ -135,6 +140,7 @@ if __name__ == '__main__':
 
     print("Number of events to insert: {}".format(numberOfEvents))
     print("Number of threads: {}".format(numberOfThreads))
+    print("Number of events per thread: {}".format(int(int(numberOfEvents)/int(numberOfThreads))))
     print("\n")
 
     # TEST - BATCHSIZE = 50

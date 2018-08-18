@@ -93,11 +93,15 @@ class MySqlConnector(unittest.TestCase):
         self.assertEqual(True, mysqlConn.insertData('INSERT INTO test_table VALUES(1,2,3,4)'))
         mysqlConn.close()
 
-    def test_transaction(self):
+    ##############################
+    # TODO table doesnt exist
+    ##############################
+
+    def test_batch(self):
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
+        mysqlConn.batchsize = 2
 
-        mysqlConn.batchsize = 3
         self.assertEqual(True,mysqlConn.executeQuery('delete from test_table'))
 
         self.assertEqual(True, mysqlConn.insertData('INSERT INTO test_table VALUES(1,2,3,4)'))
@@ -105,16 +109,44 @@ class MySqlConnector(unittest.TestCase):
         self.assertEqual(1, mysqlConn.commandsSent)
 
         self.assertEqual(True, mysqlConn.insertData('INSERT INTO test_table VALUES(5,6,7,8)'))
-        self.assertEqual(1, mysqlConn.conn.in_transaction)
-        self.assertEqual(2, mysqlConn.commandsSent)
-
-        self.assertEqual(True, mysqlConn.insertData('INSERT INTO test_table VALUES(9,10,11,12)'))
         self.assertEqual(0, mysqlConn.conn.in_transaction)
         self.assertEqual(0, mysqlConn.commandsSent)
 
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM test_table'))
+        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
+        self.assertEqual(2, numberOfRows)
+
+        mysqlConn.close()
+
+    def test_streaming(self):
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+        mysqlConn.batchsize = 1
+
+        self.assertEqual(True,mysqlConn.executeQuery('delete from test_table'))
+
+        self.assertEqual(True, mysqlConn.insertData('INSERT INTO test_table VALUES(1,2,3,4)'))
+        self.assertEqual(0, mysqlConn.conn.in_transaction)
+        self.assertEqual(0, mysqlConn.commandsSent)
+
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM test_table'))
+        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
+        self.assertEqual(1, numberOfRows)
+
+
+        self.assertEqual(True, mysqlConn.insertData('INSERT INTO test_table VALUES(5,6,7,8)'))
+        self.assertEqual(0, mysqlConn.conn.in_transaction)
+        self.assertEqual(0, mysqlConn.commandsSent)
+
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM test_table'))
+        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
+        self.assertEqual(2, numberOfRows)
+
+        mysqlConn.close()
 
 
 
+    
 
 
 
@@ -131,7 +163,7 @@ class RedisConnector(unittest.TestCase):
         redisConn.connect()
         self.assertEqual(True, redisConn.testConnection())
 
- 
+
 
 
 class DL3ASTRIDB_interface(unittest.TestCase):

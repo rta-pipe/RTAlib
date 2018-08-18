@@ -24,23 +24,69 @@ import redis
 """
 Redis wrapper that exposes a connect/disconnet/insert API.
 
-It uses HASH-SETs as data structure. Fot each data model (e.g. evt3astri) we have:
-    - the HASH-SET of the model (e.g. evt3astri:id)
-    - a STRING for the generation of unique IDs (evt3astri:uniqueid)
-    - a LIST to store the keys name that must be associated to an INDEX (e.g. evt3astri:indexlist)
-    - a ZSET for each key associated to an INDEX (e.g. evt3astri:time)
+Permanent structures:
+    - ModelsIndexes: a SET to store all the 'indexset' (see below)
+
+      e.g. ModelsIndexes = [indexset:evt3astri, indexset:evt3cta, ...]
+
+
+
+For each data model (e.g. evt3astri) we have:
+
+    - The model itself (hashset) (e.g. evt3astri:id)
+
+    - The unique id handler (string) (e.g. evt3astri:uniqueid)
+
+    - The model indexed keys name set (set) (e.g. indexset:evt3astri = [time, anotherkey] )
+
+    - One or more real indexes (zset) (e.g. evt3astri:time = [6,2,3,5,1,7,4,..] )
+
+Redis web-interface:
+    http://agilepipedev.iasfbo.inaf.it/php-redis-admin-interface/?view&s=0&d=0&key=test
+    auth Redis@RTA18#
 """
 
 
 
 
 class RedisDBConnector(DBConnector):
+
+    modelsIndexes = 'ModelsIndexes'
+
+
     def __init__(self, configFilePath=''):
         super().__init__(configFilePath)
         self.host     = self.configs['Redis']['host']
         self.password = self.configs['Redis']['password']
         self.dbname   = self.configs['Redis']['dbname']
-        self.indexLists = []
+        self.cachedIndexes = {}
+        """
+            cachedIndexes: {
+                'evt3astri' : [time, anotherkey],
+                'evt3cta' : [obsid]
+            }
+        """
+
+    def getListElements(self, listname):
+        listlength = self.conn.llen(listname)
+        elements = []
+        for elem in self.conn.lrange(listname, 0, listlength):
+            elements.append(elem.decode('utf-8'))
+        return elements
+
+    def getSetElements(self, setname):
+        members = []
+        for elem in self.conn.smembers(setname):
+            members.append(elem.decode('utf-8'))
+        return members
+
+
+    def cacheAllKeyIndexes(self):
+        members = self.getSetElements(self.modelsIndexes)
+        for member in members:
+            indexedKeys = self.getSetElements(member)
+            self.cachedIndexes[member] = indexedKeys
+        print(self.cachedIndexes)
 
 
     def decodeResponse(self, response):
@@ -56,10 +102,9 @@ class RedisDBConnector(DBConnector):
         return response.decode("utf-8")
 
 
-
     def connect(self):
-        """Connects to Redis. When connection is established it downloads from Redis
-        the indexlists and caches it.
+        """Connects to Redis.
+        When connection is established it caches all the index keys.
 
         Keyword arguments:
         db -- the database name (default 0)
@@ -70,7 +115,7 @@ class RedisDBConnector(DBConnector):
         """
         self.conn = redis.Redis(host=self.host, port=6379, db=self.dbname, password=self.password)
         if self.testConnection():
-            # TODO Download all the indexlists (we cache the indexlists)
+            self.cacheAllKeyIndexes()
             return True
         else:
             return False
@@ -79,13 +124,13 @@ class RedisDBConnector(DBConnector):
 
 
     def disconnect(self):
-        """
+        """Disconnects from Redis.
 
         Keyword arguments:
          -- (default 0)
 
         Return value:
-
+         --
         """
         if self.conn != 0:
             self.conn.disconnect()
@@ -114,9 +159,13 @@ class RedisDBConnector(DBConnector):
 
 
 
-    def insertData(self, hashName, **kwargs):
+    def insertData(self, hashName, dataDict):
         """ Inserts the input dictionary data 'kwargs' into the hashset 'hashName'.
-        It computes a new uniqueid for the 'hashName' HASHSET.
+        Stategy:
+            - it computes a new uniqueid for the 'hashName' HASHSET.
+            - it insert the new HASHSET in the Redis DB
+            - check if there is an index list associated with the hashset
+            - if the index list exists, it downloads from the
 
         Keyword arguments:
          -- (default 0)

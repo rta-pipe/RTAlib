@@ -34,7 +34,7 @@ def test(batchsize):
 
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
         RTA_DL3ASTRI.dbConnector.batchsize = batchsize
-
+        RTA_DL3ASTRI.dbConnector.batchsize = False
         for i in range(int(numberOfEvents)):
             RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
                                        evt3data[i][1],

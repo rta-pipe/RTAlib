@@ -88,7 +88,20 @@ class MySqlDBConnector(DBConnector):
             self.conn.close()
 
 
-    def insertData(self, query):
+    def insertData(self, tableName, dataDict):
+        """
+
+        Keyword arguments:
+        --
+
+        Return value:
+        True  -- if no error occurs
+        False -- otherwise
+        """
+        query = self.buildQueryFromDictionary(tableName, dataDict)
+        if self.debug:
+            print(query)
+
         if self.conn and self.batchsize == 1:
             #print("[MySqlConnector] streamingInsert..")
             return self.streamingInsert(query)
@@ -99,6 +112,17 @@ class MySqlDBConnector(DBConnector):
             print("[MySqlConnector] Error, self.conn is None")
             return False
 
+    def fakeInsertData(self, tableName, dataDict):
+        """
+
+        Keyword arguments:
+        --
+
+        Return value:
+        True
+        """
+        query = self.buildQueryFromDictionary(tableName, dataDict)
+        return True
 
 
     def streamingInsert(self, query):
@@ -193,12 +217,12 @@ class MySqlDBConnector(DBConnector):
         dbcur.close()
         return False
 
-    def buildQueryFromDictionary(self, tableName, **kwargs):
+    def buildQueryFromDictionary(self, tableName, dict):
         """Using the key/value of the input dictionary, builds the the INSERT query
         INSERT INTO table_name(column1, column2) VALUES(value1, value2)
 
         Keyword arguments:
-        kwargs -- the dictionary (required)
+        dict -- the dictionary (required)
 
         Return value:
         The the INSERT query
@@ -206,7 +230,7 @@ class MySqlDBConnector(DBConnector):
         queryS = "INSERT INTO "+tableName
         queryH = '('
         queryV = 'VALUES ('
-        for key, val in kwargs.items():
+        for key, val in dict.items():
             queryH += str(key)+','
             queryV += str(val)+','
         queryH = queryH[:-1]

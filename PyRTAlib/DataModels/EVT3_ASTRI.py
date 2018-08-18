@@ -40,6 +40,12 @@ class EVT3_ASTRI():
 
         pass
 
+    def getData(self):
+        """Return the 'dictionary' representation of the object.
+        """
+        return vars(self)
+
+    """
     def getInsertQuery(self, table):
         query = 'INSERT INTO '+table
         queryK = '(eventidfits, ra_deg, dec_deg, energy, detx, dety, mcid, timerealtt, insert_time, observationid, datarepositoryid, status) '
@@ -56,3 +62,4 @@ class EVT3_ASTRI():
                             +str(self.datarepositoryid)+', '  \
                             +str(self.status)+')'
         return query+queryK+queryV
+    """

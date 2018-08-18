@@ -51,6 +51,7 @@ def threadInsertData(threadid, batchsize, dataSafeIndex, obsIdSafeIndex):
 
     rta_dl3astri = RTA_DL3ASTRI_DB('mysql')
     rta_dl3astri.dbConnector.batchsize = batchsize
+    rta_dl3astri.dbConnector.debug = False
 
     obsId = obsIdSafeIndex.getSafeIndex()
 

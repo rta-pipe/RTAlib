@@ -34,11 +34,11 @@ class RTA_DL3ASTRI_DB(RTA_DL_DB):
 
         """
         evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)
-        return self.dbConnector.insertData(evt3.getInsertQuery(self.configs['evt3modelname']))
+        return self.dbConnector.insertData(self.configs['evt3modelname'], evt3.getData())
 
     def fakeInsert(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1):
-         evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)
-         return True
+        evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)
+        return self.dbConnector.fakeInsertData(self.configs['evt3modelname'], evt3.getData())
 
 
     """

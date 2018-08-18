@@ -40,6 +40,7 @@ def test(batchsize):
     for jj in range(5):
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
         RTA_DL3ASTRI.dbConnector.batchsize = batchsize
+        RTA_DL3ASTRI.dbConnector.debug = False
 
         start_perf = time.perf_counter()
 

@@ -29,13 +29,14 @@ class DBConnector(ABC):
     def __init__(self, configFilePath=''):
         super().__init__()
         self.id = next(self._ids)
-        
+
         self.configs = parseRTALIBConfigFile(configFilePath)
         self.batchsize = int(self.configs['General']['batchsize'])
-        if self.configs['General']['debug'] == 'True':
+        if self.configs['General']['debug'] == 'yes':
             self.debug = True
-        else:
+        elif self.configs['General']['debug'] == 'no':
             self.debug = False
+
         self.commandsSent = 0
         self.conn = None;
 

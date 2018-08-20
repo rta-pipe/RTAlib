@@ -12,6 +12,5 @@ dbname=
 
 [Redis]
 host=
-username=
 password=
 dbname=

@@ -23,7 +23,7 @@ import os
 from random import randint, uniform
 
 from PyRTAlib.Utils         import parseRTALIBConfigFile
-from PyRTAlib.DBConnectors  import RedisDBConnector, MySqlDBConnector
+from PyRTAlib.DBConnectors  import RedisDBConnector, MySqlDBConnector, RedisDBConnectorBASIC
 from PyRTAlib.DataModels    import EVT3_ASTRI
 from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
 
@@ -191,7 +191,30 @@ class RedisConnector(unittest.TestCase):
         self.assertEqual(True, redisConn.testConnection())
 
 
+class RedisConnectorBASIC(unittest.TestCase):
 
+    def test_testConnection_wrong_password(self):
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.password = 'asdasd'
+        redisConn.connect()
+        self.assertEqual(False, redisConn.testConnection())
+
+    def test_testConnection_success(self):
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.connect()
+        self.assertEqual(True, redisConn.testConnection())
+
+    def test_unknown_key_basic(self):
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.connect()
+        val = redisConn.conn.get('h243hihbj23b4j23hb4j2h3')
+        self.assertEqual(None, val)
+
+    def test_insert_data_basic(self):
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.connect()
+        dict = {'a': '1', 'b': '2', 'c': 3}
+        redisConn.insertData('testmodel',)
 
 
 class DL3ASTRIDB_interface(unittest.TestCase):

@@ -19,7 +19,7 @@
 # ==========================================================================
 
 from abc import ABC, abstractmethod
-from ..DBConnectors import RedisDBConnector, MySqlDBConnector
+from ..DBConnectors import RedisDBConnector, MySqlDBConnector, RedisDBConnectorBASIC
 from ..Utils import parseRTALIBConfigFile
 
 
@@ -32,6 +32,9 @@ class RTA_DL_DB(ABC):
             self.dbConnector = MySqlDBConnector(configFilePath)
         elif database == 'redis':
             self.dbConnector = RedisDBConnector(configFilePath)
+        elif database == 'redis-basic':
+            self.dbConnector = RedisDBConnectorBASIC(configFilePath)
+
         else:
             print("[RTA_DL_DB] Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis'))
 

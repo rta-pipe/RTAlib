@@ -25,7 +25,7 @@ import statistics
 
 #import matplotlib
 #import matplotlib.pyplot as plt
-import numpy as np
+#import numpy as np
 
 from PyRTAlib.DBConnectors  import MySqlDBConnector
 from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB

@@ -23,8 +23,8 @@ import time
 import collections
 import statistics
 
-import matplotlib
-import matplotlib.pyplot as plt
+#import matplotlib
+#import matplotlib.pyplot as plt
 import numpy as np
 
 from PyRTAlib.DBConnectors  import MySqlDBConnector
@@ -183,7 +183,7 @@ if __name__ == '__main__':
     y.append(p[0])
     erry.append(p[1])
 
-
+    """
     # Two subplots, the axes array is 1-d
     f, ax = plt.subplots(1)
 
@@ -196,3 +196,4 @@ if __name__ == '__main__':
     plt.xlabel('Event/Sec')
 
     plt.show()
+    """

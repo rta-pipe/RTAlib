@@ -29,17 +29,7 @@ def read_data_from_fits(fits_file_path):
     tbdata = hdulist[1].data
     print("no of elements: " +  str(len(tbdata)))
     return tbdata
-    """
-    time = str(float(event[1])-timestart)
-    eventidfits = str(event[0])
-    timestart = float(event[1])
-    ra = str(event[2])
-    dec = str(event[3])
-    energy = str(event[4])
-    detx = str(event[5])
-    dety = str(event[6])
-    mc_id = str(event[7])
-    """
+
 
 def time_mjd_to_tt(mjd):
     return (float(mjd) - 53005.0) * 86400.0

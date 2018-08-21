@@ -23,12 +23,7 @@ import redis
 
 """
 Redis wrapper that exposes a connect/disconnet/insert API.
-
-Permanent structures:
-    - ModelsIndexes: a SET to store all the 'indexset' (see below)
-
-      e.g. ModelsIndexes = [indexset:evt3astri, indexset:evt3cta, ...]
-
+ 
 
 
 For each data model (e.g. evt3astri) we have:

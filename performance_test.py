@@ -27,7 +27,7 @@ import statistics
 #import matplotlib.pyplot as plt
 #import numpy as np
 
-from PyRTAlib.DBConnectors  import MySqlDBConnector
+from PyRTAlib.DBConnectors  import RedisDBConnector, MySqlDBConnector, RedisDBConnectorBASIC
 from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
 from PyRTAlib.Utils         import read_data_from_fits
 
@@ -38,7 +38,9 @@ def test(batchsize):
     executionTimeList = []
 
     for jj in range(5):
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB(database)
+
         RTA_DL3ASTRI.dbConnector.batchsize = batchsize
         RTA_DL3ASTRI.dbConnector.debug = False
 
@@ -75,11 +77,7 @@ def test(batchsize):
     stddevET = statistics.stdev(executionTimeList)
     ET = Perf(avgET, stddevET)
 
-    print("Number of events: {}".format(numberOfEvents))
-    print("Batch size: {}".format(batchsize))
-    print("Execution Time: {} +-  {}".format(ET.avg, ET.stddev))
-    print("Events/Sec: {} +- {}".format(ES.avg, ES.stddev))
-    print("\n\n")
+    print("[Batch size: {}] Events/Sec: {} +- {}   Execution Time: {} +- {}".format(batchsize, round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
     return ES
 
 
@@ -97,8 +95,9 @@ if __name__ == '__main__':
 
     os.environ['RTACONFIGFILE'] = './'
 
-    fitspath = sys.argv[1]
-    numberOfEvents = sys.argv[2]
+    database = sys.argv[1]
+    fitspath = sys.argv[2]
+    numberOfEvents = sys.argv[3]
 
     """
         Reading FITS data
@@ -111,11 +110,23 @@ if __name__ == '__main__':
     """
         Truncate Table
     """
-    mysqlConn = MySqlDBConnector('./')
-    mysqlConn.connect()
-    if not mysqlConn.executeQuery('delete from evt3'):
+    if database == 'mysql':
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+        if not mysqlConn.executeQuery('delete from evt3'):
+            exit()
+        mysqlConn.close()
+    elif database == 'redis' or database == 'redis-basic':
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.connect()
+        keys = redisConn.decodeResponseList(redisConn.conn.keys('evt3:*'))
+        if len(keys) > 0:
+            redisConn.conn.delete(*keys)
+        redisConn.conn.set('uniqueId:evt3', 0)
+    else:
+        print("Error!! Unknown database {}".format(database))
         exit()
-    mysqlConn.close()
+
 
     """
         Plot
@@ -130,6 +141,9 @@ if __name__ == '__main__':
     """
     print("\n**************************\n******  START TEST  ******\n**************************\n")
 
+    print("Number of events: {}".format(numberOfEvents))
+    print("Number of threads: 1")
+    print("\n")
 
     # TEST - BATCHSIZE = 1
     p = test(1)
@@ -180,6 +194,18 @@ if __name__ == '__main__':
     # TEST - BATCHSIZE = 1000
     p = test(1000)
     x.append(1000)
+    y.append(p[0])
+    erry.append(p[1])
+
+    # TEST - BATCHSIZE = 1500
+    p = test(1500)
+    x.append(1500)
+    y.append(p[0])
+    erry.append(p[1])
+
+    # TEST - BATCHSIZE = 2000
+    p = test(2000)
+    x.append(2000)
     y.append(p[0])
     erry.append(p[1])
 

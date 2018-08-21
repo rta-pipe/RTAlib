@@ -62,7 +62,7 @@ python unit_test.py -v
 
 ### performance test (single threading)
 ```
-python performance_test.py /home/cta/pks1510-089.fits 1000
+python performance_test.py redis-basic /home/cta/pks1510-089.fits 1000
 ```
 
 ### performance test (multi threading)

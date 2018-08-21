@@ -23,20 +23,23 @@ from ..Utils import time_mjd_to_tt
 
 class EVT3_ASTRI():
     def __init__(self, eventidfits, timemjd, ra_deg, dec_deg, energy, detx, dety, mcid, mjdref, observationid, datarepositoryid, status):
-        self.eventidfits = eventidfits
-        self.ra_deg = ra_deg
-        self.dec_deg = dec_deg
-        self.energy = energy
-        self.detx = detx
-        self.dety = dety
-        self.mcid = mcid
+
+        ## BUG: TypeError: Object of type 'uint32' is not JSON serializable
+        ## -> <class 'numpy.uint32'> I convert those data to int() in order to convert it to json later in RedisDBConnector
+        self.eventidfits = float(eventidfits)
+        self.ra_deg = float(ra_deg)
+        self.dec_deg = float(dec_deg)
+        self.energy = float(energy)
+        self.detx = float(detx)
+        self.dety = float(dety)
+        self.mcid = float(mcid)
 
         self.timerealtt = time_mjd_to_tt(mjdref) + float(timemjd)
         self.insert_time = time.time()
 
-        self.observationid = observationid
-        self.datarepositoryid = datarepositoryid
-        self.status = status
+        self.observationid = int(observationid)
+        self.datarepositoryid = int(datarepositoryid)
+        self.status = int(status)
 
         pass
 

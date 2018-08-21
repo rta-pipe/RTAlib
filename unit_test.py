@@ -213,8 +213,20 @@ class RedisConnectorBASIC(unittest.TestCase):
     def test_insert_data_basic(self):
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
-        dict = {'a': '1', 'b': '2', 'c': 3}
-        redisConn.insertData('testmodel',)
+        dict1 = {'a': 4, 'b': 2, 'c': 3}
+        dict2 = {'a': 2, 'b': 2, 'c': 3}
+        dict3 = {'a': 9, 'b': 2, 'c': 3}
+
+        self.assertEqual(True, redisConn.insertData('testmodel',dict1))
+        self.assertEqual(True, redisConn.insertData('testmodel',dict2))
+        self.assertEqual(True, redisConn.insertData('testmodel',dict3))
+
+    def test_insert_model_doesnt_exist(self):
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.connect()
+        dict = {'a': 4, 'b': 2, 'c': 3}
+        self.assertEqual(False, redisConn.insertData('idontexist',dict))
+
 
 
 class DL3ASTRIDB_interface(unittest.TestCase):
@@ -261,30 +273,28 @@ class DL3ASTRIDB_interface(unittest.TestCase):
             # --> close() is called automagically :)
 
 
-    """
+
     def test_connection_redis(self):
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('redis')
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('redis-basic')
         self.assertEqual(True, RTA_DL3ASTRI.isConnectionAlive())
+        # --> No need to disconnect from Redis. It uses a connection pool :)
 
 
     def test_insert_redis(self):
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('redis')
-        res = RTA_DL3ASTRI.insertEvent( randint(0, 9999999),
-                                        randint(0, 9999999),
-                                        randint(0, 9999999),
-                                        randint(0, 9999999),
-                                        uniform(-180,180),
-                                        uniform(-90, 90),
-                                        uniform(0, 0.5),
-                                        uniform(0, 0.1),
-                                        uniform(0, 0.1),
-                                    	1,
-                                        0,
-                                        randint(0, 99999999),
-                                        randint(0, 99999999)
-                                    )
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('redis-basic')
+        res = RTA_DL3ASTRI.insertEvent(
+                                        randint(0, 9999999), #eventidfits=randint(0, 9999999),
+                                        randint(0, 9999999), #time=randint(0, 9999999),
+                                        uniform(-180,180),   #ra_deg=uniform(-180,180),
+                                        uniform(-90, 90),    #dec_deg=uniform(-90, 90),
+                                        uniform(0, 0.5),     #energy=uniform(0, 0.5),
+                                        uniform(0, 0.1),     #detx=uniform(0, 0.1),
+                                        uniform(0, 0.1),     #dety=uniform(0, 0.1),
+                                        1                    #mcid=1
+                                      )
         self.assertEqual(True, res)
-    """
+        # --> No need to disconnect from Redis. It uses a connection pool :)
+
 
 
 if __name__ == '__main__':

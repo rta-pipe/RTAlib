@@ -26,7 +26,7 @@ import threading
 
 import numpy as np
 
-from PyRTAlib.DBConnectors  import MySqlDBConnector
+from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
 from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
 from PyRTAlib.Utils         import read_data_from_fits
 
@@ -38,48 +38,50 @@ class ThreadSafeIndex:
         self.lock = threading.Lock()
         self.value = start
 
-    def getSafeIndex(self):
+    def getDataSafeIndexAndIncr(self, incr):
         self.lock.acquire()
         index = self.value
         try:
-            self.value = self.value + 1
+            self.value = self.value + incr
         finally:
             self.lock.release()
             return index
 
 def threadInsertData(threadid, batchsize, dataSafeIndex, obsIdSafeIndex):
 
-    rta_dl3astri = RTA_DL3ASTRI_DB('mysql')
+    rta_dl3astri = RTA_DL3ASTRI_DB(database)
     rta_dl3astri.dbConnector.batchsize = batchsize
     rta_dl3astri.dbConnector.debug = False
 
-    obsId = obsIdSafeIndex.getSafeIndex()
+    obsId = obsIdSafeIndex.getDataSafeIndexAndIncr(1)
 
     numberOfEventsToInsert = int(int(numberOfEvents)/int(numberOfThreads))
+
+    index = dataSafeIndex.getDataSafeIndexAndIncr(numberOfEventsToInsert)
 
     #print("Thread {}. I am going to insert {} events".format(threadid, numberOfEventsToInsert))
 
     start_perf = time.perf_counter()
+
     for i in range(numberOfEventsToInsert):
-        index = dataSafeIndex.getSafeIndex()
-        rta_dl3astri.insertEvent(  evt3data[index][0],
-                                   evt3data[index][1],
-                                   evt3data[index][2],
-                                   evt3data[index][3],
-                                   evt3data[index][4],
-                                   evt3data[index][5],
-                                   evt3data[index][6],
-                                   evt3data[index][7],
+        idx = index + i
+        rta_dl3astri.insertEvent(  evt3data[idx][0],
+                                   evt3data[idx][1],
+                                   evt3data[idx][2],
+                                   evt3data[idx][3],
+                                   evt3data[idx][4],
+                                   evt3data[idx][5],
+                                   evt3data[idx][6],
+                                   evt3data[idx][7],
                                    obsId
                                  )
     rta_dl3astri.close()
     end_perf = time.perf_counter()
 
 
-    executionTime = end_perf - start_perf
-    eventSec = numberOfEventsToInsert/executionTime
-
-    print("Thread {}.\n  Execution time: {}.\n  Event/Sec: {}.".format(threadid, executionTime, eventSec))
+    #executionTime = end_perf - start_perf
+    #eventSec = numberOfEventsToInsert/executionTime
+    #print("(Thread: {}) Event/Sec: {}  ExeTime: {}".format(threadid, round(eventSec,3), round(executionTime,3)))
 
 
 
@@ -99,7 +101,7 @@ def test_multithread(batchsize, dataSafeIndex, obsIdSafeIndex):
     end_perf = time.perf_counter()
     executionTime = end_perf - start_perf
 
-    print("Test terminated. Total time: {}.".format(executionTime))
+    print("[Batch size: {}]. Total Event/Sec: {},  Total time: {}".format(batchsize, round(int(numberOfEvents)/executionTime, 2) ,round(executionTime,3)))
 
 
 
@@ -110,9 +112,10 @@ if __name__ == '__main__':
 
     os.environ['RTACONFIGFILE'] = './'
 
-    fitspath = sys.argv[1]
-    numberOfEvents = sys.argv[2]
-    numberOfThreads = sys.argv[3]
+    database = sys.argv[1]
+    fitspath = sys.argv[2]
+    numberOfEvents = sys.argv[3]
+    numberOfThreads = sys.argv[4]
 
     """
     Reading FITS data
@@ -121,15 +124,25 @@ if __name__ == '__main__':
     evt3data = read_data_from_fits(fitspath)
     print(evt3data[0])
 
-
     """
-    Truncate Table
+        Truncate Table
     """
-    mysqlConn = MySqlDBConnector('./')
-    mysqlConn.connect()
-    if not mysqlConn.executeQuery('delete from evt3'):
+    if database == 'mysql':
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+        if not mysqlConn.executeQuery('delete from evt3'):
+            exit()
+        mysqlConn.close()
+    elif database == 'redis' or database == 'redis-basic':
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.connect()
+        keys = redisConn.decodeResponseList(redisConn.conn.keys('evt3:*'))
+        if len(keys) > 0:
+            redisConn.conn.delete(*keys)
+        redisConn.conn.set('uniqueId:evt3', 0)
+    else:
+        print("Error!! Unknown database {}".format(database))
         exit()
-    mysqlConn.close()
 
     dataSafeIndex = ThreadSafeIndex()
     obsIdSafeIndex = ThreadSafeIndex()
@@ -144,19 +157,34 @@ if __name__ == '__main__':
     print("Number of events per thread: {}".format(int(int(numberOfEvents)/int(numberOfThreads))))
     print("\n")
 
-    # TEST - BATCHSIZE = 50
-    print("\n\nTEST - Batch size: 1 (Streaming)")
     p = test_multithread(1, dataSafeIndex, obsIdSafeIndex)
 
+    # TEST - BATCHSIZE = 2
+    p = test_multithread(2, dataSafeIndex, obsIdSafeIndex)
+
+
     # TEST - BATCHSIZE = 50
-    print("\n\nTEST - Batch size: 50")
     p = test_multithread(50, dataSafeIndex, obsIdSafeIndex)
 
 
+    # TEST - BATCHSIZE = 100
+    p = test_multithread(100, dataSafeIndex, obsIdSafeIndex)
+
+
     # TEST - BATCHSIZE = 200
-    print("\n\nTEST - Batch size: 200")
     p = test_multithread(200, dataSafeIndex, obsIdSafeIndex)
 
-    # TEST - BATCHSIZE = 500
-    print("\n\nTEST - Batch size: 500")
-    p = test_multithread(500, dataSafeIndex, obsIdSafeIndex)
+    # TEST - BATCHSIZE = 400
+    p = test_multithread(400, dataSafeIndex, obsIdSafeIndex)
+
+    # TEST - BATCHSIZE = 800
+    p = test_multithread(800, dataSafeIndex, obsIdSafeIndex)
+
+    # TEST - BATCHSIZE = 1000
+    p = test_multithread(1000, dataSafeIndex, obsIdSafeIndex)
+
+    # TEST - BATCHSIZE = 1000
+    p = test_multithread(1500, dataSafeIndex, obsIdSafeIndex)
+
+    # TEST - BATCHSIZE = 1000
+    p = test_multithread(2000, dataSafeIndex, obsIdSafeIndex)

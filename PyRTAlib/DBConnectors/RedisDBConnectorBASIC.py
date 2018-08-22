@@ -25,9 +25,6 @@ import json
 """
 Redis wrapper that exposes a connect/disconnet/insert API.
 
-RedisModel:
-    - uniqueId:<modelName> (should be exists and should be 0 at the beginning)
-
 Redis web-interface:
     http://agilepipedev.iasfbo.inaf.it/php-redis-admin-interface/?view&s=0&d=0&key=test
     auth Redis@RTA18#
@@ -44,7 +41,7 @@ class RedisDBConnectorBASIC(DBConnector):
         self.password = self.configs['Redis']['password']
         self.dbname   = self.configs['Redis']['dbname']
         self.cachedIndexes = {}
-        self.cachedUniqueIds = {}
+        #self.cachedUniqueIds = {}
         self.pipe = None
 
 
@@ -61,7 +58,7 @@ class RedisDBConnectorBASIC(DBConnector):
         self.conn = redis.Redis(host=self.host, port=6379, db=self.dbname, password=self.password)
         if self.testConnection():
             self.cacheAllKeyIndexes()
-            self.cacheUniqueIds()
+            #self.cacheUniqueIds()
             self.pipe = self.conn.pipeline()
             #print(self.cachedIndexes)
             #print(self.cachedUniqueIds)
@@ -130,11 +127,13 @@ class RedisDBConnectorBASIC(DBConnector):
     def getKeys(self, pattern):
         return self.decodeResponseList(self.conn.keys(pattern))
 
+    """
     def cacheUniqueIds(self):
         keys = self.getKeys('uniqueId:*')
         for key in keys:
             id = self.decodeResponse(self.conn.get(key))
             self.cachedUniqueIds[key] = int(id)
+    """
 
     def cacheAllKeyIndexes(self):
         keys = self.getKeys('indexstring:*')
@@ -166,7 +165,7 @@ class RedisDBConnectorBASIC(DBConnector):
 
         try:
             index = self.cachedIndexes['indexstring:'+modelName]
-            currentUniqueId = self.cachedUniqueIds['uniqueId:'+modelName]
+            # currentUniqueId = self.cachedUniqueIds['uniqueId:'+modelName]
 
         except KeyError as e:
             print('[RedisConnectorBASIC] Error: {}\nPlease, insert in Redis a String with key: "indexstring:{}" and value equal to the query filter attribute for that model'.format(e, modelName))
@@ -174,21 +173,21 @@ class RedisDBConnectorBASIC(DBConnector):
             return False
 
         if self.conn and self.batchsize == 1:
-            return self.streamingInsert(modelName, dataDict, index, currentUniqueId)
+            return self.streamingInsert(modelName, dataDict, index)
         elif self.conn and self.batchsize > 1:
-            return self.batchInsert(modelName, dataDict, index, currentUniqueId)
+            return self.batchInsert(modelName, dataDict, index)
         else:
             print("[RedisConnector] Error, self.conn is None")
             return False
 
 
 
-    def streamingInsert(self, modelName, dataDict, index, currentUniqueId):
+    def streamingInsert(self, modelName, dataDict, index):
         try:
 
-            self.pipe.zadd(modelName+':'+str(currentUniqueId), json.dumps(dataDict), dataDict[index])
-            self.pipe.incr('uniqueId:'+modelName)
-            self.cachedUniqueIds['uniqueId:'+modelName] += 1
+            self.pipe.zadd(modelName, json.dumps(dataDict), dataDict[index])
+            # self.pipe.incr('uniqueId:'+modelName)
+            # self.cachedUniqueIds['uniqueId:'+modelName] += 1
             self.pipe.execute()
             return True
         except redis.ConnectionError as e:
@@ -197,7 +196,7 @@ class RedisDBConnectorBASIC(DBConnector):
 
 
 
-    def batchInsert(self, modelName, dataDict, index, currentUniqueId):
+    def batchInsert(self, modelName, dataDict, index):
         if self.commandsSent == 0:
             try:
                 self.pipe = self.conn.pipeline()
@@ -208,15 +207,15 @@ class RedisDBConnectorBASIC(DBConnector):
 
 
 
-        self.pipe.zadd(modelName+':'+str(currentUniqueId), json.dumps(dataDict), dataDict[index])
-        self.cachedUniqueIds['uniqueId:'+modelName] += 1
+        self.pipe.zadd(modelName, json.dumps(dataDict), dataDict[index])
+        # self.cachedUniqueIds['uniqueId:'+modelName] += 1
 
         self.commandsSent += 1
 
         if self.commandsSent >= self.batchsize:
             try:
                 self.commandsSent = 0
-                self.pipe.incrby('uniqueId:'+modelName, self.batchsize)
+                # self.pipe.incrby('uniqueId:'+modelName, self.batchsize)
                 self.pipe.execute()
                 return True
 

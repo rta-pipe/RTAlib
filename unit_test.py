@@ -227,6 +227,13 @@ class RedisConnectorBASIC(unittest.TestCase):
         dict = {'a': 4, 'b': 2, 'c': 3}
         self.assertEqual(False, redisConn.insertData('idontexist',dict))
 
+    def test_insert_duplicate_data(self):
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.connect()
+        dict1 = {'a': 5, 'b': 2, 'c': 3}
+        dict2 = {'a': 5, 'b': 2, 'c': 3}
+        self.assertEqual(True, redisConn.insertData('testmodel',dict1))
+        self.assertEqual(True, redisConn.insertData('testmodel',dict2))
 
 
 class DL3ASTRIDB_interface(unittest.TestCase):

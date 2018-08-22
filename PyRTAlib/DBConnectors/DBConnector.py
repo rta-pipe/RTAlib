@@ -21,7 +21,7 @@
 from abc import ABC, abstractmethod
 from itertools import count
 
-from ..Utils import parseRTALIBConfigFile
+from ..Utils import Config
 
 class DBConnector(ABC):
     _ids = count(0)
@@ -30,25 +30,17 @@ class DBConnector(ABC):
         super().__init__()
         self.id = next(self._ids)
 
-        self.configs = parseRTALIBConfigFile(configFilePath)
-        self.batchsize = int(self.configs['General']['batchsize'])
+        self.config = Config(configFilePath)
+
+        self.batchsize = self.config.get('General', 'batchsize', 'int')
+
         self.debug = False
-        if self.configs['General']['debug'] == 'yes':
+        if self.config.get('General','debug') == 'yes':
             self.debug = True
-        
+
         self.commandsSent = 0
         self.conn = None;
 
-
-    def printConnectionInfo(self):
-        """ For testing purpose.
-
-        """
-        print("host: {} \nusername: {} \npassword: {}\ndatabase: {}".format(self.host, self.username, self.password, self.dbname))
-
-
-    def getConfigs(self):
-        return self.configs
 
     @abstractmethod
     def connect(self, db):
@@ -65,3 +57,7 @@ class DBConnector(ABC):
     @abstractmethod
     def insertData(self, modelName, *args):
         pass
+
+
+    def printConnectionInfo(self):
+        print("host: {} \nusername: {} \npassword: {}\ndatabase: {}".format(self.host, self.username, self.password, self.dbname))

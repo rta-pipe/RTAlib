@@ -19,38 +19,64 @@
 # ==========================================================================
 
 from abc import ABC, abstractmethod
+import queue
+import threading
+
 from ..DBConnectors import RedisDBConnector, MySqlDBConnector, RedisDBConnectorBASIC
-from ..Utils import parseRTALIBConfigFile
+from ..Utils import Config
 
 
 class RTA_DL_DB(ABC):
 
-    def __init__(self, database, configFilePath = ''):
+    def __init__(self, database, configFilePath = '', **kwargs):
         super().__init__()
-        self.dbConnector = None
-        if database == 'mysql':
-            self.dbConnector = MySqlDBConnector(configFilePath)
-        elif database == 'redis':
-            self.dbConnector = RedisDBConnector(configFilePath)
-        elif database == 'redis-basic':
-            self.dbConnector = RedisDBConnectorBASIC(configFilePath)
 
-        else:
+        if database != 'mysql' and database != 'redis' and database != 'redis-basic':
             print("[RTA_DL_DB] Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis'))
+            exit()
 
-        self.dbConnector.connect()
+        """
+        The queue module implements multi-producer, multi-consumer queues. It is
+        especially useful in threaded programming when information must be
+        exchanged safely between multiple threads.
+        """
+        self.eventQueue = queue.Queue(maxsize=-1) # queue size is infinite.
 
-        self.configs = parseRTALIBConfigFile(configFilePath, 'General')
+        self.config = Config(configFilePath) # singleton config object
+
+        # batchsize = 1 -> threadsnumber = 1 ?
+        #if int(self.config.get('General', 'batchsize') == 1):
+        #    self.config.set('General', 'numberofthreads', 1)
+
+
+        """
+            Variables to stop the threads
+        """
+        self.run = []
+        for i in range(self.config.get('General','numberofthreads', 'int')):
+            self.run.append(True)
+
+        """
+            Running the threads. Each thread has its own db connector.
+        """
+        # self.threads = []
+        for i in range(self.config.get('General','numberofthreads', 'int')):
+
+            if self.config.get('General','debug') == 'yes':
+                print("[RTA_DL_DB] Starting new thread!")
+
+            dbConnector = self.getConnector(database, configFilePath)
+            t = threading.Thread(target=self.consumeQueue, args=(i, dbConnector))
+            # self.threads.append(t)
+            t.start()
 
 
     def __enter__(self):
         return self
 
+
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
-
-    def isConnectionAlive(self):
-        return self.dbConnector.testConnection()
 
 
     @abstractmethod
@@ -58,5 +84,55 @@ class RTA_DL_DB(ABC):
         pass
 
 
+    def queueNewData(self,event):
+        self.eventQueue.put_nowait(event)
+
+    def readNewData(self):
+        try:
+            return self.eventQueue.get_nowait()
+        except queue.Empty:
+            return None
+
+    def getConnector(self, database, configFilePath):
+        if database == 'mysql':
+            return MySqlDBConnector(configFilePath)
+        elif database == 'redis':
+            return RedisDBConnector(configFilePath)
+        elif database == 'redis-basic':
+            return RedisDBConnectorBASIC(configFilePath)
+
+
+    def consumeQueue(self, threadId, dbConnector):
+        if self.config.get('General','debug') == 'yes':
+            print('-->[RTA_DL_DB thread: {} ] Starting..'.format(threadId))
+
+        dbConnector.connect()
+
+        while self.run[threadId]:
+            event = self.readNewData()
+
+            if event is not None:
+                if not dbConnector.insertData(self.config.get('General','evt3modelname'), event.getData()):
+                    print("-->[RTA_DL_DB thread: {} ] DBconnector insert data error. ".format(threadId))
+                    break;
+
+                elif self.config.get('General','debug') == 'yes':
+                    print("-->[RTA_DL_DB thread: {} ] Data inserted: {} ".format(threadId, event.getData()))
+
+        if self.config.get('General','debug') == 'yes':
+            print("-->[RTA_DL_DB thread: {} ] Job finished..")
+        dbConnector.close()
+
+
     def close(self):
-        self.dbConnector.close()
+
+        # TODO  Should close when all threads finish their job.
+
+        if self.config.get('General','debug') == 'yes':
+            print('[RTA_DL_DB] Stopping all threads on close()..')
+
+        for i in range(self.config.get('General', 'numberofthreads', 'int')):
+            self.run[i] = False
+
+    def getThreads(self):
+        return threading.enumerate()

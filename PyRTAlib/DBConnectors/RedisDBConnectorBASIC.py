@@ -37,11 +37,8 @@ class RedisDBConnectorBASIC(DBConnector):
 
     def __init__(self, configFilePath=''):
         super().__init__(configFilePath)
-        self.host     = self.configs['Redis']['host']
-        self.password = self.configs['Redis']['password']
-        self.dbname   = self.configs['Redis']['dbname']
+
         self.cachedIndexes = {}
-        #self.cachedUniqueIds = {}
         self.pipe = None
 
 
@@ -55,7 +52,12 @@ class RedisDBConnectorBASIC(DBConnector):
         True  -- if connection is established
         False -- otherwise
         """
-        self.conn = redis.Redis(host=self.host, port=6379, db=self.dbname, password=self.password)
+        self.conn = redis.Redis(
+                                    host=self.config.get('Redis','host'),
+                                    port=6379,
+                                    db=self.config.get('Redis','dbname'),
+                                    password=self.config.get('Redis','password')
+                                )
         if self.testConnection():
             self.cacheAllKeyIndexes()
             #self.cacheUniqueIds()

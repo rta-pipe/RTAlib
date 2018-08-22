@@ -28,17 +28,13 @@ class MySqlDBConnector(DBConnector):
 
     def __init__(self, configFilePath=''):
         super().__init__(configFilePath);
-        self.host     = self.configs['MySql']['host']
-        self.username = self.configs['MySql']['username']
-        self.password = self.configs['MySql']['password']
-        self.dbname   = self.configs['MySql']['dbname']
         self.cursor = None
         self.autocommit = False
 
 
     def close(self):
         if self.conn and self.conn.is_connected() and self.conn.in_transaction:
-            if self.debug:
+            if self.config.get('General','debug') == 'yes':
                 print("[MySqlConnector] Commiting last transaction before exiting")
             self.conn.commit()
         self.disconnect()
@@ -55,14 +51,21 @@ class MySqlDBConnector(DBConnector):
         True  -- if the connection is estrablished
         False -- otherwise
         """
-        if self.batchsize == 1:
+        if self.config.get('General','batchsize', 'int') == 1:
             self.autocommit = True
 
         try:
-            self.conn = mysql.connector.connect(user=self.username, password=self.password, host=self.host, database=self.dbname, use_pure=False, autocommit=self.autocommit)
-            self.cursor = self.conn.cursor(raw=True)
-            if self.debug:
-                print("Connected to MySql")
+            self.conn = mysql.connector.connect(
+                                                    user=self.config.get('MySql','username'),
+                                                    password=self.config.get('MySql','password'),
+                                                    host=self.config.get('MySql','host'),
+                                                    database=self.config.get('MySql','dbname'),
+                                                    use_pure=False,
+                                                    autocommit=self.autocommit
+                                                )
+            self.cursor = self.conn.cursor()#raw=True)
+            if self.config.get('General','debug') == 'yes':
+                print("[MySqlConnector] Connected to MySql")
             return True
         except mysql.connector.Error as err:
             print(err)
@@ -82,8 +85,8 @@ class MySqlDBConnector(DBConnector):
         --
         """
         if self.conn and self.conn.is_connected():
-            if self.debug:
-                print("[MySqlConnector] Disconnected")
+            if self.config.get('General','debug') == 'yes':
+                print("[MySqlConnector] connected: {}, disconnecting..".format(self.conn.is_connected()))
             self.cursor.close()
             self.conn.close()
 
@@ -99,14 +102,13 @@ class MySqlDBConnector(DBConnector):
         False -- otherwise
         """
         query = self.buildQueryFromDictionary(tableName, dataDict)
-        if self.debug:
+
+        if self.config.get('General','debug') == 'yes':
             print(query)
 
-        if self.conn and self.batchsize == 1:
-            #print("[MySqlConnector] streamingInsert..")
+        if self.conn and self.config.get('General','batchsize', 'int') == 1:
             return self.streamingInsert(query)
-        elif self.conn and self.batchsize > 1:
-            #print("[MySqlConnector] batchInsert..")
+        elif self.conn and self.config.get('General','batchsize', 'int') > 1:
             return self.batchInsert(query)
         else:
             print("[MySqlConnector] Error, self.conn is None")
@@ -137,6 +139,8 @@ class MySqlDBConnector(DBConnector):
 
     def batchInsert(self, query):
         if self.commandsSent == 0:
+            if self.config.get('General','debug') == 'yes':
+                print("[MySqlConnector] Starting transaction..")
             try:
                 #Transaction isolation is one of the foundations of database processing. Isolation is the I in the acronym ACID;
                 # the isolation level is the setting that fine-tunes the balance between performance and reliability, consistency,
@@ -158,9 +162,11 @@ class MySqlDBConnector(DBConnector):
 
         self.commandsSent += 1
 
-        if self.commandsSent >= self.batchsize:
+        if self.commandsSent >= self.config.get('General','batchsize', 'int'):
             try:
-                #print("[MySqlConnector] Committing..")
+                if self.config.get('General','debug') == 'yes':
+                    print("[MySqlConnector] Committing.. (command sent: {}, batchsize: {})".format(self.commandsSent, self.config.get('General','batchsize', 'int')))
+
                 self.conn.commit()
                 self.commandsSent = 0
                 return True
@@ -172,12 +178,14 @@ class MySqlDBConnector(DBConnector):
                 return True
 
 
-
     def executeQuery(self, query):
         if self.conn:# and not self.conn.in_transaction:
+            if self.config.get('General','debug') == 'yes':
+                print("[MySqlConnector] Executing query {}.. (conn in transaction: {}, autocommit: {})".format(query,self.conn.in_transaction, self.autocommit))
+
             try:
-                self.cursor.close()
-                self.cursor = self.conn.cursor()
+                #self.cursor.close()
+                #self.cursor = self.conn.cursor()
                 self.cursor.execute(query)
                 if not self.autocommit:
                     self.conn.commit()
@@ -205,7 +213,7 @@ class MySqlDBConnector(DBConnector):
         False -- otherwise
         """
 
-        dbcur = self.conn.cursor(raw=True)
+        dbcur = self.conn.cursor()#raw=True)
         dbcur.execute("""
         SELECT COUNT(*)
         FROM information_schema.tables

@@ -22,32 +22,37 @@ import sys
 import time
 import collections
 import statistics
+import threading
 
 #import matplotlib
 #import matplotlib.pyplot as plt
 #import numpy as np
 
-from PyRTAlib.DBConnectors  import RedisDBConnector, MySqlDBConnector, RedisDBConnectorBASIC
+from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
 from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
 from PyRTAlib.Utils         import read_data_from_fits
+from PyRTAlib.Utils         import Config
 
 
-def test(batchsize):
+def test(batchsize, numberOfThreads):
+
+    config = Config('./')
+    config.reload('./')
+    config.set('General', 'debug', 'no')
+    config.set('General', 'numberofthreads', numberOfThreads)
+    config.set('MySql', 'batchsize', batchsize)
 
     eventSecList = []
     executionTimeList = []
 
-    for jj in range(5):
+
+    for jj in range(2):
 
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB(database)
 
-        RTA_DL3ASTRI.dbConnector.batchsize = batchsize
-        RTA_DL3ASTRI.dbConnector.debug = False
-
-        start_perf = time.perf_counter()
-
         obsId = getUniqueObservationId()
 
+        start_perf = time.perf_counter()
         for i in range(int(numberOfEvents)):
             RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
                                        evt3data[i][1],
@@ -59,8 +64,15 @@ def test(batchsize):
                                        evt3data[i][7],
                                        obsId
                                      )
-        RTA_DL3ASTRI.close()
+
+        #RTA_DL3ASTRI.close()
+
+        main_thread = threading.main_thread()
+        for t in RTA_DL3ASTRI.getThreads():
+            if t is not main_thread:
+                t.join()
         end_perf = time.perf_counter()
+
         executionTime = end_perf - start_perf
         eventSec = int(numberOfEvents)/executionTime
         eventSecList.append(eventSec)
@@ -77,7 +89,7 @@ def test(batchsize):
     stddevET = statistics.stdev(executionTimeList)
     ET = Perf(avgET, stddevET)
 
-    print("[Batch size: {}] Events/Sec: {} +- {}   Execution Time: {} +- {}".format(batchsize, round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
+    print("Events/Sec: {} +- {}   Execution Time: {} +- {}".format(batchsize, round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
     return ES
 
 
@@ -99,6 +111,7 @@ if __name__ == '__main__':
     fitspath = sys.argv[2]
     numberOfEvents = sys.argv[3]
 
+
     """
         Reading FITS data
     """
@@ -108,7 +121,7 @@ if __name__ == '__main__':
 
 
     """
-        Truncate Table
+        Deleting existing data
     """
     if database == 'mysql':
         mysqlConn = MySqlDBConnector('./')
@@ -119,95 +132,48 @@ if __name__ == '__main__':
     elif database == 'redis' or database == 'redis-basic':
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
-        keys = redisConn.decodeResponseList(redisConn.conn.keys('evt3:*'))
-        if len(keys) > 0:
-            redisConn.conn.delete(*keys)
-        redisConn.conn.set('uniqueId:evt3', 0)
+        redisConn.conn.delete('evt3')
     else:
         print("Error!! Unknown database {}".format(database))
         exit()
 
 
+
+
+    """
+        Test configuration
+    """
+    threads = [1]#, 2, 4, 8]
+    batchsizes = [1]#, 2, 50, 100, 200, 400, 800, 1600, 3200]
+
+
     """
         Plot
     """
+    w, h = len(batchsizes), len(threads);
     x  = []
-    y = []
-    erry = []
+    y = [[0 for x in range(w)] for y in range(h)]
+    erry = [[0 for x in range(w)] for y in range(h)]
 
 
     """
         Starting testing
     """
     print("\n**************************\n******  START TEST  ******\n**************************\n")
-
     print("Number of events: {}".format(numberOfEvents))
-    print("Number of threads: 1")
-    print("\n")
-
-    # TEST - BATCHSIZE = 1
-    p = test(1)
-    x.append(1)
-    y.append(p[0])
-    erry.append(p[1])
 
 
-    # TEST - BATCHSIZE = 2
-    p = test(2)
-    x.append(2)
-    y.append(p[0])
-    erry.append(p[1])
+    for idx_t, t in enumerate(threads):
+        for idx_b, b in enumerate(batchsizes):
+            print("\n--> Number of threads: {}, Batch size: {}".format(t, b))
+            p = test(b,t)
+            x.append(b)
+            y[idx_t].append(p[0])
+            erry[idx_t].append(p[1])
 
-    # TEST - BATCHSIZE = 50
-    p = test(50)
-    x.append(50)
-    y.append(p[0])
-    erry.append(p[1])
-
-
-
-    # TEST - BATCHSIZE = 100
-    p = test(100)
-    x.append(100)
-    y.append(p[0])
-    erry.append(p[1])
-
-
-    # TEST - BATCHSIZE = 200
-    p = test(200)
-    x.append(200)
-    y.append(p[0])
-    erry.append(p[1])
-
-    # TEST - BATCHSIZE = 400
-    p = test(400)
-    x.append(400)
-    y.append(p[0])
-    erry.append(p[1])
-
-    # TEST - BATCHSIZE = 800
-    p = test(800)
-    x.append(800)
-    y.append(p[0])
-    erry.append(p[1])
-
-    # TEST - BATCHSIZE = 1000
-    p = test(1000)
-    x.append(1000)
-    y.append(p[0])
-    erry.append(p[1])
-
-    # TEST - BATCHSIZE = 1500
-    p = test(1500)
-    x.append(1500)
-    y.append(p[0])
-    erry.append(p[1])
-
-    # TEST - BATCHSIZE = 2000
-    p = test(2000)
-    x.append(2000)
-    y.append(p[0])
-    erry.append(p[1])
+    print(x)
+    print(y)
+    print(erry)
 
     """
     # Two subplots, the axes array is 1-d

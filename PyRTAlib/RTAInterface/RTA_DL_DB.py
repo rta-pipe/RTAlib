@@ -30,7 +30,7 @@ from ..Utils import Config
 
 class RTA_DL_DB(ABC):
 
-    def __init__(self, database, configFilePath = '', **kwargs):
+    def __init__(self, database, configFilePath = '', pure_multithreading = False): # pure_multithreading = True -> single asynchronous thread is faster than synchronous
         super().__init__()
 
         if database != 'mysql' and database != 'redis' and database != 'redis-basic':
@@ -39,8 +39,13 @@ class RTA_DL_DB(ABC):
 
         self.config = Config(configFilePath) # singleton config object
 
+        self.pure_multithreading = pure_multithreading # Synchronous/Asynchronous single thread
+
+        if self.config.get('General', 'numberofthreads', 'int') > 1:
+            self.pure_multithreading = True
+
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
-        if self.config.get('General', 'numberofthreads', 'int') == 1:
+        if not self.pure_multithreading:
             self.dbConnector = self.getConnector(database, configFilePath)
             self.dbConnector.connect()
 
@@ -109,10 +114,13 @@ class RTA_DL_DB(ABC):
 
 
     def _insertEvent(self, event):
-        # Single thread
-        if self.config.get('General', 'numberofthreads', 'int') == 1:
+
+        # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
+        if not self.pure_multithreading:
             self.dbConnector.insertData(self.config.get('General','evt3modelname'), event.getData())
-        # Multi threading mode
+
+        # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
+        #                    /\____/\____/\____/\____/\____/\____/\____/\____/\
         else:
             self.eventQueue.put_nowait(event)
 
@@ -135,7 +143,6 @@ class RTA_DL_DB(ABC):
         elif database == 'redis-basic':
             return RedisDBConnectorBASIC(configFilePath)
 
-    # TODO numero di eventi inseriti !!
     def consumeQueue(self, threadId, dbConnector):
         if self.config.get('General','debug') == 'yes':
             print('-->[RTA_DL_DB thread: {} ] Starting..'.format(threadId))
@@ -167,9 +174,15 @@ class RTA_DL_DB(ABC):
 
 
     def waitAndClose(self):
-        # waitAndClose() -> deve essere bloccante
-        # Si aspetta la terminazione di ogni thread. I threads terminano quando la coda è vuota per più di 1 secondo.
-        if self.config.get('General', 'numberofthreads', 'int') > 1:
+        # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
+        if not self.pure_multithreading:
+
+            self.dbConnector.close()
+            return True
+
+        # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
+        #                    /\____/\____/\____/\____/\____/\____/\____/\____/\
+        else:
 
             if self.config.get('General','debug') == 'yes':
                 print('[RTA_DL_DB] Waiting all threads to finish..')
@@ -187,24 +200,26 @@ class RTA_DL_DB(ABC):
 
             return self.getStatistics()
 
-        else:
 
-            self.dbConnector.close()
-            return True
 
-         #getStatistics()
 
     def forceClose(self):
         if self.config.get('General','debug') == 'yes':
             print('[RTA_DL_DB] Stopping all threads on close()..')
 
-        if self.config.get('General', 'numberofthreads', 'int') > 1:
-            for i in range(self.config.get('General', 'numberofthreads', 'int')):
-                self.run[i] = False
-        else:
+        # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
+        if not self.pure_multithreading:
             self.dbConnector.close()
 
-        
+        # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
+        #                    /\____/\____/\____/\____/\____/\____/\____/\____/\
+        else:
+            for i in range(self.config.get('General', 'numberofthreads', 'int')):
+                self.run[i] = False
+
+
+
+
 
     def getThreads(self):
         return threading.enumerate()

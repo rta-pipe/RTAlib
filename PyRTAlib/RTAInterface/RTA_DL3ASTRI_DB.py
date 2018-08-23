@@ -24,8 +24,8 @@ from ..DataModels import EVT3_ASTRI
 
 class RTA_DL3ASTRI_DB(RTA_DL_DB):
 
-    def __init__(self, database, configFilePath = ''):
-        super().__init__(database, configFilePath = '')
+    def __init__(self, database, configFilePath = '', pure_multithreading = False):
+        super().__init__(database, configFilePath, pure_multithreading)
 
 
     def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1):

@@ -573,6 +573,48 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         config.reload('./')
 
 
+    def test_insert_mysql_single_thread_streaming_wait_and_close_pure_multithread(self):
+        print("/\____/\____/\____/\____/\__single__/\__streaming__/\__wc__/\__pure_multit__/\____/\____/\_")
+
+        config = Config('./')
+        config.set('General', 'debug', 'yes')
+        config.set('General', 'numberofthreads', 1)
+        config.set('General', 'batchsize', 1)
+
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+        self.assertEqual(True,mysqlConn.executeQuery('delete from evt3'))
+        mysqlConn.close()
+
+
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql', '', True)
+
+
+        RTA_DL3ASTRI.insertEvent(
+                                    randint(0, 9999999), #eventidfits=randint(0, 9999999),
+                                    randint(0, 9999999), #time=randint(0, 9999999),
+                                    uniform(-180,180),   #ra_deg=uniform(-180,180),
+                                    uniform(-90, 90),    #dec_deg=uniform(-90, 90),
+                                    uniform(0, 0.5),     #energy=uniform(0, 0.5),
+                                    uniform(0, 0.1),     #detx=uniform(0, 0.1),
+                                    uniform(0, 0.1),     #dety=uniform(0, 0.1),
+                                    1                    #mcid=1
+                                 )
+
+        time.sleep(1) # lets give the threads some time
+
+        stats = RTA_DL3ASTRI.waitAndClose()
+
+        print('Stats: {}'.format(stats))
+        self.assertEqual(1, stats[0])
+
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM evt3'))
+        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
+        self.assertEqual(1, numberOfRows)
+        mysqlConn.close()
+        config.reload('./')
 
 
     """

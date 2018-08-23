@@ -34,6 +34,27 @@ from PyRTAlib.Utils         import read_data_from_fits
 from PyRTAlib.Utils         import Config
 
 
+def deleteData(database):
+    """
+        Deleting existing data
+    """
+    if database == 'mysql':
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+        if not mysqlConn.executeQuery('delete from evt3'):
+            exit()
+        if not mysqlConn.executeQuery('delete from evt3_memory'):
+            exit()
+        mysqlConn.close()
+    elif database == 'redis' or database == 'redis-basic':
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.connect()
+        redisConn.conn.delete('evt3')
+    else:
+        print("Error!! Unknown database {}".format(database))
+        exit()
+
+
 def test(batchsize, numberofthreads):
 
     config = Config('./')
@@ -48,9 +69,8 @@ def test(batchsize, numberofthreads):
     for jj in range(5):
 
         obsId = getUniqueObservationId()
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB(database)
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB(database, '', True) # pure_multithreading mode on
 
-        start_perf = time.perf_counter()
         for i in range(int(numberOfEvents)):
             RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
                                        evt3data[i][1],
@@ -63,13 +83,10 @@ def test(batchsize, numberofthreads):
                                        obsId
                                      )
 
-        RTA_DL3ASTRI.waitAndClose()
-        end_perf = time.perf_counter()
+        stats = RTA_DL3ASTRI.waitAndClose()
 
-        executionTime = end_perf - start_perf
-        eventSec = int(numberOfEvents)/executionTime
-        eventSecList.append(eventSec)
-        executionTimeList.append(executionTime)
+        eventSecList.append(stats[2])
+        executionTimeList.append(stats[1])
 
 
     Perf = collections.namedtuple('res', ['avg', 'stddev'])
@@ -82,7 +99,7 @@ def test(batchsize, numberofthreads):
     stddevET = statistics.stdev(executionTimeList)
     ET = Perf(avgET, stddevET)
 
-    print("{} +- {}\n{} +- {} s".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
+    print("{} +- {}\n{} +- {}".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
     return ES
 
 
@@ -116,28 +133,15 @@ if __name__ == '__main__':
     """
         Deleting existing data
     """
-    if database == 'mysql':
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        if not mysqlConn.executeQuery('delete from evt3'):
-            exit()
-        mysqlConn.close()
-    elif database == 'redis' or database == 'redis-basic':
-        redisConn = RedisDBConnectorBASIC('./')
-        redisConn.connect()
-        redisConn.conn.delete('evt3')
-    else:
-        print("Error!! Unknown database {}".format(database))
-        exit()
-
+    deleteData(database)
 
 
 
     """
         Test configuration
     """
-    threads = [1]#, 2, 4, 8]
-    batchsizes = [1, 2, 50, 100, 200, 400, 800, 1600, 3200]
+    threads = [1, 2, 4, 8]
+    batchsizes = [1, 10, 50, 100, 200, 400, 800, 1600, 3200]
 
     insertionsNumber = len(threads)*len(batchsizes)*int(numberOfEvents)
     availableData = len(evt3data)
@@ -147,6 +151,7 @@ if __name__ == '__main__':
 
     if insertionsNumber > availableData:
         print("NOT ENOUGH DATA!!")
+        exit()
 
     """
         Plot
@@ -167,11 +172,14 @@ if __name__ == '__main__':
 
     for idx_t, t in enumerate(threads):
         for idx_b, b in enumerate(batchsizes):
+
             print("\n--> Number of threads: {}, Batch size: {}".format(t, b))
             p = test(b,t)
             x.append(b)
             y.append(p[0])
             erry.append(p[1])
+
+            deleteData(database)
 
     print(x)
     print(y)

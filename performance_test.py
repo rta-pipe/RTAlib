@@ -38,19 +38,17 @@ def test(batchsize, numberOfThreads):
 
     config = Config('./')
     config.reload('./')
-    config.set('General', 'debug', 'no')
+    config.set('General', 'debug', 'yes')
     config.set('General', 'numberofthreads', numberOfThreads)
     config.set('MySql', 'batchsize', batchsize)
 
     eventSecList = []
     executionTimeList = []
 
+    RTA_DL3ASTRI = RTA_DL3ASTRI_DB(database)
 
+    obsId = getUniqueObservationId()
     for jj in range(2):
-
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB(database)
-
-        obsId = getUniqueObservationId()
 
         start_perf = time.perf_counter()
         for i in range(int(numberOfEvents)):
@@ -67,11 +65,11 @@ def test(batchsize, numberOfThreads):
 
         #RTA_DL3ASTRI.close()
 
-        main_thread = threading.main_thread()
-        for t in RTA_DL3ASTRI.getThreads():
-            if t is not main_thread:
-                t.join()
-        end_perf = time.perf_counter()
+        #main_thread = threading.main_thread()
+        #for t in RTA_DL3ASTRI.getThreads():
+        #    if t is not main_thread:
+        #        t.join()
+        #end_perf = time.perf_counter()
 
         executionTime = end_perf - start_perf
         eventSec = int(numberOfEvents)/executionTime

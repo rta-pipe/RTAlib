@@ -35,40 +35,49 @@ class RTA_DL_DB(ABC):
             print("[RTA_DL_DB] Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis'))
             exit()
 
-        """
-        The queue module implements multi-producer, multi-consumer queues. It is
-        especially useful in threaded programming when information must be
-        exchanged safely between multiple threads.
-        """
-        self.eventQueue = queue.Queue(maxsize=-1) # queue size is infinite.
-
         self.config = Config(configFilePath) # singleton config object
 
-        # batchsize = 1 -> threadsnumber = 1 ?
-        #if int(self.config.get('General', 'batchsize') == 1):
-        #    self.config.set('General', 'numberofthreads', 1)
+        # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
+        if self.config.get('General', 'numberofthreads', 'int') == 1:
+            self.dbConnector = self.getConnector(database, configFilePath)
+            self.dbConnector.connect()
 
 
-        """
-            Variables to stop the threads
-        """
-        self.run = []
-        for i in range(self.config.get('General','numberofthreads', 'int')):
-            self.run.append(True)
+        # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
+        else:
 
-        """
-            Running the threads. Each thread has its own db connector.
-        """
-        # self.threads = []
-        for i in range(self.config.get('General','numberofthreads', 'int')):
+            """
+            The queue module implements multi-producer, multi-consumer queues. It is
+            especially useful in threaded programming when information must be
+            exchanged safely between multiple threads.
+            """
+            self.eventQueue = queue.Queue(maxsize=-1) # queue size is infinite.
 
-            if self.config.get('General','debug') == 'yes':
-                print("[RTA_DL_DB] Starting new thread!")
 
-            dbConnector = self.getConnector(database, configFilePath)
-            t = threading.Thread(target=self.consumeQueue, args=(i, dbConnector))
-            # self.threads.append(t)
-            t.start()
+            # batchsize = 1 -> threadsnumber = 1 ?
+            #if self.config.get('General', 'batchsize', 'int') == 1):
+            #    self.config.set('General', 'numberofthreads', 1)
+
+            """
+                Variables to stop the threads
+            """
+            self.run = []
+            for i in range(self.config.get('General','numberofthreads', 'int')):
+                self.run.append(True)
+
+            """
+                Running the threads. Each thread has its own db connector.
+            """
+            # self.threads = []
+            for i in range(self.config.get('General','numberofthreads', 'int')):
+
+                if self.config.get('General','debug') == 'yes':
+                    print("[RTA_DL_DB] Starting new thread!")
+
+                dbConnector = self.getConnector(database, configFilePath)
+                t = threading.Thread(target=self.consumeQueue, args=(i, dbConnector))
+                # self.threads.append(t)
+                t.start()
 
 
     def __enter__(self):
@@ -84,8 +93,13 @@ class RTA_DL_DB(ABC):
         pass
 
 
-    def queueNewData(self,event):
-        self.eventQueue.put_nowait(event)
+    def _insertEvent(self, event):
+        # Single thread
+        if self.config.get('General', 'numberofthreads', 'int') == 1:
+            self.dbConnector.insertData(self.config.get('General','evt3modelname'), event.getData())
+        # Multi threading mode
+        else:
+            self.eventQueue.put_nowait(event)
 
     def readNewData(self):
         try:
@@ -131,8 +145,11 @@ class RTA_DL_DB(ABC):
         if self.config.get('General','debug') == 'yes':
             print('[RTA_DL_DB] Stopping all threads on close()..')
 
-        for i in range(self.config.get('General', 'numberofthreads', 'int')):
-            self.run[i] = False
+        if self.config.get('General', 'numberofthreads', 'int') > 1:
+            for i in range(self.config.get('General', 'numberofthreads', 'int')):
+                self.run[i] = False
+        else:
+            self.dbConnector.close()
 
     def getThreads(self):
         return threading.enumerate()

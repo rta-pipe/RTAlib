@@ -30,7 +30,7 @@ class RTA_DL3ASTRI_DB(RTA_DL_DB):
 
     def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1):
         evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
-        super().queueNewData(evt3)
+        super()._insertEvent(evt3)
 
 
     """

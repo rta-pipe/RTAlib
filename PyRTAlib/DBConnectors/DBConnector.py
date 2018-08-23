@@ -38,6 +38,9 @@ class DBConnector(ABC):
         if self.config.get('General','debug') == 'yes':
             self.debug = True
 
+        # if self.config.get('General','debug') == 'yes':
+        #    print("[DBConnector] Config: {}".format(self.config.get()))
+
         self.commandsSent = 0
         self.conn = None;
 

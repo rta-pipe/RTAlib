@@ -24,17 +24,23 @@ import cProfile
 from PyRTAlib.DBConnectors  import MySqlDBConnector
 from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
 from PyRTAlib.Utils         import read_data_from_fits
+from PyRTAlib.Utils         import Config
 
 
-def test(batchsize):
+def test(numberOfEvents, batchsize, numberofthreads):
 
-        numberOfEvents = 1000
+        numberOfEvents = numberOfEvents
+
+        config = Config('./')
+        config.reload('./')
+        config.set('General', 'debug', 'no')
+        config.set('General', 'numberofthreads', numberofthreads)
+        config.set('MySql', 'batchsize', batchsize)
 
         obsId = getUniqueObservationId()
 
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
-        RTA_DL3ASTRI.dbConnector.batchsize = batchsize
-        RTA_DL3ASTRI.dbConnector.batchsize = False
+
         for i in range(int(numberOfEvents)):
             RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
                                        evt3data[i][1],
@@ -83,6 +89,6 @@ if __name__ == '__main__':
         exit()
     mysqlConn.close()
 
-    cProfile.run('test(1)', sort='tottime')
+    cProfile.run('test(1000, 1, 1)', sort='tottime')
 
-    cProfile.run('test(200)', sort='tottime')
+    cProfile.run('test(1000, 200, 1)', sort='tottime')

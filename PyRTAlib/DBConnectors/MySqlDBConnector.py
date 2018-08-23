@@ -33,6 +33,9 @@ class MySqlDBConnector(DBConnector):
 
 
     def close(self):
+        if self.conn and self.config.get('General','debug') == 'yes':
+            print("[MySqlConnector] in transaction: {}.  Closing connection..".format(self.conn.in_transaction))
+
         if self.conn and self.conn.is_connected() and self.conn.in_transaction:
             if self.config.get('General','debug') == 'yes':
                 print("[MySqlConnector] Commiting last transaction before exiting")
@@ -104,7 +107,7 @@ class MySqlDBConnector(DBConnector):
         query = self.buildQueryFromDictionary(tableName, dataDict)
 
         if self.config.get('General','debug') == 'yes':
-            print(query)
+            print('[MySqlConnector] Query: {}   Batch size: {}'.format(query,self.config.get('General','batchsize', 'int')))
 
         if self.conn and self.config.get('General','batchsize', 'int') == 1:
             return self.streamingInsert(query)
@@ -128,6 +131,8 @@ class MySqlDBConnector(DBConnector):
 
 
     def streamingInsert(self, query):
+        if self.config.get('General','debug') == 'yes':
+            print("[MySqlConnector] Streaming insert..")
         try:
             self.cursor.execute(query)
             return True
@@ -138,6 +143,9 @@ class MySqlDBConnector(DBConnector):
 
 
     def batchInsert(self, query):
+        if self.config.get('General','debug') == 'yes':
+            print("[MySqlConnector] Batch insert..")
+
         if self.commandsSent == 0:
             if self.config.get('General','debug') == 'yes':
                 print("[MySqlConnector] Starting transaction..")

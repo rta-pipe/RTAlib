@@ -21,6 +21,8 @@
 from abc import ABC, abstractmethod
 import queue
 import threading
+import time
+
 
 from ..DBConnectors import RedisDBConnector, MySqlDBConnector, RedisDBConnectorBASIC
 from ..Utils import Config
@@ -32,7 +34,7 @@ class RTA_DL_DB(ABC):
         super().__init__()
 
         if database != 'mysql' and database != 'redis' and database != 'redis-basic':
-            print("[RTA_DL_DB] Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis'))
+            print("[RTA_DL_DB] Error! Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis-basic'))
             exit()
 
         self.config = Config(configFilePath) # singleton config object
@@ -44,6 +46,7 @@ class RTA_DL_DB(ABC):
 
 
         # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
+        #                    /\____/\____/\____/\____/\____/\____/\____/\____/\
         else:
 
             """
@@ -53,22 +56,32 @@ class RTA_DL_DB(ABC):
             """
             self.eventQueue = queue.Queue(maxsize=-1) # queue size is infinite.
 
-
+            self.virginQueue = True
             # batchsize = 1 -> threadsnumber = 1 ?
             #if self.config.get('General', 'batchsize', 'int') == 1):
             #    self.config.set('General', 'numberofthreads', 1)
 
             """
-                Variables to stop the threads
+                Variables for forced threads termination
             """
             self.run = []
             for i in range(self.config.get('General','numberofthreads', 'int')):
                 self.run.append(True)
 
             """
+                Variables for threads statistics
+            """
+            self.start_perf = 0
+            self.end_perf = 0
+            self.insertions = []
+            for i in range(self.config.get('General','numberofthreads', 'int')):
+                self.insertions.append(0)
+
+
+            """
                 Running the threads. Each thread has its own db connector.
             """
-            # self.threads = []
+            self.threads = []
             for i in range(self.config.get('General','numberofthreads', 'int')):
 
                 if self.config.get('General','debug') == 'yes':
@@ -76,8 +89,10 @@ class RTA_DL_DB(ABC):
 
                 dbConnector = self.getConnector(database, configFilePath)
                 t = threading.Thread(target=self.consumeQueue, args=(i, dbConnector))
-                # self.threads.append(t)
+                self.threads.append(t)
                 t.start()
+
+
 
 
     def __enter__(self):
@@ -85,7 +100,7 @@ class RTA_DL_DB(ABC):
 
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.close()
+        self.waitAndClose()
 
 
     @abstractmethod
@@ -101,6 +116,11 @@ class RTA_DL_DB(ABC):
         else:
             self.eventQueue.put_nowait(event)
 
+            if self.virginQueue:
+                self.virginQueue = False
+                self.start_perf = time.perf_counter()
+
+
     def readNewData(self):
         try:
             return self.eventQueue.get_nowait()
@@ -115,7 +135,7 @@ class RTA_DL_DB(ABC):
         elif database == 'redis-basic':
             return RedisDBConnectorBASIC(configFilePath)
 
-
+    # TODO numero di eventi inseriti !!
     def consumeQueue(self, threadId, dbConnector):
         if self.config.get('General','debug') == 'yes':
             print('-->[RTA_DL_DB thread: {} ] Starting..'.format(threadId))
@@ -125,6 +145,11 @@ class RTA_DL_DB(ABC):
         while self.run[threadId]:
             event = self.readNewData()
 
+            if isinstance(event, str):
+                if self.config.get('General','debug') == 'yes':
+                    print("-->[RTA_DL_DB thread: {} ] Found END string in eventList.".format(threadId))
+                break
+
             if event is not None:
                 if not dbConnector.insertData(self.config.get('General','evt3modelname'), event.getData()):
                     print("-->[RTA_DL_DB thread: {} ] DBconnector insert data error. ".format(threadId))
@@ -133,15 +158,43 @@ class RTA_DL_DB(ABC):
                 elif self.config.get('General','debug') == 'yes':
                     print("-->[RTA_DL_DB thread: {} ] Data inserted: {} ".format(threadId, event.getData()))
 
+                self.insertions[threadId] += 1
+
         if self.config.get('General','debug') == 'yes':
-            print("-->[RTA_DL_DB thread: {} ] Job finished..")
+            print("-->[RTA_DL_DB thread: {} ] Closing connection and terminating..")
+
         dbConnector.close()
 
 
-    def close(self):
+    def waitAndClose(self):
+        # waitAndClose() -> deve essere bloccante
+        # Si aspetta la terminazione di ogni thread. I threads terminano quando la coda è vuota per più di 1 secondo.
+        if self.config.get('General', 'numberofthreads', 'int') > 1:
 
-        # TODO  Should close when all threads finish their job.
+            if self.config.get('General','debug') == 'yes':
+                print('[RTA_DL_DB] Waiting all threads to finish..')
 
+            for i in range(self.config.get('General', 'numberofthreads', 'int')):
+                self.eventQueue.put('END')
+
+            for t in self.threads:
+                t.join()
+
+            self.end_perf = time.perf_counter()
+
+            if self.config.get('General','debug') == 'yes':
+                print('[RTA_DL_DB] All threads stopped! Computing statistics and closing..')
+
+            return self.getStatistics()
+
+        else:
+
+            self.dbConnector.close()
+            return True
+
+         #getStatistics()
+
+    def forceClose(self):
         if self.config.get('General','debug') == 'yes':
             print('[RTA_DL_DB] Stopping all threads on close()..')
 
@@ -151,5 +204,16 @@ class RTA_DL_DB(ABC):
         else:
             self.dbConnector.close()
 
+        
+
     def getThreads(self):
         return threading.enumerate()
+
+    def getStatistics(self):
+        totalEvents = 0
+
+        for i in self.insertions:
+            totalEvents += i
+        executionTime = self.end_perf - self.start_perf
+
+        return (totalEvents, executionTime, round(totalEvents/executionTime,2))

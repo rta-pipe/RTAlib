@@ -30,8 +30,7 @@ from ..Utils import Config
 
 class RTA_DL_DB(ABC):
 
-    def __init__(self, database, configFilePath = '', pure_multithreading = False): # pure_multithreading = True -> single asynchronous thread is faster than synchronous
-        super().__init__()
+    def __init__(self, database, configFilePath = '', pure_multithreading = False):
 
         if database != 'mysql' and database != 'redis' and database != 'redis-basic':
             print("[RTA_DL_DB] Error! Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis-basic'))

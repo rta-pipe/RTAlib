@@ -39,11 +39,12 @@ class Config(metaclass=Singleton):
         self.configs = self.parseConfigFile(filepath)
 
     def parseConfigFile(self, filepath=''):
-        if not filepath:
-            if 'RTACONFIGFILE' in os.environ:
-                filepath = os.environ['RTACONFIGFILE']
-            else:
+        if 'RTACONFIGFILE' in os.environ:
+            filepath = os.environ['RTACONFIGFILE']
+        else:
+            if not filepath:
                 raise Exception('[Config] Cant configure. Neither the filepath parameter or the RTACONFIGFILE environment variable have been provided.')
+
 
         filepath += '/rtalibconfig'
 

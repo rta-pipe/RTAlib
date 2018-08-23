@@ -77,6 +77,11 @@ class ConfigFile(unittest.TestCase):
         config = Config()
         self.assertEqual(True, bool(config.get()))
 
+    def test_priority_to_env_var(self):
+        os.environ['RTACONFIGFILE'] = './'
+        config = Config('./pluto')
+        self.assertEqual(True, bool(config.get()))
+
     def test_singleton(self):
         config = Config('./')
         config.set('General', 'debug', 'yes')

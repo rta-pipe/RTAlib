@@ -38,7 +38,7 @@ def test(batchsize, numberOfThreads):
 
     config = Config('./')
     config.reload('./')
-    config.set('General', 'debug', 'yes')
+    config.set('General', 'debug', 'no')
     config.set('General', 'numberofthreads', numberOfThreads)
     config.set('MySql', 'batchsize', batchsize)
 
@@ -48,47 +48,48 @@ def test(batchsize, numberOfThreads):
     RTA_DL3ASTRI = RTA_DL3ASTRI_DB(database)
 
     obsId = getUniqueObservationId()
-    for jj in range(2):
+    #for jj in range(2):
 
-        start_perf = time.perf_counter()
-        for i in range(int(numberOfEvents)):
-            RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
-                                       evt3data[i][1],
-                                       evt3data[i][2],
-                                       evt3data[i][3],
-                                       evt3data[i][4],
-                                       evt3data[i][5],
-                                       evt3data[i][6],
-                                       evt3data[i][7],
-                                       obsId
-                                     )
+    start_perf = time.perf_counter()
+    for i in range(int(numberOfEvents)):
+        RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
+                                   evt3data[i][1],
+                                   evt3data[i][2],
+                                   evt3data[i][3],
+                                   evt3data[i][4],
+                                   evt3data[i][5],
+                                   evt3data[i][6],
+                                   evt3data[i][7],
+                                   obsId
+                                 )
 
-        #RTA_DL3ASTRI.close()
+    RTA_DL3ASTRI.close()
 
         #main_thread = threading.main_thread()
         #for t in RTA_DL3ASTRI.getThreads():
         #    if t is not main_thread:
         #        t.join()
-        #end_perf = time.perf_counter()
+    end_perf = time.perf_counter()
 
-        executionTime = end_perf - start_perf
-        eventSec = int(numberOfEvents)/executionTime
-        eventSecList.append(eventSec)
-        executionTimeList.append(executionTime)
+    executionTime = end_perf - start_perf
+    eventSec = int(numberOfEvents)/executionTime
+    # eventSecList.append(eventSec)
+    # executionTimeList.append(executionTime)
 
 
-    Perf = collections.namedtuple('res', ['avg', 'stddev'])
+    # Perf = collections.namedtuple('res', ['avg', 'stddev'])
 
-    avgES = statistics.mean(eventSecList)
-    stddevES = statistics.stdev(eventSecList)
-    ES = Perf(avgES, stddevES)
+    #avgES = statistics.mean(eventSecList)
+    #stddevES = statistics.stdev(eventSecList)
+    #ES = Perf(avgES, stddevES)
 
-    avgET = statistics.mean(executionTimeList)
-    stddevET = statistics.stdev(executionTimeList)
-    ET = Perf(avgET, stddevET)
+    #avgET = statistics.mean(executionTimeList)
+    #stddevET = statistics.stdev(executionTimeList)
+    #ET = Perf(avgET, stddevET)
 
-    print("Events/Sec: {} +- {}   Execution Time: {} +- {}".format(batchsize, round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
-    return ES
+    print("Events/Sec: {}  Execution Time: {}".format(batchsize, round(eventSec,2), round(executionTime,2)))
+    return (eventSec, executionTime)
+    #return ES
 
 
 
@@ -151,7 +152,7 @@ if __name__ == '__main__':
     w, h = len(batchsizes), len(threads);
     x  = []
     y = [[0 for x in range(w)] for y in range(h)]
-    erry = [[0 for x in range(w)] for y in range(h)]
+    #erry = [[0 for x in range(w)] for y in range(h)]
 
 
     """
@@ -164,14 +165,14 @@ if __name__ == '__main__':
     for idx_t, t in enumerate(threads):
         for idx_b, b in enumerate(batchsizes):
             print("\n--> Number of threads: {}, Batch size: {}".format(t, b))
-            p = test(b,t)
+            e_s, e_t = test(b,t)
             x.append(b)
-            y[idx_t].append(p[0])
-            erry[idx_t].append(p[1])
+            y[idx_t].append(e_s)
+            #erry[idx_t].append(p[1])
 
     print(x)
     print(y)
-    print(erry)
+    #print(erry)
 
     """
     # Two subplots, the axes array is 1-d

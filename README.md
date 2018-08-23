@@ -22,24 +22,25 @@ The last command will install the required dependencies: mysql-connector and red
 astropy, matplotlib, ... for the testing environment. (TODO production - development separation)
 
 ## Configuration options
-
->[General]
+```
+[General]
 batchsize=
 evt3modelname=
 mjdref=
 debug=
 numberofthreads=
 
->[MySql]
+[MySql]
 host=
 username=
 password=
 dbname=
 
->[Redis]
+[Redis]
 host=
 password=
 dbname=
+```
 
 ## General usage
 * Specify the location of the configuration file
@@ -49,7 +50,7 @@ dbname=
 
 ### Example
 
-```
+```python
 from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
 
 # The RTACONFIGFILE environment variabile is used to specify the configuration file path.
@@ -69,7 +70,7 @@ RTA_DL3ASTRI.waitAndClose()
 
 ### Example 2
 The library can be also used with the following, pythonic syntax:
-```
+```python
 with RTA_DL3ASTRI_DB('mysql') as RTA_DL3ASTRI:
     RTA_DL3ASTRI.insertEvent( evtid, eventidfits, observationid, datarepositoryid, ra_deg...)
 ```
@@ -78,30 +79,31 @@ the waitAndClose() method is implicitally called as the execution flow exits fro
 
 
 ## API
-
-*class RTA_DL3ASTRI_DB.RTA_DL3ASTRI_DB(database, configFilePath = '', pure_multithreading = False)*
-___
+```python
+class RTA_DL3ASTRI_DB.RTA_DL3ASTRI_DB(database, configFilePath = '', pure_multithreading = False)
+```
 Constructor for a RTA_DL3ASTRI_DB object.
 Arguments:
 * *database* (required) is a string that sets the database type.
 * *configFilePath* (optional) is a string that specifies the location of the configuration file (it will be overrided by the RTACONFIGFILE environment variabile, if set)
 * *pure_multithreading* (optional) is a boolean that specifies the *pure multithreading* mode. When the number of threads is configured equal to one, a False value means that the execution flow is synchronous i.e. no asynchronous threads are created.
 
-
-*class RTA_DL3ASTRI_DB.insertEvent(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1)*
-___
+```python
+class RTA_DL3ASTRI_DB.insertEvent(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1)
+```
 Implements the the *class RTA_DL_DB.insertEvent(*args)* abstract method of the base class.
 
-
-*class RTA_DL3ASTRI_DB.waitAndClose()*
-___
+```python
+class RTA_DL3ASTRI_DB.waitAndClose()
+```
 TODO
 If the multithreading mode has been set, it returns:
 * (totalEvents, executionTime, eventRate)
 
 
-*class RTA_DL3ASTRI_DB.forceClose()*
-___
+```python
+class RTA_DL3ASTRI_DB.forceClose()
+```
 TODO
 
 
@@ -118,7 +120,7 @@ Script:
 Arguments:
 * -v for verbose mode
 
-```
+```shell
 python unit_test.py -v
 ```
 

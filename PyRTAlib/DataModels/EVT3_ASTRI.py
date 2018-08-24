@@ -24,8 +24,8 @@ from ..Utils import time_mjd_to_tt
 class EVT3_ASTRI():
     def __init__(self, eventidfits, timemjd, ra_deg, dec_deg, energy, detx, dety, mcid, mjdref, observationid, datarepositoryid, status):
 
-        ## BUG: TypeError: Object of type 'uint32' is not JSON serializable
-        ## -> <class 'numpy.uint32'> I convert those data to int() in order to convert it to json later in RedisDBConnector
+        ## I convert those data to float() in order to convert them to json later in RedisDBConnector
+        ## beacause of --> TypeError: Object of type 'uint32' (<class 'numpy.uint32'>) is not JSON serializable
         self.eventidfits = float(eventidfits)
         self.ra_deg = float(ra_deg)
         self.dec_deg = float(dec_deg)
@@ -41,28 +41,8 @@ class EVT3_ASTRI():
         self.datarepositoryid = int(datarepositoryid)
         self.status = int(status)
 
-        pass
 
     def getData(self):
         """Return the 'dictionary' representation of the object.
         """
         return vars(self)
-
-    """
-    def getInsertQuery(self, table):
-        query = 'INSERT INTO '+table
-        queryK = '(eventidfits, ra_deg, dec_deg, energy, detx, dety, mcid, timerealtt, insert_time, observationid, datarepositoryid, status) '
-        queryV = 'VALUES('  +str(self.eventidfits)+', '       \
-                            +str(self.ra_deg)+', '            \
-                            +str(self.dec_deg)+', '           \
-                            +str(self.energy)+', '            \
-                            +str(self.detx)+', '              \
-                            +str(self.dety)+', '              \
-                            +str(self.mcid)+', '              \
-                            +str(self.timerealtt)+', '        \
-                            +str(self.insert_time)+', '       \
-                            +str(self.observationid)+', '     \
-                            +str(self.datarepositoryid)+', '  \
-                            +str(self.status)+')'
-        return query+queryK+queryV
-    """

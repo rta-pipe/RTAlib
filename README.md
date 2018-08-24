@@ -24,11 +24,11 @@ astropy, matplotlib, ... for the testing environment. (TODO production - develop
 ## Configuration options
 ```
 [General]
-batchsize=
-evt3modelname=
-mjdref=
-debug=
-numberofthreads=
+evt3modelname=     # the name of the mysql table or of the redis zset/hashset
+mjdref=            # MJDREFI+MJDREFF
+debug=             # yes/no
+batchsize=         # performance tuning parameter: the input streaming is writed to db with a batch strategy (if batchsize > 1)
+numberofthreads=   # performance tuning parameter: more than one thread may help to sustain a high-rate input streaming
 
 [MySql]
 host=
@@ -51,7 +51,7 @@ dbname=
 ### Example
 
 ```python
-from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
+from PyRTAlib.RTAInterface import RTA_DL3ASTRI_DB
 
 # The RTACONFIGFILE environment variabile is used to specify the configuration file path.
 os.environ['RTACONFIGFILE'] = './path/to/config/file'  
@@ -61,7 +61,7 @@ RTA_DL3ASTRI = RTA_DL3ASTRI_DB('redis-basic')
 
 # The insertEvent(..) method writes the events in the database.
 for i in range(10000):
-  RTA_DL3ASTRI.insertEvent(evtid, eventidfits, observationid, datarepositoryid, ra_deg...)
+  RTA_DL3ASTRI.insertEvent(..)
 
 # If multithreading has been setted up, the waitAndClose() methods blocks the execution
 # until all threads finish their jobs
@@ -89,9 +89,9 @@ Arguments:
 * *pure_multithreading* (optional) is a boolean that specifies the *pure multithreading* mode. When the number of threads is configured equal to one, a False value means that the execution flow is synchronous i.e. no asynchronous threads are created.
 
 ```python
-class RTA_DL3ASTRI_DB.insertEvent(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1)
+class RTA_DL3ASTRI_DB.insertEvent(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid = 0, datarepositoryid = 0, status = 1)
 ```
-Implements the the *class RTA_DL_DB.insertEvent(*args)* abstract method of the base class.
+Implements the the *class RTA_DL_DB.insertEvent(°args)* abstract method of the base class.
 
 ```python
 class RTA_DL3ASTRI_DB.waitAndClose()

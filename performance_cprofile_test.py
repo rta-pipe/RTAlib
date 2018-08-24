@@ -22,7 +22,7 @@ import sys
 import cProfile
 
 from PyRTAlib.DBConnectors  import MySqlDBConnector
-from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
+from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
 from PyRTAlib.Utils         import read_data_from_fits
 from PyRTAlib.Utils         import Config
 
@@ -39,7 +39,7 @@ def test(numberOfEvents, batchsize, numberofthreads):
 
         obsId = getUniqueObservationId()
 
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
 
         for i in range(int(numberOfEvents)):
             RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
@@ -52,7 +52,7 @@ def test(numberOfEvents, batchsize, numberofthreads):
                                        evt3data[i][7],
                                        obsId
                                      )
-        RTA_DL3ASTRI.close()
+        RTA_DL3ASTRI.waitAndClose()
 
 
 

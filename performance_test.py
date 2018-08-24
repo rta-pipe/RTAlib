@@ -29,30 +29,34 @@ import threading
 #import numpy as np
 
 from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
-from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
+from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
 from PyRTAlib.Utils         import read_data_from_fits
 from PyRTAlib.Utils         import Config
 
 
 def deleteData(database):
+
+    config = Config('./')
+
     """
         Deleting existing data
     """
     if database == 'mysql':
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        if not mysqlConn.executeQuery('delete from evt3'):
+        if not mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')):
             exit()
-        if not mysqlConn.executeQuery('delete from evt3_memory'):
+        if not mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')+'_memory'):
             exit()
         mysqlConn.close()
     elif database == 'redis' or database == 'redis-basic':
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
-        redisConn.conn.delete('evt3')
+        redisConn.conn.delete(config.get('General', 'evt3modelname'))
     else:
         print("Error!! Unknown database {}".format(database))
         exit()
+
 
 def test(batchsize, numberofthreads):
 
@@ -68,7 +72,7 @@ def test(batchsize, numberofthreads):
     for jj in range(5):
 
         obsId = getUniqueObservationId()
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB(database)
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old(database)
 
         start_perf = time.perf_counter()
         for i in range(int(numberOfEvents)):
@@ -138,23 +142,6 @@ if __name__ == '__main__':
         Deleting existing data
     """
     deleteData(database)
-
-    
-    if database == 'mysql':
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        if not mysqlConn.executeQuery('delete from evt3'):
-            exit()
-        if not mysqlConn.executeQuery('delete from evt3_memory'):
-            exit()
-        mysqlConn.close()
-    elif database == 'redis' or database == 'redis-basic':
-        redisConn = RedisDBConnectorBASIC('./')
-        redisConn.connect()
-        redisConn.conn.delete('evt3')
-    else:
-        print("Error!! Unknown database {}".format(database))
-        exit()
 
 
 

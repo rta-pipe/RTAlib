@@ -71,6 +71,10 @@ RTA_DL3ASTRI.waitAndClose()
 ### Example 2
 The library can be also used with the following, pythonic syntax:
 ```python
+from PyRTAlib.RTAInterface import RTA_DL3ASTRI_DB
+
+os.environ['RTACONFIGFILE'] = './path/to/config/file' 
+
 with RTA_DL3ASTRI_DB('mysql') as RTA_DL3ASTRI:
     RTA_DL3ASTRI.insertEvent( evtid, eventidfits, observationid, datarepositoryid, ra_deg...)
 ```

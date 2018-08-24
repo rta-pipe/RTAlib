@@ -25,8 +25,7 @@ from random import randint, uniform
 
 from PyRTAlib.Utils         import Config
 from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
-from PyRTAlib.DataModels    import EVT3_ASTRI
-from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
+from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
 
 
 
@@ -383,11 +382,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from evt3'))
+        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
         mysqlConn.close()
 
 
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
 
 
         RTA_DL3ASTRI.insertEvent(
@@ -408,7 +407,7 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM evt3'))
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
         numberOfRows = int(mysqlConn.cursor.fetchone()[0])
         self.assertEqual(1, numberOfRows)
         mysqlConn.close()
@@ -425,11 +424,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from evt3'))
+        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
         mysqlConn.close()
 
 
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
 
 
         RTA_DL3ASTRI.insertEvent(
@@ -451,7 +450,7 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         config.set('General', 'batchsize', 1)
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM evt3'))
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
         numberOfRows = int(mysqlConn.cursor.fetchone()[0])
         self.assertEqual(1, numberOfRows)
         mysqlConn.close()
@@ -467,11 +466,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from evt3'))
+        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
         mysqlConn.close()
 
 
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
 
 
         RTA_DL3ASTRI.insertEvent(
@@ -489,7 +488,7 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM evt3'))
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
         numberOfRows = int(mysqlConn.cursor.fetchone()[0])
         self.assertEqual(1, numberOfRows)
         mysqlConn.close()
@@ -506,11 +505,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from evt3'))
+        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
         mysqlConn.close()
 
 
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
 
 
         RTA_DL3ASTRI.insertEvent(
@@ -530,7 +529,7 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         config.set('General', 'batchsize', 1)
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM evt3'))
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
         numberOfRows = int(mysqlConn.cursor.fetchone()[0])
         self.assertEqual(1, numberOfRows)
         mysqlConn.close()
@@ -547,11 +546,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from evt3'))
+        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
         mysqlConn.close()
 
 
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql')
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
 
 
         RTA_DL3ASTRI.insertEvent(
@@ -571,7 +570,7 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM evt3'))
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
         numberOfRows = int(mysqlConn.cursor.fetchone()[0])
         self.assertEqual(1, numberOfRows)
         mysqlConn.close()
@@ -588,11 +587,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from evt3'))
+        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
         mysqlConn.close()
 
 
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('mysql', '', True)
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql', '', True)
 
 
         RTA_DL3ASTRI.insertEvent(
@@ -615,7 +614,7 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM evt3'))
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
         numberOfRows = int(mysqlConn.cursor.fetchone()[0])
         self.assertEqual(1, numberOfRows)
         mysqlConn.close()
@@ -635,10 +634,10 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
-        redisConn.conn.delete('evt3')
+        redisConn.conn.delete(config.get('General', 'evt3modelname'))
 
 
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB('redis-basic')
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('redis-basic')
         RTA_DL3ASTRI.insertEvent(
                                     randint(0, 9999999), #eventidfits=randint(0, 9999999),
                                     randint(0, 9999999), #time=randint(0, 9999999),
@@ -654,14 +653,14 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         RTA_DL3ASTRI.forceClose()
 
-        self.assertEqual(1, redisConn.conn.zcard('evt3') )
+        self.assertEqual(1, redisConn.conn.zcard(config.get('General', 'evt3modelname')) )
         config.reload('./')
 
 
 
     """
     def test_insert_mysql_package_version(self):
-        with RTA_DL3ASTRI_DB('mysql') as RTA_DL3ASTRI:
+        with RTA_DL3ASTRI_DB_old('mysql') as RTA_DL3ASTRI:
             res = RTA_DL3ASTRI.insertEvent(
                                             randint(0, 9999999), #eventidfits=randint(0, 9999999),
                                             randint(0, 9999999), #time=randint(0, 9999999),

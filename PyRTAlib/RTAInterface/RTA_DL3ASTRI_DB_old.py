@@ -19,22 +19,22 @@
 # ==========================================================================
 
 from .RTA_DL_DB import RTA_DL_DB
-from ..DataModels import EVT3_ASTRI
+from ..DataModels import EVT3_ASTRI_old
 
 
-class RTA_DL3ASTRI_DB(RTA_DL_DB):
+class RTA_DL3ASTRI_DB_old(RTA_DL_DB):
 
     def __init__(self, database, configFilePath = '', pure_multithreading = False):
         super().__init__(database, configFilePath, pure_multithreading)
 
 
-    def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, alt, az, gammaness, observationid = 0, datarepositoryid = 0, status = 1):
-        evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, alt, az, gammaness, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
+    def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid = 0, datarepositoryid = 0, status = 1):
+        evt3 = EVT3_ASTRI_old(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
         super()._insertEvent(evt3)
 
 
     """
     def fakeInsert(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1):
-        evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)
+        evt3 = EVT3_ASTRI_old(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)
         return self.dbConnector.fakeInsertData(self.configs['evt3modelname'], evt3.getData())
     """

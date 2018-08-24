@@ -21,8 +21,8 @@ import time
 from ..Utils import time_mjd_to_tt
 
 
-class EVT3_ASTRI():
-    def __init__(self, eventidfits, timemjd, ra_deg, dec_deg, energy, detx, dety, alt, az, gammaness, mjdref, observationid, datarepositoryid, status):
+class EVT3_ASTRI_old():
+    def __init__(self, eventidfits, timemjd, ra_deg, dec_deg, energy, detx, dety, mcid, mjdref, observationid, datarepositoryid, status):
 
         ## I convert those data to float() in order to convert them to json later in RedisDBConnector
         ## beacause of --> TypeError: Object of type 'uint32' (<class 'numpy.uint32'>) is not JSON serializable
@@ -32,9 +32,7 @@ class EVT3_ASTRI():
         self.energy = float(energy)
         self.detx = float(detx)
         self.dety = float(dety)
-        self.alt = float(alt)
-        self.az = float(az)
-        self.gammaness = float(gammaness)
+        self.mcid = float(mcid)
 
         self.timerealtt = time_mjd_to_tt(mjdref) + float(timemjd)
         self.insert_time = time.time()

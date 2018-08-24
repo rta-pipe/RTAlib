@@ -29,30 +29,34 @@ import threading
 #import numpy as np
 
 from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
-from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB
+from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
 from PyRTAlib.Utils         import read_data_from_fits
 from PyRTAlib.Utils         import Config
 
 
 def deleteData(database):
+
+    config = Config('./')
+
     """
         Deleting existing data
     """
     if database == 'mysql':
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        if not mysqlConn.executeQuery('delete from evt3'):
+        if not mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')):
             exit()
-        if not mysqlConn.executeQuery('delete from evt3_memory'):
+        if not mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')+'_memory'):
             exit()
         mysqlConn.close()
     elif database == 'redis' or database == 'redis-basic':
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
-        redisConn.conn.delete('evt3')
+        redisConn.conn.delete(config.get('General', 'evt3modelname'))
     else:
         print("Error!! Unknown database {}".format(database))
         exit()
+
 
 
 def test(batchsize, numberofthreads):
@@ -69,7 +73,7 @@ def test(batchsize, numberofthreads):
     for jj in range(5):
 
         obsId = getUniqueObservationId()
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB(database, '', True) # pure_multithreading mode on
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old(database, '', True) # pure_multithreading mode on
 
         for i in range(int(numberOfEvents)):
             RTA_DL3ASTRI.insertEvent(  evt3data[i][0],

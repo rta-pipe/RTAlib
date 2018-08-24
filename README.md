@@ -73,7 +73,7 @@ The library can be also used with the following, pythonic syntax:
 ```python
 from PyRTAlib.RTAInterface import RTA_DL3ASTRI_DB
 
-os.environ['RTACONFIGFILE'] = './path/to/config/file' 
+os.environ['RTACONFIGFILE'] = './path/to/config/file'
 
 with RTA_DL3ASTRI_DB('mysql') as RTA_DL3ASTRI:
     RTA_DL3ASTRI.insertEvent( evtid, eventidfits, observationid, datarepositoryid, ra_deg...)
@@ -114,8 +114,12 @@ TODO
 
 ## Tests
 In order to be able to run the tests:
-* rtalibconfigfortest must be configured with the following parameters: --> TODO <--
-* a database for testing purpose must be setted up calling the following script: --> TODO <--
+* rtalibconfig_test must be configured with the following parameters: --> TODO <--
+* a database for testing purpose must be setted up calling the following instructions:
+  * CREATE DATABASE 'evt_test'.............and create tables..
+  * CREATE USER 'rta_test'@'localhost' IDENTIFIED BY 'Rtatest@2018#';
+  * GRANT ALL PRIVILEGES ON evt_test.* to 'rta_test'@'localhost' identified by 'Rtatest@2018#'
+--> TODO <--
 
 ### unit test
 Script:

@@ -68,7 +68,7 @@ class MySqlDBConnector(DBConnector):
                                                 )
             self.cursor = self.conn.cursor()#raw=True)
             if self.config.get('General','debug') == 'yes':
-                print("[MySqlConnector] Connected to MySql")
+                print("[MySqlConnector] Connected to MySql. {}@{} -> {}".format(self.config.get('MySql','username'), self.config.get('MySql','host'), self.config.get('MySql','dbname')))
             return True
         except mysql.connector.Error as err:
             print(err)

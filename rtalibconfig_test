@@ -7,11 +7,11 @@ numberofthreads=1
 
 [MySql]
 host=127.0.0.1
-username=test
-password=test@2018#
+username=rta_test
+password=RTA@test18@
 dbname=evt_test
 
 [Redis]
 host=127.0.0.1
 password=Redis@RTA18#
-dbname=test
+dbname=1

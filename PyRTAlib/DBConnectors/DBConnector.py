@@ -60,7 +60,3 @@ class DBConnector(ABC):
     @abstractmethod
     def insertData(self, modelName, *args):
         pass
-
-
-    def printConnectionInfo(self):
-        print("host: {} \nusername: {} \npassword: {}\ndatabase: {}".format(self.host, self.username, self.password, self.dbname))

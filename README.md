@@ -115,10 +115,16 @@ TODO
 ## Tests
 In order to be able to run the tests:
 * rtalibconfig_test must be configured with the following parameters: --> TODO <--
-* a database for testing purpose must be setted up calling the following instructions:
-  * CREATE DATABASE 'evt_test'.............and create tables..
+* a MySQL database for testing purpose must be setted up calling the following instructions:
+  * CREATE DATABASE 'evt_test'
+  * CREATE TABLE IF NOT EXISTS test_table ( id INT AUTO_INCREMENT PRIMARY KEY, a INTEGER, b INTEGER, c INTEGER, d INTEGER );
+  * TABELLA PERFORMANCE --> TODO <-- (dump tabella originale?)
   * CREATE USER 'rta_test'@'localhost' IDENTIFIED BY 'Rtatest@2018#';
   * GRANT ALL PRIVILEGES ON evt_test.* to 'rta_test'@'localhost' identified by 'Rtatest@2018#'
+* a Redis database for testing purpose must be setted up calling the following instructions:
+  * redis-cli
+  * auth <redis-password>
+  * set indexstring:testmodel a
 --> TODO <--
 
 ### unit test

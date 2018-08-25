@@ -180,8 +180,13 @@ class RTA_DL_DB(ABC):
 
 
     def waitAndClose(self):
+
+
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
         if not self.pure_multithreading:
+
+            # Stopping DTR's working thread
+            self.dtr.waitAndClose()
 
             self.dbConnector.close()
             return True
@@ -201,6 +206,10 @@ class RTA_DL_DB(ABC):
 
             self.end_perf = time.perf_counter()
 
+
+            # Stopping DTR's working thread
+            self.dtr.waitAndClose()
+
             if self.config.get('General','debug') == 'yes':
                 print('[RTA_DL_DB] All threads stopped! Computing statistics and closing..')
 
@@ -208,7 +217,7 @@ class RTA_DL_DB(ABC):
 
 
 
-
+    # DEPRECATED
     def forceClose(self):
         if self.config.get('General','debug') == 'yes':
             print('[RTA_DL_DB] Stopping all threads on close()..')

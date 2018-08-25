@@ -24,13 +24,16 @@ from collections import deque
 
 from ..Utils import Config
 from ..Utils.Generic import Singleton
-from ..DataModels import *
 
 class DTR(metaclass=Singleton):
 
     def __init__(self, configFilePath=''):
 
         self.config = Config(configFilePath)
+
+        if self.config.get('General','debug') == 'yes':
+            print("-->[DTR] DTR system started!")
+
 
         self.redisConn = redis.Redis(
                                         host=self.config.get('Redis','host'),
@@ -42,6 +45,7 @@ class DTR(metaclass=Singleton):
         self.workingQueue = deque([])
 
         self.senderWorker = threading.Thread(target=self.processQueue, args=())
+        self.senderWorker.start()
 
 
     def publish(self, event):
@@ -51,23 +55,43 @@ class DTR(metaclass=Singleton):
 
     def processQueue(self):
 
+        if self.config.get('General','debug') == 'yes':
+            print("-->[DTR thread] Worker thread started!")
+
         while True:
+            if len(self.workingQueue) == 0:
+                continue
+
             event = self.workingQueue.popleft()
 
             if isinstance(event, str):
                 if self.config.get('General','debug') == 'yes':
-                    print("-->[RTA_DL_DB thread: {} ] Found END string in eventList.".format(threadId))
-            break
+                    print("-->[DTR thread] Found END string in eventList.")
+                break
 
             if event is not None:
 
-                event.getData()
+                data = event.getData()
+                print(data)
 
-                # Compute channel
-                channel = 'visualization.'#+str(observationId)+'.'+dataType
+                # Compute channel and key
+                keychannel = 'visualization.'+str(data['observationid'])+'.lc'
+                print(keychannel)
 
                 # Transform data
+                lc_data = {'energy': data['energy'], 'time': data['timerealtt'], 'isUpperLimit': True if data['energy']<= 2.9 else False }
+                print(lc_data)
 
                 # Save it to Redis
+                self.redisConn.lpush(keychannel, lc_data)
 
                 # Publish on channel
+                message = {'type': 'lc', 'loc': keychannel, 'last_data': lc_data}
+                print(message)
+                self.redisConn.publish(keychannel, message)
+
+    def waitAndClose(self):
+        self.workingQueue.append('END')
+        self.senderWorker.join()
+        if self.config.get('General','debug') == 'yes':
+            print('[DTR] Worker thread stopped! Closing..')

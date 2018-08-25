@@ -26,15 +26,19 @@ import time
 
 from ..DBConnectors import RedisDBConnector, MySqlDBConnector, RedisDBConnectorBASIC
 from ..Utils import Config
-
+from ..DTR import DTR
 
 class RTA_DL_DB(ABC):
 
     def __init__(self, database, configFilePath = '', pure_multithreading = False):
 
+        print('___/\____/\____/\___RTAlib-init()___/\____/\____/\___')
+
         if database != 'mysql' and database != 'redis' and database != 'redis-basic':
             print("[RTA_DL_DB] Error! Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis-basic'))
             exit()
+
+        self.dtr = DTR(configFilePath) # DTR object
 
         self.config = Config(configFilePath) # singleton config object
 
@@ -113,6 +117,9 @@ class RTA_DL_DB(ABC):
 
 
     def _insertEvent(self, event):
+
+        # Transform data for visualization and notify GUIs
+        self.dtr.publish(event)
 
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
         if not self.pure_multithreading:

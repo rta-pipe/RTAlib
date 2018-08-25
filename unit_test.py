@@ -26,14 +26,7 @@ from random import randint, uniform
 from PyRTAlib.Utils         import Config
 from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
 from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
-
-
-
-
-
-
-
-
+from PyRTAlib.DTRInterface  import DTR
 
 
 
@@ -676,7 +669,7 @@ class DL3ASTRIDB_interface(unittest.TestCase):
     """
 
 
-
+ 
 
 if __name__ == '__main__':
     unittest.main()

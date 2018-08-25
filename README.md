@@ -91,25 +91,24 @@ Arguments:
 * *database* (required) is a string that sets the database type.
 * *configFilePath* (optional) is a string that specifies the location of the configuration file (it will be overrided by the RTACONFIGFILE environment variabile, if set)
 * *pure_multithreading* (optional) is a boolean that specifies the *pure multithreading* mode. When the number of threads is configured equal to one, a False value means that the execution flow is synchronous i.e. no asynchronous threads are created.
-
+___
 ```python
 class RTA_DL3ASTRI_DB.insertEvent(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid = 0, datarepositoryid = 0, status = 1)
 ```
 Implements the the *class RTA_DL_DB.insertEvent(°args)* abstract method of the base class.
-
+___
 ```python
 class RTA_DL3ASTRI_DB.waitAndClose()
 ```
 TODO
 If the multithreading mode has been set, it returns:
 * (totalEvents, executionTime, eventRate)
-
-
+___
 ```python
 class RTA_DL3ASTRI_DB.forceClose()
 ```
 TODO
-
+___
 
 
 ## Tests

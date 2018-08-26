@@ -18,8 +18,6 @@ TODO
 * Create script to initialize db and test environment --> TODO <--
 * Fill in the configuration file's fields.
 
-The setup.py script will install the required dependencies: mysql-connector and redis for the production environment,
-astropy, matplotlib, ... for the testing environment. (TODO production - development separation)
 
 ## Configuration options
 ```

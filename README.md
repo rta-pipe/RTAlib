@@ -26,9 +26,13 @@ astropy, matplotlib, ... for the testing environment. (TODO production - develop
 [General]
 evt3modelname=     # the name of the mysql table or of the redis zset/hashset
 mjdref=            # MJDREFI+MJDREFF
-debug=             # yes/no
+debug=             # yes/y/True/'True' or any other value for False
 batchsize=         # performance tuning parameter: the input streaming is writed to db with a batch strategy (if batchsize > 1)
 numberofthreads=   # performance tuning parameter: more than one thread may help to sustain a high-rate input streaming
+
+[Dtr]
+active=            # yes/y/True/'True' or any other value for False
+debug=
 
 [MySql]
 host=

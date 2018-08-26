@@ -27,12 +27,12 @@ class RTA_DL3ASTRI_DB_old(RTA_DL_DB):
     def __init__(self, database, configFilePath = '', pure_multithreading = False):
         super().__init__(database, configFilePath, pure_multithreading)
 
-
     def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid = 0, datarepositoryid = 0, status = 1):
         evt3 = EVT3_ASTRI_old(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
         super()._insertEvent(evt3)
 
-
+    def getRandomEvent(self):
+        return EVT3_ASTRI_old.getRandomEvent()
     """
     def fakeInsert(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1):
         evt3 = EVT3_ASTRI_old(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)

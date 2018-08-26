@@ -362,241 +362,168 @@ class RedisConnectorBASIC(unittest.TestCase):
 |_|_\    |_|     /_/ \_\    |___|  |_|\_|   |_|    |___| |_|_\  |_|     /_/ \_\    \___| |___|
 
 """
+def deleteTable(config):
+    mysqlConn = MySqlDBConnector('./')
+    mysqlConn.connect()
+    res = mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname'))
+    mysqlConn.close()
+    return res
+
+def getConfiguration(debug='yes', numberOfThreads=1, batchsize=1, dtr='no'):
+    config = Config('./')
+    config.set('General', 'debug', debug)
+    config.set('General', 'numberofthreads', numberOfThreads)
+    config.set('General', 'batchsize', batchsize)
+    config.set('Dtr', 'active', dtr)
+    return config
+
+def checkNumberOfRows(config):
+    config.set('General', 'batchsize', 1)
+    mysqlConn = MySqlDBConnector('./')
+    mysqlConn.connect()
+    res = mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname'))
+    resNumberOfRows = int(mysqlConn.cursor.fetchone()[0])
+    mysqlConn.close()
+    config.reload('./')
+    return str(res)+'-'+str(resNumberOfRows)
+
+
+
 class DL3ASTRIDB_interface(unittest.TestCase):
 
     os.environ['RTACONFIGFILE'] = './'
 
     def test_insert_mysql_multi_thread_streaming_wait_and_close(self):
         print("/\____/\____/\____/\____/\__multi__/\__streaming__/\__wc__/\____/\____/\____/\_")
-        config = Config('./')
-        config.set('General', 'debug', 'yes')
-        config.set('General', 'numberofthreads', 2)
-        config.set('General', 'batchsize', 1)
 
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
-        mysqlConn.close()
+        # Configuration
+        config = getConfiguration(debug='yes', numberOfThreads=2, batchsize=1)
 
+        # Delete old data
+        self.assertEqual(True,deleteTable(config))
 
+        # Connect and insert random event
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
+        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
 
 
-        RTA_DL3ASTRI.insertEvent(
-                                    randint(0, 9999999), #eventidfits=randint(0, 9999999),
-                                    randint(0, 9999999), #time=randint(0, 9999999),
-                                    uniform(-180,180),   #ra_deg=uniform(-180,180),
-                                    uniform(-90, 90),    #dec_deg=uniform(-90, 90),
-                                    uniform(0, 0.5),     #energy=uniform(0, 0.5),
-                                    uniform(0, 0.1),     #detx=uniform(0, 0.1),
-                                    uniform(0, 0.1),     #dety=uniform(0, 0.1),
-                                    1                    #mcid=1
-                                 )
         time.sleep(1)
+
         stats = RTA_DL3ASTRI.waitAndClose()
 
         print('Stats: {}'.format(stats))
         self.assertEqual(1, stats[0])
 
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
-        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
-        self.assertEqual(1, numberOfRows)
-        mysqlConn.close()
-        config.reload('./')
+        # Check number of rows
+        self.assertEqual('True-1', checkNumberOfRows(config))
+
+
+
 
 
 
     def test_insert_mysql_multi_thread_batch_wait_and_close(self):
         print("/\____/\____/\____/\____/\__multi__/\__batch__/\__wc__/\____/\____/\____/\_")
-        config = Config('./')
-        config.set('General', 'debug', 'yes')
-        config.set('General', 'numberofthreads', 2)
-        config.set('General', 'batchsize', 2)
 
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
-        mysqlConn.close()
+        # Configuration
+        config = getConfiguration(debug='yes', numberOfThreads=2, batchsize=2)
 
+        # Delete old data
+        self.assertEqual(True,deleteTable(config))
 
+        # Connect and insert random event
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
+        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
 
-
-        RTA_DL3ASTRI.insertEvent(
-                                    randint(0, 9999999), #eventidfits=randint(0, 9999999),
-                                    randint(0, 9999999), #time=randint(0, 9999999),
-                                    uniform(-180,180),   #ra_deg=uniform(-180,180),
-                                    uniform(-90, 90),    #dec_deg=uniform(-90, 90),
-                                    uniform(0, 0.5),     #energy=uniform(0, 0.5),
-                                    uniform(0, 0.1),     #detx=uniform(0, 0.1),
-                                    uniform(0, 0.1),     #dety=uniform(0, 0.1),
-                                    1                    #mcid=1
-                                 )
         time.sleep(1)
+
         stats = RTA_DL3ASTRI.waitAndClose()
 
         print('Stats: {}'.format(stats))
         self.assertEqual(1, stats[0])
 
-        config.set('General', 'batchsize', 1)
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
-        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
-        self.assertEqual(1, numberOfRows)
-        mysqlConn.close()
-        config.reload('./')
+        # Check number of rows
+        self.assertEqual('True-1', checkNumberOfRows(config))
 
 
     def test_insert_mysql_multi_thread_streaming_force_close(self):
         print("/\____/\____/\____/\____/\__multi__/\__streaming__/\__fc__/\____/\____/\____/\_")
-        config = Config('./')
-        config.set('General', 'debug', 'yes')
-        config.set('General', 'numberofthreads', 2)
-        config.set('General', 'batchsize', 1)
 
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
-        mysqlConn.close()
+        # Configuration
+        config = getConfiguration(debug='yes', numberOfThreads=2, batchsize=1)
 
+        # Delete old data
+        self.assertEqual(True,deleteTable(config))
 
+        # Connect and insert random event
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
+        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
 
-
-        RTA_DL3ASTRI.insertEvent(
-                                    randint(0, 9999999), #eventidfits=randint(0, 9999999),
-                                    randint(0, 9999999), #time=randint(0, 9999999),
-                                    uniform(-180,180),   #ra_deg=uniform(-180,180),
-                                    uniform(-90, 90),    #dec_deg=uniform(-90, 90),
-                                    uniform(0, 0.5),     #energy=uniform(0, 0.5),
-                                    uniform(0, 0.1),     #detx=uniform(0, 0.1),
-                                    uniform(0, 0.1),     #dety=uniform(0, 0.1),
-                                    1                    #mcid=1
-                                 )
         time.sleep(1)
+
         RTA_DL3ASTRI.forceClose() # <---------
 
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
-        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
-        self.assertEqual(1, numberOfRows)
-        mysqlConn.close()
-        config.reload('./')
+        # Check number of rows
+        self.assertEqual('True-1', checkNumberOfRows(config))
 
 
 
     def test_insert_mysql_multi_thread_batch_wait_and_close(self):
         print("/\____/\____/\____/\____/\__multi__/\__batch__/\__fc__/\____/\____/\____/\_")
-        config = Config('./')
-        config.set('General', 'debug', 'yes')
-        config.set('General', 'numberofthreads', 2)
-        config.set('General', 'batchsize', 2)
 
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
-        mysqlConn.close()
+        # Configuration
+        config = getConfiguration(debug='yes', numberOfThreads=2, batchsize=2)
 
+        # Delete old data
+        self.assertEqual(True,deleteTable(config))
 
+        # Connect and insert random event
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
+        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
 
-
-        RTA_DL3ASTRI.insertEvent(
-                                    randint(0, 9999999), #eventidfits=randint(0, 9999999),
-                                    randint(0, 9999999), #time=randint(0, 9999999),
-                                    uniform(-180,180),   #ra_deg=uniform(-180,180),
-                                    uniform(-90, 90),    #dec_deg=uniform(-90, 90),
-                                    uniform(0, 0.5),     #energy=uniform(0, 0.5),
-                                    uniform(0, 0.1),     #detx=uniform(0, 0.1),
-                                    uniform(0, 0.1),     #dety=uniform(0, 0.1),
-                                    1                    #mcid=1
-                                 )
         time.sleep(1)
+
         RTA_DL3ASTRI.forceClose() # <---------
 
 
-        config.set('General', 'batchsize', 1)
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
-        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
-        self.assertEqual(1, numberOfRows)
-        mysqlConn.close()
-        config.reload('./')
+        # Check number of rows
+        self.assertEqual('True-1', checkNumberOfRows(config))
 
 
     def test_insert_mysql_single_thread_streaming_force_close(self):
         print("/\____/\____/\____/\____/\__single__/\__streaming__/\__fc__/\____/\____/\____/\_")
 
-        config = Config('./')
-        config.set('General', 'debug', 'yes')
-        config.set('General', 'numberofthreads', 1)
-        config.set('General', 'batchsize', 1)
+        # Configuration
+        config = getConfiguration(debug='yes', numberOfThreads=1, batchsize=1)
 
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
-        mysqlConn.close()
+        # Delete old data
+        self.assertEqual(True,deleteTable(config))
 
-
+        # Connect and insert random event
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
-
-
-        RTA_DL3ASTRI.insertEvent(
-                                    randint(0, 9999999), #eventidfits=randint(0, 9999999),
-                                    randint(0, 9999999), #time=randint(0, 9999999),
-                                    uniform(-180,180),   #ra_deg=uniform(-180,180),
-                                    uniform(-90, 90),    #dec_deg=uniform(-90, 90),
-                                    uniform(0, 0.5),     #energy=uniform(0, 0.5),
-                                    uniform(0, 0.1),     #detx=uniform(0, 0.1),
-                                    uniform(0, 0.1),     #dety=uniform(0, 0.1),
-                                    1                    #mcid=1
-                                 )
+        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
 
         time.sleep(1) # lets give the threads some time
 
         RTA_DL3ASTRI.forceClose()
 
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
-        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
-        self.assertEqual(1, numberOfRows)
-        mysqlConn.close()
-        config.reload('./')
+        # Check number of rows
+        self.assertEqual('True-1', checkNumberOfRows(config))
 
 
     def test_insert_mysql_single_thread_streaming_wait_and_close_pure_multithread(self):
         print("/\____/\____/\____/\____/\__single__/\__streaming__/\__wc__/\__pure_multit__/\____/\____/\_")
 
-        config = Config('./')
-        config.set('General', 'debug', 'yes')
-        config.set('General', 'numberofthreads', 1)
-        config.set('General', 'batchsize', 1)
+        # Configuration
+        config = getConfiguration(debug='yes', numberOfThreads=1, batchsize=1)
 
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True,mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')))
-        mysqlConn.close()
+        # Delete old data
+        self.assertEqual(True,deleteTable(config))
 
+        # Connect and insert random event
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql', pure_multithreading=True)
+        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
 
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql', '', True)
-
-
-        RTA_DL3ASTRI.insertEvent(
-                                    randint(0, 9999999), #eventidfits=randint(0, 9999999),
-                                    randint(0, 9999999), #time=randint(0, 9999999),
-                                    uniform(-180,180),   #ra_deg=uniform(-180,180),
-                                    uniform(-90, 90),    #dec_deg=uniform(-90, 90),
-                                    uniform(0, 0.5),     #energy=uniform(0, 0.5),
-                                    uniform(0, 0.1),     #detx=uniform(0, 0.1),
-                                    uniform(0, 0.1),     #dety=uniform(0, 0.1),
-                                    1                    #mcid=1
-                                 )
 
         time.sleep(1) # lets give the threads some time
 
@@ -605,42 +532,27 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         print('Stats: {}'.format(stats))
         self.assertEqual(1, stats[0])
 
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM '+config.get('General', 'evt3modelname')))
-        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
-        self.assertEqual(1, numberOfRows)
-        mysqlConn.close()
-        config.reload('./')
+        # Check number of rows
+        self.assertEqual('True-1', checkNumberOfRows(config))
 
 
     """
         ------------------------> REDIS
     """
-
-
     def test_insert_redis_single_thread_streaming_force_close(self):
-        config = Config('./')
-        config.set('General', 'debug', 'yes')
-        config.set('General', 'numberofthreads', 1)
-        config.set('General', 'batchsize', 1)
 
+        # Configuration
+        config = getConfiguration(debug='yes', numberOfThreads=1, batchsize=1)
+
+        # Delete old data
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
         redisConn.conn.delete(config.get('General', 'evt3modelname'))
 
 
+        # Connect and insert random event
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('redis-basic')
-        RTA_DL3ASTRI.insertEvent(
-                                    randint(0, 9999999), #eventidfits=randint(0, 9999999),
-                                    randint(0, 9999999), #time=randint(0, 9999999),
-                                    uniform(-180,180),   #ra_deg=uniform(-180,180),
-                                    uniform(-90, 90),    #dec_deg=uniform(-90, 90),
-                                    uniform(0, 0.5),     #energy=uniform(0, 0.5),
-                                    uniform(0, 0.1),     #detx=uniform(0, 0.1),
-                                    uniform(0, 0.1),     #dety=uniform(0, 0.1),
-                                    1                    #mcid=1
-                                 )
+        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
 
         time.sleep(1) # lets give the threads some time
 
@@ -651,25 +563,6 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
 
 
-    """
-    def test_insert_mysql_package_version(self):
-        with RTA_DL3ASTRI_DB_old('mysql') as RTA_DL3ASTRI:
-            res = RTA_DL3ASTRI.insertEvent(
-                                            randint(0, 9999999), #eventidfits=randint(0, 9999999),
-                                            randint(0, 9999999), #time=randint(0, 9999999),
-                                            uniform(-180,180),   #ra_deg=uniform(-180,180),
-                                            uniform(-90, 90),    #dec_deg=uniform(-90, 90),
-                                            uniform(0, 0.5),     #energy=uniform(0, 0.5),
-                                            uniform(0, 0.1),     #detx=uniform(0, 0.1),
-                                            uniform(0, 0.1),     #dety=uniform(0, 0.1),
-                                            1                    #mcid=1
-                                          )
-            self.assertEqual(True, res)
-            # --> close() is called automagically :)
-    """
-
-
- 
 
 if __name__ == '__main__':
     unittest.main()

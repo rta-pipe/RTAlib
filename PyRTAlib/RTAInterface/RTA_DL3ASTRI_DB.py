@@ -32,7 +32,8 @@ class RTA_DL3ASTRI_DB(RTA_DL_DB):
         evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, alt, az, gammaness, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
         super()._insertEvent(evt3)
 
-
+    def getRandomEvent(self):
+        return EVT3_ASTRI.getRandomEvent()
     """
     def fakeInsert(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1):
         evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)

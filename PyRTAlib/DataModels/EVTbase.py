@@ -17,3 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # ==========================================================================
+from ..Utils import Config
+
+class EVTbase:
+    def __init__(self):
+
+        """
+        NEVER PUT CLASS ATTRIBUTES (they will be inherited by subclasses and added to the dict representation)
+        """
+        pass

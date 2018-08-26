@@ -18,11 +18,16 @@
 #
 # ==========================================================================
 import time
+from random import randint, uniform
+
+
+from .EVTbase import EVTbase
 from ..Utils import time_mjd_to_tt
 
 
-class EVT3_ASTRI():
+class EVT3_ASTRI(EVTbase):
     def __init__(self, eventidfits, timemjd, ra_deg, dec_deg, energy, detx, dety, alt, az, gammaness, mjdref, observationid, datarepositoryid, status):
+        super().__init__();
 
         ## I convert those data to float() in order to convert them to json later in RedisDBConnector
         ## beacause of --> TypeError: Object of type 'uint32' (<class 'numpy.uint32'>) is not JSON serializable
@@ -48,3 +53,25 @@ class EVT3_ASTRI():
         """Return the 'dictionary' representation of the object.
         """
         return vars(self)
+
+    @staticmethod
+    def getRandomEvent():
+        rndEvent = []
+        rndEvent.append(randint(0, 9999999))
+        rndEvent.append(time.time())
+        rndEvent.append(randint(0, 9999999))
+        rndEvent.append(uniform(-180,180))
+        rndEvent.append(uniform(-90, 90))
+        rndEvent.append(uniform(0, 0.5))
+        rndEvent.append(uniform(0, 0.1))
+        rndEvent.append(uniform(0, 0.1))
+        rndEvent.append(randint(0, 9999999))
+        rndEvent.append(randint(0, 9999999))
+
+        #rndEvent.append(randint(0, 9999999))
+        #rndEvent.append(time.time())
+
+        #rndEvent.append(0)
+        #rndEvent.append(0)
+        #rndEvent.append(1)
+        return rndEvent

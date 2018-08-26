@@ -40,26 +40,10 @@ class DTRTEST(unittest.TestCase):
 
     def test_dtr(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('Dtr', 'debug', 'yes')
         dtr = DTR('./')
 
-        evt3 = EVT3_ASTRI(  randint(0, 9999999), #eventidfits
-                            randint(0, 9999999), #time
-                            uniform(-180,180),   #ra_deg
-                            uniform(-90, 90),    #dec_deg
-                            uniform(0, 0.5),     #energy
-                            uniform(0, 0.1),     #detx
-                            uniform(0, 0.1),     #dety
-                            randint(0, 9999999), #alt
-                            randint(0, 9999999), #az
-                            uniform(0, 1),       #gammaness
-                            1,                   #mjdref
-                            0,                   #observationid
-                            0,                   #datarepositoryid
-                            1                    #status
-                          )
-
-
+        evt3 = EVT3_ASTRI(*EVT3_ASTRI.getRandomEvent(), 1, 0, 0, 1)
 
         dtr.publish(evt3)
         sleep(1.5)

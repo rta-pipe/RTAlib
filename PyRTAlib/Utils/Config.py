@@ -24,6 +24,11 @@ class Config(metaclass=Singleton):
             return int(val)
         elif cast=='float':
             return float(val)
+        elif cast=='bool':
+            if val == 'True' or val == True or val == 'yes' or val == 'y':
+                return True
+            else:
+                return False
         else:
             return val
 

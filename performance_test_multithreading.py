@@ -66,6 +66,8 @@ def test(batchsize, numberofthreads):
     config.set('General', 'debug', 'no')
     config.set('General', 'numberofthreads', numberofthreads)
     config.set('General', 'batchsize', batchsize)
+    config.set('Dtr', 'active', 'no')
+
 
     eventSecList = []
     executionTimeList = []
@@ -97,11 +99,11 @@ def test(batchsize, numberofthreads):
 
     avgES = statistics.mean(eventSecList)
     stddevES = statistics.stdev(eventSecList)
-    ES = Perf(avgES, stddevES)
+    ES = Perf(avgES, round(stddevES,2))
 
     avgET = statistics.mean(executionTimeList)
     stddevET = statistics.stdev(executionTimeList)
-    ET = Perf(avgET, stddevET)
+    ET = Perf(avgET, round(stddevET,2))
 
     print("{} +- {}\n{} +- {}".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
     return ES
@@ -162,8 +164,8 @@ if __name__ == '__main__':
     """
     w, h = len(batchsizes), len(threads);
     x  = []
-    y = [[0 for x in range(w)] for y in range(h)]
-    erry = [[0 for x in range(w)] for y in range(h)]
+    y = [[] for y in range(h)]
+    erry = [[] for y in range(h)]
 
 
     """
@@ -180,8 +182,8 @@ if __name__ == '__main__':
             print("\n--> Number of threads: {}, Batch size: {}".format(t, b))
             p = test(b,t)
             x.append(b)
-            y.append(p[0])
-            erry.append(p[1])
+            y[idx_t].append(p[0])
+            erry[idx_t].append(p[1])
 
             deleteData(database)
 

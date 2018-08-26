@@ -65,6 +65,8 @@ def test(batchsize, numberofthreads):
     config.set('General', 'debug', 'no')
     config.set('General', 'numberofthreads', numberofthreads)
     config.set('General', 'batchsize', batchsize)
+    config.set('Dtr', 'active', 'no')
+
 
     eventSecList = []
     executionTimeList = []
@@ -164,10 +166,10 @@ if __name__ == '__main__':
     """
         Plot
     """
-    w, h = len(batchsizes), len(threads);
+    #w, h = len(batchsizes), len(threads);
     x  = []
-    y = [[0 for x in range(w)] for y in range(h)]
-    erry = [[0 for x in range(w)] for y in range(h)]
+    y = []
+    erry = []
 
 
     """

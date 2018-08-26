@@ -31,7 +31,7 @@ class DTR(metaclass=Singleton):
 
         self.config = Config(configFilePath)
 
-        if self.config.get('General','debug') == 'yes':
+        if self.config.get('Dtr','debug') == 'yes':
             print("-->[DTR] DTR system started!")
 
 

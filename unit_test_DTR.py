@@ -21,6 +21,8 @@
 import unittest
 from random import randint, uniform
 from time import sleep
+import redis
+import threading
 
 from PyRTAlib.DTRInterface.DTR  import DTR
 from PyRTAlib.Utils         import Config
@@ -36,18 +38,57 @@ from PyRTAlib.DataModels import EVT3_ASTRI
  | |) | | |  |   /
  |___/  |_|  |_|_\
 """
+
+
+def publisher():
+    sleep(0.5)
+    dtr = DTR('./')
+    evt3 = EVT3_ASTRI(*EVT3_ASTRI.getRandomEvent(), 1, 0, 0, 1)
+    dtr.publish(evt3)
+    dtr.waitAndClose()
+
+
 class DTRTEST(unittest.TestCase):
 
     def test_dtr(self):
         config = Config('./')
         config.set('Dtr', 'debug', 'yes')
-        dtr = DTR('./')
+        conn = redis.Redis(
+                host=config.get('Redis','host'),
+                port=6379,
+                db=config.get('Redis','dbname'),
+                password=config.get('Redis','password')
+            )
 
-        evt3 = EVT3_ASTRI(*EVT3_ASTRI.getRandomEvent(), 1, 0, 0, 1)
+        # Subscribe for events
+        pubsub1 = conn.pubsub()
+        pubsub1.subscribe(['visualization.0.lc'])
 
-        dtr.publish(evt3)
-        sleep(1.5)
-        dtr.waitAndClose()
+        # Start publisher
+        pub = threading.Thread(target=publisher, args=())
+        pub.start()
+
+        count = 0
+        for item in pubsub1.listen():
+
+            if count == 0:
+                print('[test_dtr] Receveid message:',item)
+                self.assertEqual(item['type'], 'subscribe')
+                self.assertEqual(item['pattern'], None)
+                self.assertEqual(item['channel'].decode('utf-8'), 'visualization.0.lc')
+                self.assertEqual(item['data'], 1)
+
+            if count == 1:
+                print('[test_dtr] Receveid message:',item)
+                self.assertEqual(item['type'], 'message')
+                self.assertEqual(item['pattern'], None)
+                self.assertEqual(item['channel'].decode('utf-8'), 'visualization.0.lc')
+                pubsub1.unsubscribe()
+
+            count += 1
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

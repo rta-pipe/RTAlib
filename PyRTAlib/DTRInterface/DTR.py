@@ -21,6 +21,7 @@
 import redis
 import threading
 from collections import deque
+import json
 
 from ..Utils import Config
 from ..Utils.Generic import Singleton
@@ -32,7 +33,7 @@ class DTR(metaclass=Singleton):
         self.config = Config(configFilePath)
 
         if self.config.get('Dtr','debug') == 'yes':
-            print("-->[DTR] DTR system started!")
+            print("[DTR] DTR system started!")
 
 
         self.redisConn = redis.Redis(
@@ -71,24 +72,27 @@ class DTR(metaclass=Singleton):
 
             if event is not None:
 
+
                 data = event.getData()
-                print(data)
+
 
                 # Compute channel and key
                 keychannel = 'visualization.'+str(data['observationid'])+'.lc'
-                print(keychannel)
+
 
                 # Transform data
                 lc_data = {'energy': data['energy'], 'time': data['timerealtt'], 'isUpperLimit': True if data['energy']<= 2.9 else False }
-                print(lc_data)
+
 
                 # Save it to Redis
-                self.redisConn.lpush(keychannel, lc_data)
+                self.redisConn.lpush(keychannel, json.dumps(lc_data))
+
 
                 # Publish on channel
                 message = {'type': 'lc', 'loc': keychannel, 'last_data': lc_data}
-                print(message)
                 self.redisConn.publish(keychannel, message)
+
+
 
     def waitAndClose(self):
         self.workingQueue.append('END')

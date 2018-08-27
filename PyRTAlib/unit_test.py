@@ -369,7 +369,7 @@ def deleteTable(config):
     mysqlConn.close()
     return res
 
-def getConfiguration(debug='yes', numberOfThreads=1, batchsize=1, dtr='no'):
+def getConfiguration(debug='yes', numberOfThreads=1, batchsize=1, dtr='no', debugDtr='no'):
     config = Config('./')
     config.set('General', 'debug', debug)
     config.set('General', 'numberofthreads', numberOfThreads)
@@ -534,6 +534,33 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         # Check number of rows
         self.assertEqual('True-1', checkNumberOfRows(config))
+
+
+    def test_dtr(self):
+        print("/\____/\____/\____/\____/\__test__/\__dtr__/\_____/\_____/\____/\____/\_")
+
+        # Configuration
+        config = getConfiguration(debug='yes', numberOfThreads=2, batchsize=1, dtr='yes', debugDtr='yes')
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.connect()
+
+        # TODO Delete old data
+        #redisConn.delete()
+
+
+        # Connect and insert random event
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
+        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+
+        time.sleep(1)
+
+        RTA_DL3ASTRI.waitAndClose()
+
+        # TODO check number of inserted elements
+        self.assertEqual(True, True)
+
 
 
     """

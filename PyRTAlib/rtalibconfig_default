@@ -8,6 +8,8 @@ numberofthreads=
 [Dtr]
 active=
 debug=
+inputchannel=
+outputchannel=
 
 [MySql]
 host=

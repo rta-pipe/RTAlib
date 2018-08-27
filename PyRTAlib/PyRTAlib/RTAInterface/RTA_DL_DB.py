@@ -26,6 +26,7 @@ import time
 
 from ..DBConnectors import RedisDBConnector, MySqlDBConnector, RedisDBConnectorBASIC
 from ..Utils import Config
+from ..Utils import RedisPublisher
 from ..DTRInterface import DTR
 
 class RTA_DL_DB(ABC):
@@ -41,9 +42,9 @@ class RTA_DL_DB(ABC):
         self.config = Config(configFilePath) # singleton config object
 
         # DTR configuration ----------------------------------------------------
-        self.dtr = None
+        self.redisPub = None
         if self.config.get('Dtr', 'active', 'bool'):
-            self.dtr = DTR(configFilePath) # DTR object
+            self.redisPub = RedisPublisher(configFilePath)
 
         # Pure multithreading configuration ------------------------------------
         self.pure_multithreading = pure_multithreading # Synchronous/Asynchronous single thread
@@ -122,13 +123,15 @@ class RTA_DL_DB(ABC):
 
     def _insertEvent(self, event):
 
+        eventData =  event.getData()
+
         # Transform data for visualization and notify GUIs
-        if self.dtr:
-            self.dtr.publish(event)
+        if self.redisPub:
+            self.redisPub.publish(self.config.get('Dtr','inputchannel'), eventData)
 
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
         if not self.pure_multithreading:
-            self.dbConnector.insertData(self.config.get('General','evt3modelname'), event.getData())
+            self.dbConnector.insertData(self.config.get('General','evt3modelname'), eventData)
 
         # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
         #                    /\____/\____/\____/\____/\____/\____/\____/\____/\
@@ -191,8 +194,8 @@ class RTA_DL_DB(ABC):
         if not self.pure_multithreading:
 
             # Stopping DTR's working thread
-            if self.dtr:
-                self.dtr.waitAndClose()
+            if self.redisPub:
+                self.redisPub.publish(self.config.get('Dtr','inputchannel'), 'STOP')
 
             self.dbConnector.close()
             return True
@@ -214,8 +217,9 @@ class RTA_DL_DB(ABC):
 
 
             # Stopping DTR's working thread
-            if self.dtr:
-                self.dtr.waitAndClose()
+            if self.redisPub:
+                self.redisPub.publish(self.config.get('Dtr','inputchannel'), 'STOP')
+
 
             if self.config.get('General', 'debug', 'bool'):
                 print('[RTA_DL_DB] All threads stopped! Computing statistics and closing..')

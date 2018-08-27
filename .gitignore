@@ -1,19 +1,23 @@
-# Files in PyLibRTA
-__pycache__
-rtalibconfig
 activate_virtual_env.sh
-PyRTAlib/*.pyc
-PyRTAlib/__pycache__
-PyRTAlib/*-info
-PyRTAlib/DataModels/*.pyc
-PyRTAlib/DataModels/__pycache__
-PyRTAlib/DBConnectors/*.pyc
-PyRTAlib/DBConnectors/__pycache__
-PyRTAlib/RTAInterface/*.pyc
-PyRTAlib/RTAInterface/__pycache__
-PyRTAlib/Utils/*.pyc
-PyRTAlib/Utils/__pycache__
-unit_test2.py
+
+# Files in PyLibRTA
+PyRTAlib/rtalibconfig
+
+# File in PyLibRTA package
+PyRTAlib/PyRTAlib/__pycache__
+PyRTAlib/PyRTAlib/*.pyc
+PyRTAlib/PyRTAlib/__pycache__
+PyRTAlib/PyRTAlib/*-info
+PyRTAlib/PyRTAlib/DataModels/*.pyc
+PyRTAlib/PyRTAlib/DataModels/__pycache__
+PyRTAlib/PyRTAlib/DBConnectors/*.pyc
+PyRTAlib/PyRTAlib/DBConnectors/__pycache__
+PyRTAlib/PyRTAlib/RTAInterface/*.pyc
+PyRTAlib/PyRTAlib/RTAInterface/__pycache__
+PyRTAlib/PyRTAlib/DTRInterface/*.pyc
+PyRTAlib/PyRTAlib/DTRInterface/__pycache__
+PyRTAlib/PyRTAlib/Utils/*.pyc
+PyRTAlib/PyRTAlib/Utils/__pycache__
 
 
 sites

@@ -41,10 +41,17 @@ class RTA_DL_DB(ABC):
 
         self.config = Config(configFilePath) # singleton config object
 
+        # Debug configuration
+        self.DEBUG = False
+        if self.config.get('General','debug', 'bool'):
+            self.DEBUG = True
+
         # DTR configuration ----------------------------------------------------
         self.redisPub = None
         if self.config.get('Dtr', 'active', 'bool'):
             self.redisPub = RedisPublisher(configFilePath)
+
+
 
         # Pure multithreading configuration ------------------------------------
         self.pure_multithreading = pure_multithreading # Synchronous/Asynchronous single thread

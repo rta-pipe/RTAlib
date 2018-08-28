@@ -55,7 +55,13 @@ class DTR(ABC):
         self.senderWorker.start()
 
 
+    @staticmethod
+    def pub(channel, message):
+        pass
 
+    @staticmethod
+    def sub(channel):
+        pass
 
     def start(self):
 
@@ -97,7 +103,7 @@ class DTR(ABC):
             eventData = literal_eval(self.workingQueue.popleft()) # eventData is a dictionary
 
             if self.DEBUG:
-                print("-->[DTR thread] Pop one! Data: {}".format(eventData))
+                print("\n-->[DTR thread] Pop one! Data: {}".format(eventData))
 
 
             if eventData is not None:

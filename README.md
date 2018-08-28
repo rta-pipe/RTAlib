@@ -13,10 +13,22 @@ TODO
 
 ## Installation
 * Create a virtualenv
-* Install setuptools
-* python setup.py install  --> TODO <--
-* Create script to initialize db and test environment --> TODO <--
-* Fill in the configuration file's fields.
+  * conda create --name rtalib python=3.6
+* Activate the virtualenv
+  * source activate rtalib
+* python setup.py install
+* Configure the mysql database
+* Rename the configuration file from rtalibconfig_default to rtalibconfig. Fill in the configuration file's fields.
+
+## Setup for test
+* Configure the rtalibconfig file for the test environment.
+* Configure the mysql database for test
+  * For now, create the database with:
+    * mysql -uroot -p --execute="CREATE DATABASE 'evt_test';"
+  * import the tables from an existing backup with:
+    * mysql -uroot -p evt_test < evt_test.sql
+
+
 
 
 ## Configuration options

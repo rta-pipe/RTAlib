@@ -46,8 +46,8 @@ def deleteData(database):
         mysqlConn.connect()
         if not mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')):
             exit()
-        if not mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')+'_memory'):
-            exit()
+        #if not mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')+'_memory'):
+            #exit()
         mysqlConn.close()
     elif database == 'redis' or database == 'redis-basic':
         redisConn = RedisDBConnectorBASIC('./')

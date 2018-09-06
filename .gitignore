@@ -19,6 +19,8 @@ PyRTAlib/PyRTAlib/DTRInterface/__pycache__
 PyRTAlib/PyRTAlib/Utils/*.pyc
 PyRTAlib/PyRTAlib/Utils/__pycache__
 
+PyRTAlib/dump.rdb
+
 
 sites
 *.d

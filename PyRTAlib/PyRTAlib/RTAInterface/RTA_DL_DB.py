@@ -104,7 +104,7 @@ class RTA_DL_DB(ABC):
             self.threads = []
             for i in range(self.config.get('General','numberofthreads', 'int')):
 
-                if self.config.get('General','debug', 'bool'):
+                if self.DEBUG:
                     print("[RTA_DL_DB] Starting new thread!")
 
                 dbConnector = self.getConnector(database, configFilePath)
@@ -131,6 +131,10 @@ class RTA_DL_DB(ABC):
     def _insertEvent(self, event):
 
         eventData =  event.getData()
+
+        # Debug
+        if self.DEBUG:
+            print('\n[RTA_DL_DB] New event!')
 
         # Transform data for visualization and notify GUIs
         if self.redisPub:

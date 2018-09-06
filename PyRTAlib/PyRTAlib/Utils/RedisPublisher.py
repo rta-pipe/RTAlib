@@ -35,6 +35,6 @@ class RedisPublisher(metaclass=Singleton):
 
     def publish(self, channel, message):
         if self.config.get('General', 'debug', 'bool'):
-            print('[Redis publisher] Publishing the message: {} through the channel {}'.format(message,channel))
+            print('[Redis publisher] Publishing the message through the channel {}'.format(channel))
         # TODO add try catch
         self.redisConn.publish(channel, message)

@@ -19,6 +19,7 @@
 # ==========================================================================
 
 import unittest
+import sys
 import os
 import time
 from random import randint, uniform
@@ -29,7 +30,10 @@ from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
 from PyRTAlib.DTRInterface  import DTR
 
 
+"""
 
+"""
+DEBUG = False
 
 
 """
@@ -76,15 +80,15 @@ class ConfigFile(unittest.TestCase):
 
     def test_singleton(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'batchsize', 666)
         config = Config('./')
-        self.assertEqual('yes', config.get('General', 'debug'))
+        self.assertEqual(666, config.get('General', 'batchsize'))
         config.reload('./')
 
     def test_get(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
-        self.assertEqual('yes', config.get('General', 'debug'))
+        config.set('General', 'batchsize', 666)
+        self.assertEqual(666, config.get('General', 'batchsize'))
 
     def test_get_cast(self):
         config = Config('./')
@@ -116,7 +120,7 @@ class MySqlConnector(unittest.TestCase):
     ## CONNECTION --------------------------------------------------------------
     def test_connect_wrong_password(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('MySql', 'password', 'asdasd')
         mysqlConn = MySqlDBConnector('./')
         self.assertEqual(False, mysqlConn.connect())
@@ -125,7 +129,7 @@ class MySqlConnector(unittest.TestCase):
 
     def test_connect_wrong_username(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('MySql', 'username', 'gioacchino')
         mysqlConn = MySqlDBConnector('./')
         self.assertEqual(False, mysqlConn.connect())
@@ -134,7 +138,7 @@ class MySqlConnector(unittest.TestCase):
 
     def test_connect_wrong_database(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('MySql', 'dbname', 'evttttest')
         mysqlConn = MySqlDBConnector('./')
         self.assertEqual(False, mysqlConn.connect())
@@ -143,7 +147,7 @@ class MySqlConnector(unittest.TestCase):
 
     def test_connect_success(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         mysqlConn = MySqlDBConnector('./')
         self.assertEqual(True, mysqlConn.connect())
         mysqlConn.close()
@@ -153,7 +157,7 @@ class MySqlConnector(unittest.TestCase):
     ## WRITING IN DB ----------------------------------------------------------
     def test_insert_data_wrong_table(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('General', 'batchsize', 1)
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
@@ -163,7 +167,7 @@ class MySqlConnector(unittest.TestCase):
 
     def test_insert_data_not_enough_data(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('General', 'batchsize', 1)
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
@@ -173,7 +177,7 @@ class MySqlConnector(unittest.TestCase):
 
     def test_insert_data_succesfully(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('General', 'batchsize', 1)
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
@@ -184,7 +188,7 @@ class MySqlConnector(unittest.TestCase):
 
     def test_batch(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('General', 'batchsize', 2)
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
@@ -212,7 +216,7 @@ class MySqlConnector(unittest.TestCase):
 
     def test_streaming(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('General', 'batchsize', 1)
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
@@ -241,7 +245,7 @@ class MySqlConnector(unittest.TestCase):
 
     def test_batch_connection_close_before_finish(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('General', 'batchsize', 2)
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
@@ -256,7 +260,7 @@ class MySqlConnector(unittest.TestCase):
         config.reload('./')
 
 
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('General', 'batchsize', 1)
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
@@ -289,11 +293,21 @@ class MySqlConnector(unittest.TestCase):
 |_|_\  |___|  |___/  |___|  |___/      \___|  \___/  |_|\_| |_|\_| |___|   \___|   |_|     \___/  |_|_\
 
 """
+
 class RedisConnectorBASIC(unittest.TestCase):
+
+    def test_redis_password_set(self):
+        config = Config('./')
+        config.set('General', 'debug', DEBUG)
+        redisConn = RedisDBConnectorBASIC('./')
+        redisConn.connect()
+        self.assertEqual(True, redisConn.testConnection())
+        config.reload('./')
+
 
     def test_testConnection_wrong_password_basic(self):
         config = Config('./')
-        config.set('General', 'debug', 'yes')
+        config.set('General', 'debug', DEBUG)
         config.set('Redis', 'password', 'asdasd')
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
@@ -305,6 +319,7 @@ class RedisConnectorBASIC(unittest.TestCase):
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
         self.assertEqual(True, redisConn.testConnection())
+
 
     def test_unknown_key_basic(self):
         redisConn = RedisDBConnectorBASIC('./')
@@ -369,7 +384,7 @@ def deleteTable(config):
     mysqlConn.close()
     return res
 
-def getConfiguration(debug='yes', numberOfThreads=1, batchsize=1, dtr='no', debugDtr='no'):
+def getConfiguration(debug='no', numberOfThreads=1, batchsize=1, dtr='no', debugDtr='no'):
     config = Config('./')
     config.set('General', 'debug', debug)
     config.set('General', 'numberofthreads', numberOfThreads)
@@ -394,10 +409,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
     os.environ['RTACONFIGFILE'] = './'
 
     def test_insert_mysql_multi_thread_streaming_wait_and_close(self):
-        print("/\____/\____/\____/\____/\__multi__/\__streaming__/\__wc__/\____/\____/\____/\_")
+        if DEBUG:
+            print("/\____/\____/\____/\____/\__multi__/\__streaming__/\__wc__/\____/\____/\____/\_")
 
         # Configuration
-        config = getConfiguration(debug='yes', numberOfThreads=2, batchsize=1)
+        config = getConfiguration(debug=DEBUG, numberOfThreads=2, batchsize=1)
 
         # Delete old data
         self.assertEqual(True,deleteTable(config))
@@ -411,7 +427,7 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         stats = RTA_DL3ASTRI.waitAndClose()
 
-        print('Stats: {}'.format(stats))
+        #print('Stats: {}'.format(stats))
         self.assertEqual(1, stats[0])
 
         # Check number of rows
@@ -423,10 +439,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
 
     def test_insert_mysql_multi_thread_batch_wait_and_close(self):
-        print("/\____/\____/\____/\____/\__multi__/\__batch__/\__wc__/\____/\____/\____/\_")
+        if DEBUG:
+            print("/\____/\____/\____/\____/\__multi__/\__batch__/\__wc__/\____/\____/\____/\_")
 
         # Configuration
-        config = getConfiguration(debug='yes', numberOfThreads=2, batchsize=2)
+        config = getConfiguration(debug=DEBUG, numberOfThreads=2, batchsize=2)
 
         # Delete old data
         self.assertEqual(True,deleteTable(config))
@@ -439,7 +456,7 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         stats = RTA_DL3ASTRI.waitAndClose()
 
-        print('Stats: {}'.format(stats))
+        #print('Stats: {}'.format(stats))
         self.assertEqual(1, stats[0])
 
         # Check number of rows
@@ -447,10 +464,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
 
     def test_insert_mysql_multi_thread_streaming_force_close(self):
-        print("/\____/\____/\____/\____/\__multi__/\__streaming__/\__fc__/\____/\____/\____/\_")
+        if DEBUG:
+            print("/\____/\____/\____/\____/\__multi__/\__streaming__/\__fc__/\____/\____/\____/\_")
 
         # Configuration
-        config = getConfiguration(debug='yes', numberOfThreads=2, batchsize=1)
+        config = getConfiguration(debug=DEBUG, numberOfThreads=2, batchsize=1)
 
         # Delete old data
         self.assertEqual(True,deleteTable(config))
@@ -469,10 +487,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
 
     def test_insert_mysql_multi_thread_batch_wait_and_close(self):
-        print("/\____/\____/\____/\____/\__multi__/\__batch__/\__fc__/\____/\____/\____/\_")
+        if DEBUG:
+            print("/\____/\____/\____/\____/\__multi__/\__batch__/\__fc__/\____/\____/\____/\_")
 
         # Configuration
-        config = getConfiguration(debug='yes', numberOfThreads=2, batchsize=2)
+        config = getConfiguration(debug=DEBUG, numberOfThreads=2, batchsize=2)
 
         # Delete old data
         self.assertEqual(True,deleteTable(config))
@@ -491,10 +510,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
 
     def test_insert_mysql_single_thread_streaming_force_close(self):
-        print("/\____/\____/\____/\____/\__single__/\__streaming__/\__fc__/\____/\____/\____/\_")
+        if DEBUG:
+            print("/\____/\____/\____/\____/\__single__/\__streaming__/\__fc__/\____/\____/\____/\_")
 
         # Configuration
-        config = getConfiguration(debug='yes', numberOfThreads=1, batchsize=1)
+        config = getConfiguration(debug=DEBUG, numberOfThreads=1, batchsize=1)
 
         # Delete old data
         self.assertEqual(True,deleteTable(config))
@@ -512,10 +532,11 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
 
     def test_insert_mysql_single_thread_streaming_wait_and_close_pure_multithread(self):
-        print("/\____/\____/\____/\____/\__single__/\__streaming__/\__wc__/\__pure_multit__/\____/\____/\_")
+        if DEBUG:
+            print("/\____/\____/\____/\____/\__single__/\__streaming__/\__wc__/\__pure_multit__/\____/\____/\_")
 
         # Configuration
-        config = getConfiguration(debug='yes', numberOfThreads=1, batchsize=1)
+        config = getConfiguration(debug=DEBUG, numberOfThreads=1, batchsize=1)
 
         # Delete old data
         self.assertEqual(True,deleteTable(config))
@@ -529,18 +550,20 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         stats = RTA_DL3ASTRI.waitAndClose()
 
-        print('Stats: {}'.format(stats))
+        #print('Stats: {}'.format(stats))
         self.assertEqual(1, stats[0])
 
         # Check number of rows
         self.assertEqual('True-1', checkNumberOfRows(config))
 
 
+
     def test_dtr(self):
-        print("/\____/\____/\____/\____/\__test__/\__dtr__/\_____/\_____/\____/\____/\_")
+        if DEBUG:
+            print("/\____/\____/\____/\____/\__test__/\__dtr__/\_____/\_____/\____/\____/\_")
 
         # Configuration
-        config = getConfiguration(debug='yes', numberOfThreads=2, batchsize=1, dtr='yes', debugDtr='yes')
+        config = getConfiguration(debug=DEBUG, numberOfThreads=2, batchsize=1, dtr='yes', debugDtr='yes')
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
 
@@ -560,16 +583,16 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
         # TODO check number of inserted elements
         self.assertEqual(True, True)
-
+    
 
 
     """
         ------------------------> REDIS
-    """
+
     def test_insert_redis_single_thread_streaming_force_close(self):
 
         # Configuration
-        config = getConfiguration(debug='yes', numberOfThreads=1, batchsize=1)
+        config = getConfiguration(debug=DEBUG, numberOfThreads=1, batchsize=1)
 
         # Delete old data
         redisConn = RedisDBConnectorBASIC('./')
@@ -588,8 +611,9 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         self.assertEqual(1, redisConn.conn.zcard(config.get('General', 'evt3modelname')) )
         config.reload('./')
 
-
+    """
 
 
 if __name__ == '__main__':
+
     unittest.main()

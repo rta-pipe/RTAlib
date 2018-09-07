@@ -142,7 +142,7 @@ class RTA_DL_DB(ABC):
 
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
         if not self.pure_multithreading:
-            self.dbConnector.insertData(self.config.get('General','evt3modelname'), eventData)
+            return self.dbConnector.insertData(self.config.get('General','evt3modelname'), eventData)
 
         # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
         #                    /\____/\____/\____/\____/\____/\____/\____/\____/\
@@ -160,13 +160,16 @@ class RTA_DL_DB(ABC):
         except queue.Empty:
             return None
 
-    def getConnector(self, database, configFilePath):
-        if database == 'mysql':
+    def getConnector(self, databaseEngine, configFilePath):
+        if databaseEngine == 'mysql':
             return MySqlDBConnector(configFilePath)
-        elif database == 'redis':
+        elif databaseEngine == 'redis':
             return RedisDBConnector(configFilePath)
-        elif database == 'redis-basic':
+        elif databaseEngine == 'redis-basic':
             return RedisDBConnectorBASIC(configFilePath)
+
+    def getMySqlConnector(self, configFilePath, connectTo='MySql'):
+        return MySqlDBConnector(configFilePath, connectTo)
 
     def consumeQueue(self, threadId, dbConnector):
         if self.config.get('General','debug', 'bool'):

@@ -181,7 +181,7 @@ class MySqlConnector(unittest.TestCase):
         config.set('General', 'batchsize', 1)
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        self.assertEqual(True, mysqlConn.insertData('test_table', {'a': 1, 'b':2, 'c':3, 'd':4}))
+        self.assertEqual(MySqlDBConnector.SUCCESS_AND_COMMIT, mysqlConn.insertData('test_table', {'a': 1, 'b':2, 'c':3, 'd':4}))
         mysqlConn.close()
         config.reload('./')
 
@@ -193,22 +193,27 @@ class MySqlConnector(unittest.TestCase):
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
 
-        self.assertEqual(True,mysqlConn.executeQuery('delete from test_table'))
+        self.assertEqual(True, mysqlConn.executeQuery('delete from test_table'))
 
-        self.assertEqual(True, mysqlConn.insertData('test_table', {'a': 1, 'b':2, 'c':3, 'd':4}))
+        self.assertEqual(MySqlDBConnector.SUCCESS, mysqlConn.insertData('test_table', {'a': 1, 'b':2, 'c':3, 'd':4}))
         self.assertEqual(1, mysqlConn.conn.in_transaction)
         self.assertEqual(1, mysqlConn.commandsSent)
 
-        self.assertEqual(True, mysqlConn.insertData('test_table', {'a': 5, 'b':6, 'c':7, 'd':8}))
+        self.assertEqual(MySqlDBConnector.SUCCESS_AND_COMMIT, mysqlConn.insertData('test_table', {'a': 5, 'b':6, 'c':7, 'd':8}))
         self.assertEqual(0, mysqlConn.conn.in_transaction)
         self.assertEqual(0, mysqlConn.commandsSent)
 
-        # TODO FIX BUG.
-        # self._cmysql.commit()
-        # _mysql_connector.MySQLInterfaceError: Commands out of sync; you can't run this command now
-        #self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM test_table'))
-        #numberOfRows = int(mysqlConn.cursor.fetchone()[0])
-        #self.assertEqual(2, numberOfRows)
+        mysqlConn.close()
+        config.reload('./')
+
+        config.set('General', 'debug', DEBUG)
+        config.set('General', 'batchsize', 1)
+        mysqlConn = MySqlDBConnector('./')
+        mysqlConn.connect()
+
+        self.assertEqual(True, mysqlConn.executeQuery('SELECT COUNT(*) FROM test_table'))
+        numberOfRows = int(mysqlConn.cursor.fetchone()[0])
+        self.assertEqual(2, numberOfRows)
 
         mysqlConn.close()
         config.reload('./')
@@ -223,7 +228,7 @@ class MySqlConnector(unittest.TestCase):
 
         self.assertEqual(True,mysqlConn.executeQuery('delete from test_table'))
 
-        self.assertEqual(True, mysqlConn.insertData('test_table', {'a': 1, 'b':2, 'c':3, 'd':4}))
+        self.assertEqual(MySqlDBConnector.SUCCESS_AND_COMMIT, mysqlConn.insertData('test_table', {'a': 1, 'b':2, 'c':3, 'd':4}))
         self.assertEqual(0, mysqlConn.conn.in_transaction)
         self.assertEqual(0, mysqlConn.commandsSent)
 
@@ -232,7 +237,7 @@ class MySqlConnector(unittest.TestCase):
         self.assertEqual(1, numberOfRows)
 
 
-        self.assertEqual(True, mysqlConn.insertData('test_table', {'a': 5, 'b':6, 'c':7, 'd':8}))
+        self.assertEqual(MySqlDBConnector.SUCCESS_AND_COMMIT, mysqlConn.insertData('test_table', {'a': 5, 'b':6, 'c':7, 'd':8}))
         self.assertEqual(0, mysqlConn.conn.in_transaction)
         self.assertEqual(0, mysqlConn.commandsSent)
 
@@ -252,11 +257,11 @@ class MySqlConnector(unittest.TestCase):
 
         self.assertEqual(True,mysqlConn.executeQuery('delete from test_table'))
 
-        self.assertEqual(True, mysqlConn.insertData('test_table', {'a': 1, 'b':2, 'c':3, 'd':4}))
+        self.assertEqual(MySqlDBConnector.SUCCESS, mysqlConn.insertData('test_table', {'a': 1, 'b':2, 'c':3, 'd':4}))
         self.assertEqual(1, mysqlConn.conn.in_transaction)
         self.assertEqual(1, mysqlConn.commandsSent)
 
-        mysqlConn.close()
+        mysqlConn.close()  # <--- committing on closing..
         config.reload('./')
 
 
@@ -299,11 +304,11 @@ class RedisConnectorBASIC(unittest.TestCase):
     def test_redis_password_set(self):
         config = Config('./')
         config.set('General', 'debug', DEBUG)
+        print(config.get('Redis', 'password'))
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
         self.assertEqual(True, redisConn.testConnection())
         config.reload('./')
-
 
     def test_testConnection_wrong_password_basic(self):
         config = Config('./')
@@ -351,16 +356,6 @@ class RedisConnectorBASIC(unittest.TestCase):
         dict2 = {'a': 5, 'b': 2, 'c': 3}
         self.assertEqual(True, redisConn.insertData('testmodel',dict1))
         self.assertEqual(True, redisConn.insertData('testmodel',dict2))
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -558,37 +553,8 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
 
 
-    def test_dtr(self):
-        if DEBUG:
-            print("/\____/\____/\____/\____/\__test__/\__dtr__/\_____/\_____/\____/\____/\_")
-
-        # Configuration
-        config = getConfiguration(debug=DEBUG, numberOfThreads=2, batchsize=1, dtr='yes', debugDtr='yes')
-        redisConn = RedisDBConnectorBASIC('./')
-        redisConn.connect()
-
-        # TODO Delete old data
-        #redisConn.delete()
-
-
-        # Connect and insert random event
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
-        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
-        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
-        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
-
-        time.sleep(1)
-
-        RTA_DL3ASTRI.waitAndClose()
-
-        # TODO check number of inserted elements
-        self.assertEqual(True, True)
-    
-
-
+    """------------------------> REDIS
     """
-        ------------------------> REDIS
-
     def test_insert_redis_single_thread_streaming_force_close(self):
 
         # Configuration
@@ -611,7 +577,6 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         self.assertEqual(1, redisConn.conn.zcard(config.get('General', 'evt3modelname')) )
         config.reload('./')
 
-    """
 
 
 if __name__ == '__main__':

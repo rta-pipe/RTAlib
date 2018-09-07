@@ -21,3 +21,11 @@ dbname=
 host=
 password=
 dbname=
+
+[MySqlPipelineDatabase]
+active=
+debug=
+host=
+username=
+password=
+dbname=

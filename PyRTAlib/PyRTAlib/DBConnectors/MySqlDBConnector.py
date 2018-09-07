@@ -26,10 +26,17 @@ from mysql.connector import errorcode
 
 class MySqlDBConnector(DBConnector):
 
-    def __init__(self, configFilePath=''):
+    # Class variables
+    SUCCESS = 200
+    SUCCESS_AND_COMMIT = 201
+
+
+    def __init__(self, configFilePath='', connectTo='MySql'):
         super().__init__(configFilePath);
         self.cursor = None
         self.autocommit = False
+        self.whichDB = connectTo
+
 
 
     def close(self):
@@ -59,10 +66,10 @@ class MySqlDBConnector(DBConnector):
 
         try:
             self.conn = mysql.connector.connect(
-                                                    user=self.config.get('MySql','username'),
-                                                    password=self.config.get('MySql','password'),
-                                                    host=self.config.get('MySql','host'),
-                                                    database=self.config.get('MySql','dbname'),
+                                                    user=self.config.get(self.whichDB,'username'),
+                                                    password=self.config.get(self.whichDB,'password'),
+                                                    host=self.config.get(self.whichDB,'host'),
+                                                    database=self.config.get(self.whichDB,'dbname'),
                                                     use_pure=False,
                                                     autocommit=self.autocommit
                                                 )
@@ -135,7 +142,7 @@ class MySqlDBConnector(DBConnector):
             print("[MySqlConnector] Streaming insert..")
         try:
             self.cursor.execute(query)
-            return True
+            return self.SUCCESS_AND_COMMIT
 
         except mysql.connector.Error as err:
             print("[MySqlConnector] Error from database: {}".format(err))
@@ -177,13 +184,13 @@ class MySqlDBConnector(DBConnector):
 
                 self.conn.commit()
                 self.commandsSent = 0
-                return True
+                return self.SUCCESS_AND_COMMIT
 
             except mysql.connector.Error as err:
                 print("[MySqlConnector] Failed to commit transaction to database: {}".format(err))
                 return False
         else:
-                return True
+                return self.SUCCESS
 
 
     def executeQuery(self, query):

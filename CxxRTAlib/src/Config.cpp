@@ -14,33 +14,31 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-#ifndef DB_CONNECTOR_H
-#define DB_CONNECTOR_H
 
+#include "Config.h"//TODO GESTIONE VARIABILE D'AMBIENTE, dare precedenza a variabile d'ambiente se settata
 
-/* Standard C++ includes */
-#include <string>
-#include <vector>
-#include <iostream>
-#include <sstream>
+Config* Config::_instance = 0;
 
-#include "Config.h"
+Config::Config(string filepath){
 
-using std::string;
-using std::pair;
-using std::vector;
-using std::cout;
-using std::endl;
+  filepath += "/rtalibconfig";
 
-class DBConnector {
-public:
-  DBConnector(string filepath="");
-  virtual int connect();
-  virtual int disconnect();
-  virtual int testConnection();
-  virtual int insertData(string modelName, std::vector < pair < string, double > > args);
+	#ifdef DEBUG
+    cout << filepath << endl;
+  #endif
+  // try loading file
+  try {
+    file = IniParser::load(filepath);
+  } catch (IniParser::ParserException e) {
+    std::cerr << "Error while loading file!\n";
+  }
 
-  Config * config;
-};
+}
 
-#endif
+Config* Config::getIstance(string filepath){
+
+  if(_instance == 0)
+    _instance = new Config(filepath);
+
+  return _instance;
+}

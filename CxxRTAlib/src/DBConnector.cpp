@@ -18,20 +18,12 @@
 
 #include "DBConnector.h"
 
-DBConnector::DBConnector(string _hostname, string _username, string _password, string _database, string _tablename){
+DBConnector::DBConnector(string filepath){
 
-  hostname = _hostname;
-  username = _username;
-  password = _password;
-  database = _database;
-  tablename = _tablename;
+  config = Config::getIstance(filepath);
+  // cout << "DBConnector constructor" << endl;
+  // cout << "filepath: "<< filepath << endl;
 
-  cout << "DBConnector constructor" << endl;
-  cout << "host: " << hostname << endl;
-  cout << "dbName: " << database << endl;
-  cout << "tbName: " << tablename << endl;
-  cout << "UserId: " << username << endl;
-  cout << "UserPwd: " << password << endl;
 
 }
 

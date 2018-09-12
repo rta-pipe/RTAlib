@@ -14,33 +14,32 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-#ifndef DB_CONNECTOR_H
-#define DB_CONNECTOR_H
 
+#ifndef INIPARSER_H
+#define INIPARSER_H
 
-/* Standard C++ includes */
 #include <string>
-#include <vector>
+#include <map>
 #include <iostream>
+#include <fstream>
 #include <sstream>
+#include <vector>
 
-#include "Config.h"
-
+using std::ifstream;
 using std::string;
-using std::pair;
-using std::vector;
 using std::cout;
 using std::endl;
+using std::vector;
 
-class DBConnector {
+class Iniparser{
 public:
-  DBConnector(string filepath="");
-  virtual int connect();
-  virtual int disconnect();
-  virtual int testConnection();
-  virtual int insertData(string modelName, std::vector < pair < string, double > > args);
+  //static string readFromFile(string filename);
+  static void get(string filename,string section, string key, string value, string& valueReadParse);
 
-  Config * config;
+
+private:
+  Iniparser();
+
 };
 
 #endif

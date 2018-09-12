@@ -15,27 +15,41 @@
  ==========================================================================
 */
 
+#ifndef MYSQL_DB_CONNECTOR_H
+#define MYSQL_DB_CONNECTOR_H
+
 #include "DBConnector.h"
 
 #include <string>
-#include <mysql.h>
-#include <my_global.h>
+#include <boost/scoped_ptr.hpp>
 
+#include "mysql_connection.h"
+#include "mysql_driver.h"
+#include "cppconn/statement.h"
+#include "examples.h"
+
+#define ONE_ROW 1
+
+using namespace std;
 
 class MySqlDBConnector : public DBConnector {
 public:
-  MySqlDBConnector(string hostname, string username, string password, string database, string tablename)
-  :DBConnector(hostname, username, password, database, tablename){ cout << "MySqlDBConnector" << endl; /*con = mysql_init(NULL);*/ };
-  virtual int connect(string _hostname, string _username, string _password, string _database);
+  MySqlDBConnector(string filepath="") : DBConnector(filepath){ cout << "MySqlDBConnector" << endl; };
+  virtual int connect();
   virtual int disconnect();
   virtual int testConnection();
-  virtual int insertData(string modelName/*, vector < pair <string,double> > args*/);
+  virtual int insertData(/*, vector < pair <string,double> > args*/);
+  virtual int startTransaction();
+  virtual int commitTransaction();
 
 
-  string buildQuery(string modelName/*, vector < pair <string,double> > args*/);
-  int streamingInsert(string query);
-  int batchInsert(string query);
-  MYSQL * con;
+  vector<string> buildQuery(string modelName, int batchsize/*, vector < pair <string,double> > args*/);
+  int streamingInsert(vector<string> query);
+  int batchInsert(vector<string> query);
+
+  sql::Driver *driver;
+  boost::shared_ptr <sql::Connection> con;
+
   string hostname;
   string username;
   string password;
@@ -44,3 +58,5 @@ public:
 
 
 };
+
+#endif

@@ -20,6 +20,8 @@
 
 #include "MySqlDBConnector.h"
 #include "FileReader.h"
+#include "IniParser.hpp"
+//#include "Iniparser.h"
 
 using std::cout;
 using std::endl;
@@ -40,35 +42,47 @@ const char* endString = {
 int main(int argc, char *argv[]) {
 
   cout << startString << endl;
+  //
+	// if(argc != 6) {
+	// 	cout << "Insert 6 input parameters:\n"
+	// 	"1 - hostname: Insert host name.\n"
+	// 	"2 - username: Input database user id.\n"
+	// 	"3 - user password: Input database user password\n"
+	// 	"4 - database name: Insert database name.\n"
+	// 	"5 - table name: Insert table name.\n"
+	// 	 << endl;
+  //
+  //   cout << endString << endl;
+	// 	return 0;
+  //  }
 
-	if(argc != 6) {
-		cout << "Insert 6 input parameters:\n"
-		"1 - hostname: Insert host name.\n"
-		"2 - username: Input database user id.\n"
-		"3 - user password: Input database user password\n"
-		"4 - database name: Insert database name.\n"
-		"5 - table name: Insert table name.\n"
-		 << endl;
 
-    cout << endString << endl;
-		return 0;
-   }
+/*  string value;
+  //Iniparser::get("/home/zollino/RTAlib/PyRTAlib/rtalibconfig","MySql","username","password", value);
+  IniFile file;
 
-  string hostname = argv[1];
-  string username = argv[2];
-  string password = argv[3];
-  string database = argv[4];
-  string tablename = argv[5];
+  // try loading file
+  try {
+    file = IniParser::load("/home/zollino/RTAlib/PyRTAlib/rtalibconfig");
+  } catch (IniParser::ParserException e) {
+    std::cerr << "Error while loading file!\n";
+  }
 
-  FileReader::readFromFile("/home/zollino/RTAlib/PyRTAlib/rtalibconfig");
+  string hostname = file["MySql"]["host"].getString();
+  string username = file["MySql"]["username"].getString();
+  string password = file["MySql"]["password"].getString();
+  string database = file["MySql"]["dbname"].getString();
+  string tablename = file["General"]["evt3modelname"].getString();
 
-  cout << "Acquisizione input: OK!" << endl;
 
-  MySqlDBConnector * mysqlDBConnector = new MySqlDBConnector(hostname, username, password, database, tablename);
+  // printing errors
+  std::cout << IniParser::getErrorString(IniParser::getError()) << "\n";
+*/
+  MySqlDBConnector * mysqlDBConnector = new MySqlDBConnector("/home/zollino/RTAlib/PyRTAlib");
 
-  mysqlDBConnector->connect(hostname, username, password, database);
+  mysqlDBConnector->connect();
 
-  int i = mysqlDBConnector->insertData(tablename/*, args*/);
+  int i = mysqlDBConnector->insertData(/*, args*/);
 
   int r = mysqlDBConnector->disconnect();
 

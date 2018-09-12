@@ -14,33 +14,3 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-#ifndef DB_CONNECTOR_H
-#define DB_CONNECTOR_H
-
-
-/* Standard C++ includes */
-#include <string>
-#include <vector>
-#include <iostream>
-#include <sstream>
-
-#include "Config.h"
-
-using std::string;
-using std::pair;
-using std::vector;
-using std::cout;
-using std::endl;
-
-class DBConnector {
-public:
-  DBConnector(string filepath="");
-  virtual int connect();
-  virtual int disconnect();
-  virtual int testConnection();
-  virtual int insertData(string modelName, std::vector < pair < string, double > > args);
-
-  Config * config;
-};
-
-#endif

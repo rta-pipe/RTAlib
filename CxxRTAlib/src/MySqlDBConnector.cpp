@@ -15,82 +15,96 @@
  ==========================================================================
 */
 
-#include"MySqlDBConnector.h"
 
-using std::cout;
-using std::endl;
+#include "MySqlDBConnector.h"
 
 
-/*MySqlDBConnector :: MySqlDBConnector(string _hostname, string _username, string _password, string _database, string _tablename){
+int MySqlDBConnector::connect(){
 
-  string hostname = _hostname;
-  string username = _username;
-  string password = _password;
-  string database = _database;
-  string tablename = _tablename;
-  con = mysql_init(NULL);
+  string hostname = config->file["MySql"]["host"].getString();
+  string username = config->file["MySql"]["username"].getString();
+  string password = config->file["MySql"]["password"].getString();
+  string database = config->file["MySql"]["dbname"].getString();
 
-  cout << "MySqlDBConnector"  << endl;
-  cout << "Hostname: " << hostname << endl;
-  cout << "User: " << username << endl;
-  cout << "Password: " << password << endl;
-  cout << "Database: " << database << endl;
-  cout << "Table name: " << tablename << endl;
+  try {
 
-}*/
+    driver = sql::mysql::get_driver_instance();
 
-int MySqlDBConnector::connect(string hostname, string username, string password, string database){
+    /* Using the Driver to create a connection */
+    con.reset(driver->connect (hostname, username, password)); // connect to mysql
 
-  con = mysql_init(NULL);
+    con->setSchema(database);
 
-  if (!con) {
-    cout << "Init faild, out of memory?" << endl;
+    cout << "Connection ok!"<< endl;
+
+
+  } catch (sql::SQLException &e) {
+    /*
+    The MySQL Connector/C++ throws three different exceptions:
+
+    - sql::MethodNotImplementedException (derived from sql::SQLException)
+    - sql::InvalidArgumentException (derived from sql::SQLException)
+    - sql::SQLException (derived from std::runtime_error)#include <chrono>
+    */
+    cout << "# ERR: SQLException in " << __FILE__;
+    cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
+    /* Use what() (derived from std::runtime_error) to fetch the error message */
+    cout << "# ERR: " << e.what();
+    cout << " (MySQL error code: " << e.getErrorCode();
+    cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+
+    return EXIT_FAILURE;
+  } catch (std::runtime_error &e) {
+
+    cout << "# ERR: runtime_error in " << __FILE__;
+    cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
+    cout << "# ERR: " << e.what() << endl;
+    cout << "not ok 1 - examples/connect.php" << endl;
+
     return EXIT_FAILURE;
   }
 
-  cout << "\nMYSQLDBCONNECTOR CONNECT" << endl;
-  cout << hostname.c_str() << endl;
-  cout << username.c_str() << endl;
-  cout << password.c_str() << endl;
-  cout << database.c_str() << endl;
 
-  if (!mysql_real_connect(con,       /* MYSQL structure to use */
-			  hostname.c_str(),            /* server hostname or IP address */
-			  username.c_str(),            /* mysql user */
-			  password.c_str(),            /* password */
-			  database.c_str(),            /* default database to use, NULL for none */
-			  0,                           /* port number, 0 for default */
-			  NULL,                        /* socket file or named pipe name */
-        CLIENT_FOUND_ROWS)) {        /* connection flags */
-    cout << "Connect failed" << endl;
-  } else {
-    cout << "Connect OK!" << endl;
-  }
+  cout << endl;
+
+  cout << endl;
+  return EXIT_SUCCESS;
+
 }
 
 
-string MySqlDBConnector :: buildQuery(string modelName/*, vector < pair <string,double> > args*/) {
+int MySqlDBConnector::testConnection(){}
 
-  cout << "BUILDQUERY FUNCTION" << endl;
+int MySqlDBConnector::startTransaction(){
 
-  //cout <<"Tablename: " << modelName << endl;
+  /* Creating a "simple" statement - "simple" = not a prepared statement */
+	boost::scoped_ptr< sql::Statement > stmt(con->createStatement());
 
-  string query = "INSERT INTO " + modelName + "(eventidfits, observationid, datarepositoryid, ra_deg, dec_deg, energy, detx, dety, mcid, status, timerealtt, insert_time) VALUES(1,2,3,4,5,6,7,8,9,10,11,12)";
+  stmt->execute("START TRANSACTION");
 
+}
 
-  return query;
+int MySqlDBConnector::commitTransaction(){
+
+  /* Creating a "simple" statement - "simple" = not a prepared statement */
+	boost::scoped_ptr< sql::Statement > stmt(con->createStatement());
+
+  stmt->execute("COMMIT");
+
 }
 
 
-int MySqlDBConnector :: insertData(string modelName/*, vector < pair <string,double> > args*/){
+int MySqlDBConnector::insertData(/*, vector < pair <string,double> > args*/){
 
   cout << "INSERT DATA FUNCTION" << endl;
 
-  int batchsize = 1;  // DA LEGGERE DA rtaconfig
+  string modelName = config->file["General"]["evt3modelname"].getString();
+
+  int batchsize = config->file["General"]["batchsize"].getInt();  // DA LEGGERE DA rtaconfig
 
   //cout << "Modelname: " << modelName << endl;
 
-  string query = buildQuery(modelName/*, args*/);
+  vector<string> query = buildQuery(modelName, batchsize/*, args*/);
 
   if( batchsize == 1) /* da rtaconfig batchsize*/
 
@@ -105,80 +119,225 @@ int MySqlDBConnector :: insertData(string modelName/*, vector < pair <string,dou
 
     return EXIT_FAILURE;
 
-
 }
 
-int MySqlDBConnector :: testConnection(){
 
- }
 
-int MySqlDBConnector :: streamingInsert(string query) {
+int MySqlDBConnector::streamingInsert(vector<string> query) {
 
   cout << "[MySqlConnector] Streaming insert.." << endl;
+  int num_rows = 0;
+  stringstream msg;
+  string qr;
 
-  if (mysql_real_query( con, query.c_str(), strlen( query.c_str() ) ) ) {
+  try {
 
-    cout << query.c_str() << endl;
+      boost::scoped_ptr< sql::Statement > stmt(con->createStatement());
 
-    cout << "Query failed: " << mysql_error(con) << endl;
+      /* executeUpdate() returns the number of affected = inserted rows */
+      /*num_rows += stmt->executeUpdate(query[0]);
+      if (ONE_ROW != num_rows) {
+        msg.str("");
+        msg << "Expecting " << ONE_ROW << "rows, reported " << num_rows;
+        throw runtime_error(msg.str());
+      }*/
 
+      for(vector<string>::iterator it = query.begin(); it!=query.end(); it++) {
 
-  } else {
+        /* executeUpdate() returns the number of affected = inserted rows */
+        num_rows += stmt->executeUpdate(*it);
+        if (ONE_ROW != num_rows) {
+          msg.str("");
+          msg << "Expecting " << ONE_ROW << "rows, reported " << num_rows;
+          throw runtime_error(msg.str());
+        }
 
-    cout << "Query OK!" << endl;
+    }
 
+    } catch (sql::SQLException &e) {
+      /*
+      The MySQL Connector/C++ throws three different exceptions:
 
-  }
+      - sql::MethodNotImplementedException (derived from sql::SQLException)
+      - sql::InvalidArgumentException (derived from sql::SQLException)
+      - sql::SQLException (derived from std::runtime_error)
+      */
+      cout << endl;
+      cout << "# ERR: DbcException in " << __FILE__;
+      cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
+      /* Use what(), getErrorCode() and getSQLState() */
+      cout << "# ERR: " << e.what();
+      cout << " (MySQL error code: " << e.getErrorCode();
+      cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+
+      if (e.getErrorCode() == 1047) {
+        /*
+        Error: 1047 SQLSTATE: 08S01 (ER_UNKNOWN_COM_ERROR)
+        Message: Unknown command
+        */
+        cout << "# ERR: Your server seems not to support PS at all because its MYSQL <4.1" << endl;
+      }
+      cout << "not ok 1 - RTA-DL3-Sim/DBConnector.cpp" << endl;
+
+      return EXIT_FAILURE;
+    } catch (std::runtime_error &e) {
+
+      cout << endl;
+      cout << "# ERR: runtime_error in " << __FILE__;
+      cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
+      cout << "# ERR: " << e.what() << endl;
+      cout << "not ok 1 - RTA-DL3-Sim/DBConnector.cpp" << endl;
+
+      return EXIT_FAILURE;
+    }
 
 }
 
-int MySqlDBConnector :: batchInsert(string query) {
+int MySqlDBConnector::batchInsert(vector<string> query) {
 
   int commandsSent = 0;
+  int num_rows = 0;
+  stringstream msg;
 
   int batchsize =1; // DA LEGGERE DA rtaconfig
 
   cout << "[MySqlConnector] Batch insert.." << endl;
 
-  if(commandsSent==0) {
+  int s = startTransaction();
 
-     mysql_autocommit(con, 1);  //START TRANSACTION
+  //  START STREAMING INSERT
 
-     commandsSent++;
+/*  try {
 
+      boost::scoped_ptr< sql::Statement > stmt(con->createStatement());
 
-  }
+      for(vector<string>::iterator it = query.begin(); it!=query.end(); it++) {
 
-  if (mysql_real_query( con, query.c_str(), strlen( query.c_str() ) ) ) {
+        /* executeUpdate() returns the number of affected = inserted rows */
+/*        num_rows += stmt->executeUpdate(*it);
+        if (ONE_ROW != num_rows) {
+          msg.str("");
+          msg << "Expecting " << ONE_ROW << "rows, reported " << num_rows;
+          throw runtime_error(msg.str());
+        }
 
-    cout << query.c_str() << endl;
+    }
 
-    cout << "Query failed: " << mysql_error(con) << endl;
+    } catch (sql::SQLException &e) {
+      /*
+      The MySQL Connector/C++ throws three different exceptions:
 
+      - sql::MethodNotImplementedException (derived from sql::SQLException)
+      - sql::InvalidArgumentException (derived from sql::SQLException)
+      - sql::SQLException (derived from std::runtime_error)
+      */
+/*      cout << endl;
+      cout << "# ERR: DbcException in " << __FILE__;
+      cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
+      /* Use what(), getErrorCode() and getSQLState() */
+/*      cout << "# ERR: " << e.what();
+      cout << " (MySQL error code: " << e.getErrorCode();
+      cout << ", SQLState: " << e.getSQLState() << " )" << endl;
 
-  } else {
+      if (e.getErrorCode() == 1047) {
+        /*
+        Error: 1047 SQLSTATE: 08S01 (ER_UNKNOWN_COM_ERROR)
+        Message: Unknown command
+        */
+/*        cout << "# ERR: Your server seems not to support PS at all because its MYSQL <4.1" << endl;
+      }
+      cout << "not ok 1 - RTA-DL3-Sim/DBConnector.cpp" << endl;
 
-    cout << "Query OK!" << endl;
+      return EXIT_FAILURE;
+    } catch (std::runtime_error &e) {
 
+      cout << endl;
+      cout << "# ERR: runtime_error in " << __FILE__;
+      cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
+      cout << "# ERR: " << e.what() << endl;
+      cout << "not ok 1 - RTA-DL3-Sim/DBConnector.cpp" << endl;
 
-  }
+      return EXIT_FAILURE;
+    }
+*/
 
+    streamingInsert(query);
 
-  //SE COMMAND SENT => BATCHSIZE EXECUTE COMMIT E COMMAND SENT = 0
-  if(commandsSent >= batchsize) {
-    mysql_commit(con);
-    commandsSent = 0;
-  }
+  // END STREAMING INSERT
 
+  int c = commitTransaction();
 
 }
 
-int MySqlDBConnector :: disconnect(){
+vector<string> MySqlDBConnector::buildQuery(string modelName, int batchsize/*, vector < pair <string,double> > args*/) {
 
-  mysql_close(con);
+  cout << "BUILDQUERY FUNCTION" << endl;
 
-  printf("Disconnect to MySql.\n");
+  cout <<"Tablename: " << modelName << endl;
 
-  return EXIT_SUCCESS;
+  string insertQueriesArray[batchsize];
+  vector<string> allQueries;
+  //double **dataWR = data;
+  int status = 0;
 
+  cout << "\nQuery construnction ..." << endl;
+
+  time_t seconds;
+  seconds = time(NULL);
+
+  for(int i = 0 ; i < batchsize; i ++) {
+
+  insertQueriesArray[i] = "INSERT INTO " + modelName + "(eventidfits, observationid, datarepositoryid, ra_deg, dec_deg, energy, detx, dety, mcid, status, timerealtt, insert_time) VALUES (1,2,3,4,5,6,7,8,9,10,11,12)";
+  /*insertQueriesArray[i] = "INSERT INTO " + modelName + "(eventidfits, observationid, datarepositoryid, ra_deg, dec_deg, energy, detx, dety, mcid, status, timerealtt, insert_time) VALUES ("
+
+  	    + FileWriter::convertToString(dataWR[i][0]) + " ,"
+
+  	    + FileWriter::convertToString( idObs ) + " , "
+
+  	    + FileWriter::convertToString( idRepo ) + " ,"
+
+  	    + FileWriter::convertToString( dataWR[i][2] ) + " ,"
+
+  	    + FileWriter::convertToString( dataWR[i][3] ) + ", "
+
+  	    + FileWriter::convertToString( dataWR[i][4] ) + " , "
+
+  	    + FileWriter::convertToString( dataWR[i][5] ) + " ,"
+
+  	    + FileWriter::convertToString( dataWR[i][6] ) + " ,"
+
+  	    + FileWriter::convertToString( dataWR[i][7] ) + " ,"
+
+  	    + FileWriter::convertToString( status ) + " , "
+
+  	    + FileWriter::convertToString( dataWR[i][1] ) + " , "
+
+        + FileWriter::convertToString( seconds ) + ")";*/
+
+        allQueries.push_back(insertQueriesArray[i]);
+
+  }
+
+  cout << "All queries are constructed." << endl;
+
+  return allQueries;
+
+}
+
+int MySqlDBConnector::disconnect(){
+
+  try
+    {
+        con->close();
+        //delete con;
+        //this->driver->threadEnd();
+        cout << "Disconnected to MySql!" << endl;
+        return 0;
+    }
+    catch(sql::SQLException &e)
+    {
+        cout << "# ERR: " << e.what() << endl;
+        //CLogger::LogEvent("Failed To Close Connection to DataBase Server" ,e.what());
+        return -1;
+    }
 }

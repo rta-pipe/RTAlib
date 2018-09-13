@@ -15,17 +15,30 @@
  ==========================================================================
 */
 
-#include "Config.h"//TODO GESTIONE VARIABILE D'AMBIENTE, dare precedenza a variabile d'ambiente se settata
+#include "Config.h"
 
 Config* Config::_instance = 0;
 
 Config::Config(string filepath){
+
+  char* pPath;
+  pPath = getenv("RTACONFIGFILE");
+  if (pPath!=NULL){
+
+    filepath = pPath;
+    int pos = filepath.find("/home/",0);
+    filepath = filepath.substr(pos);
+
+  }else if(filepath==""){
+    cout << "[Config] Cant configure. Neither the filepath parameter or the RTACONFIGFILE environment variable have been provided." << endl;
+  }
 
   filepath += "/rtalibconfig";
 
 	#ifdef DEBUG
     cout << filepath << endl;
   #endif
+  
   // try loading file
   try {
     file = IniParser::load(filepath);

@@ -21,6 +21,7 @@
 #include <string>
 #include <iostream>
 #include "IniParser.hpp"
+#include <stdlib.h>     /* getenv */
 
 using std::string;
 using std::cout;

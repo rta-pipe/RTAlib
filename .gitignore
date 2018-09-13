@@ -54,7 +54,7 @@ PyRTAlib/dump.rdb
 *.app
 
 # Folders
-bin/*
+CxxRTAlib/bin/*
 obj/*
 conf/*
 obj_c/*

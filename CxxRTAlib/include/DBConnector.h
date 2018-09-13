@@ -23,6 +23,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <map>
 
 #include "Config.h"
 
@@ -31,6 +32,7 @@ using std::pair;
 using std::vector;
 using std::cout;
 using std::endl;
+using std::map;
 
 class DBConnector {
 public:

@@ -21,10 +21,7 @@
 DBConnector::DBConnector(string filepath){
 
   config = Config::getIstance(filepath);
-  // cout << "DBConnector constructor" << endl;
-  // cout << "filepath: "<< filepath << endl;
-
-
+  
 }
 
 int DBConnector :: connect(){}

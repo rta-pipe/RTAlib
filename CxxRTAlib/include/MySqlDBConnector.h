@@ -38,17 +38,15 @@ public:
   virtual int connect();
   virtual int disconnect();
   virtual int testConnection();
-  virtual int insertData(/*, vector < pair <string,double> > args*/);
-  virtual int startTransaction();
-  virtual int commitTransaction();
-
-
-  vector<string> buildQuery(string modelName, int batchsize/*, vector < pair <string,double> > args*/);
-  int streamingInsert(vector<string> query);
-  int batchInsert(vector<string> query);
+  virtual int insertData(map < string, string > args);
+  
+  string buildQuery(string modelName, int batchsize, map <string,string> args);
+  int streamingInsert(string query);
+  int batchInsert(string query, int batchsize);
 
   sql::Driver *driver;
-  boost::shared_ptr <sql::Connection> con;
+  sql::Connection *con;
+  int commandsSent = 0;
 
   string hostname;
   string username;

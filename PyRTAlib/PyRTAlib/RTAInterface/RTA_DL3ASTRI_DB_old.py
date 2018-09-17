@@ -36,15 +36,15 @@ class RTA_DL3ASTRI_DB_old(RTA_DL_DB):
     def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid = 1, datarepositoryid = 1, status = 1):
         evt3 = EVT3_ASTRI_old(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
         committed = super()._insertEvent(evt3)
-        if committed:
+        if committed and self.config.get('MySqlPipelineDatabase', 'active', 'bool'):
             self.updatePipeline(evt3.timerealtt, evt3.observationid, evt3.datarepositoryid)
 
     def getRandomEvent(self):
         return EVT3_ASTRI_old.getRandomEvent()
 
     def updatePipeline(self, timerealtt, observationid, datarepositoryid):
+        query = 'update observation_to_datarepository set tenddata='+str(timerealtt)+' where observationid='+str(observationid)+' and datarepositoryid='+str(datarepositoryid)
         if self.config.get('MySqlPipelineDatabase', 'debug', 'bool'):
-            query = 'update observation_to_datarepository set tenddata='+str(timerealtt)+' where observationid='+str(observationid)+' and datarepositoryid='+str(datarepositoryid)
             print('[RTA_DL3ASTRI_DB] Updating pipeline..query={}'.format(query))
         self.mysqlDbConnector.executeQuery(query)
 

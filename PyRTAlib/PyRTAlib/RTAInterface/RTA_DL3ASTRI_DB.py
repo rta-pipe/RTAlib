@@ -37,8 +37,9 @@ class RTA_DL3ASTRI_DB(RTA_DL_DB):
     def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, alt, az, gammaness, observationid = 1, datarepositoryid = 1, status = 1):
         evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, alt, az, gammaness, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
         committed = super()._insertEvent(evt3)
-        if committed:
+        if committed and self.config.get('MySqlPipelineDatabase', 'active', 'bool'):
             self.updatePipeline(evt3.timerealtt, evt3.observationid, evt3.datarepositoryid)
+
 
     def getRandomEvent(self):
         return EVT3_ASTRI.getRandomEvent()

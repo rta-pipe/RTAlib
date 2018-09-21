@@ -30,8 +30,10 @@ class RTA_DL3ASTRI_DB(RTA_DL_DB):
         # Pipeline Database Updater
         if not self.pure_multithreading and self.config.get('MySqlPipelineDatabase', 'active', 'bool'):
             self.mysqlDbConnector = self.getMySqlConnector(configFilePath, 'MySqlPipelineDatabase')
-            self.mysqlDbConnector.connect()
-            print('[RTA_DL3ASTRI_DB] Pipeline updater activated.')
+            if self.mysqlDbConnector.connect():
+                print('[RTA_DL3ASTRI_DB] Pipeline updater activated.')
+            else:
+                print('[RTA_DL3ASTRI_DB] Cannot connect.')
 
 
     def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, alt, az, gammaness, observationid = 1, datarepositoryid = 1, status = 1):

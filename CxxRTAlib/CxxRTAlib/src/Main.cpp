@@ -24,7 +24,6 @@
 
 #include "MySqlDBConnector.h"
 #include "IniParser.hpp"
-#include "GaussianRandomNumberGenerator.h"
 #include "Config.h"
 
 
@@ -53,7 +52,7 @@ int main(int argc, char *argv[]) {
 
   std::map <string, string> args;
 
-  int size = 5000;
+  int size = atoi(argv[1]);
   int commandsSent;
 
   cout << "Size: " << size << endl;
@@ -80,7 +79,7 @@ int main(int argc, char *argv[]) {
 
   }
 
-  MySqlDBConnector * mysqlDBConnector = new MySqlDBConnector("/home/zollino/RTAlib/PyRTAlib");
+  MySqlDBConnector * mysqlDBConnector = new MySqlDBConnector();
 
   mysqlDBConnector->connect();
 

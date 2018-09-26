@@ -15,34 +15,35 @@
  ==========================================================================
 */
 
-/*#include"RedisDBConnector.h"
-
-int RedisDBConnector::connect(string _hostname, string _username, string _password, string _database){
-
-  cout << "REDISDBCONNECTOR CONNECT" << endl;
-
-  redisContext *c = redisConnect(hostname, 6379);
-  if (c != NULL && c->err) {
-      cout << "Error: " <<  c->errstr <<  endl;
-      // handle error
-  } else {
-      cout << "Connected to Redis" << endl;
-  }
-
-  redisReply *reply;
-  reply = redisCommand(c, "Redis@RTA18#");
-  freeReplyObject(reply);
-
-
-  redisFree(c);
-
-}
-
-int RedisDBConnector :: disconnect(){}
-int RedisDBConnector :: testConnection(){
-
-}
-int RedisDBConnector :: insertData(string modelName/*, vector < pair <string,double> > args){}
-
-
-string buildQuery(string modelName/*, vector < pair <string,double> > args){}*/
+// #include"RedisDBConnector.h"
+//
+// int RedisDBConnector::connect(string _hostname, string _username, string _password, string _database){
+//
+//   cout << "REDISDBCONNECTOR CONNECT" << endl;
+//
+//   redisContext *c = redisConnect(hostname, 6379);
+//   if (c != NULL && c->err) {
+//       cout << "Error: " <<  c->errstr <<  endl;
+//       // handle error
+//   } else {
+//       cout << "Connected to Redis" << endl;
+//   }
+//
+//   redisReply *reply;
+//   reply = redisCommand(c, "Redis@RTA18#");
+//   freeReplyObject(reply);
+//
+//
+//   redisFree(c);
+//
+// }
+//
+// int RedisDBConnector :: disconnect(){}
+// int RedisDBConnector :: testConnection(){
+//
+// }
+//
+// int RedisDBConnector :: insertData(string modelName/*, vector < pair <string,double> > args*/){}
+//
+//
+// string buildQuery(string modelName/*, vector < pair <string,double> > args*/){}

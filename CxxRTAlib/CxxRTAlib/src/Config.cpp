@@ -26,8 +26,6 @@ Config::Config(string filepath){
   if (pPath!=NULL){
 
     filepath = pPath;
-    int pos = filepath.find("/home/",0);
-    filepath = filepath.substr(pos);
 
   }else if(filepath==""){
     cout << "[Config] Cant configure. Neither the filepath parameter or the RTACONFIGFILE environment variable have been provided." << endl;
@@ -38,7 +36,7 @@ Config::Config(string filepath){
 	#ifdef DEBUG
     cout << filepath << endl;
   #endif
-  
+
   // try loading file
   try {
     file = IniParser::load(filepath);

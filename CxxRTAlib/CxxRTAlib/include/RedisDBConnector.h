@@ -14,29 +14,29 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-/*
-#include "DBConnector.h"
-#include "hiredis.h"
-
-
-
-class RedisDBConnector : public DBConnector {
-public:
-  RedisDBConnector(string hostname, string username, string password, string database, string tablename)
-  :DBConnector(hostname, username, password, database, tablename){ cout << "RedisDBConnector" << endl; };
-  virtual int connect(string _hostname, string _username, string _password, string _database);
-  virtual int disconnect();
-  virtual int testConnection();
-  virtual int insertData(string modelName/*, vector < pair <string,double> > args);
-
-
-  string buildQuery(string modelName/*, vector < pair <string,double> > args);
-
-  string hostname;
-  string username;
-  string password;
-  string database;
-  string tablename;
-
-
-};*/
+//
+// #include "DBConnector.h"
+// #include "hiredis.h"
+//
+//
+//
+// class RedisDBConnector : public DBConnector {
+// public:
+//   RedisDBConnector(string hostname, string username, string password, string database, string tablename)
+//   :DBConnector(hostname, username, password, database, tablename){ cout << "RedisDBConnector" << endl; };
+//   virtual int connect(string _hostname, string _username, string _password, string _database);
+//   virtual int disconnect();
+//   virtual int testConnection();
+//   virtual int insertData(string modelName, vector < pair <string,double> > args);
+//
+//
+//   string buildQuery(string modelName, vector < pair <string,double> > args);
+//
+//   string hostname;
+//   string username;
+//   string password;
+//   string database;
+//   string tablename;
+//
+//
+// };

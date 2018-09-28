@@ -141,13 +141,20 @@ ___
 
 ## Setup the test environment (*NOT UPDATED*)
 In order to be able to run the tests:
+
+* Export the following variable:
+  ```bash
+    export rtalibBaseDir=<absolute-path-to-rtalib-root-folder>
+    export PYTHONPATH=$rtalibBaseDir:$rtalibBaseDir/PyRTAlib/:$PYTHONPATH
+
+  ```
 * rtalibconfig_test must be configured with the following parameters: --> TODO <--
 
 * For now, create the database with:
   * mysql -uroot -p --execute="CREATE DATABASE 'evt_test';"
 * import the tables from an existing backup with:
   * mysql -uroot -p evt_test < evt_test.sql
-  
+
 * a MySQL database for testing purpose must be setted up calling the following instructions:
   * CREATE DATABASE 'evt_test'
   * CREATE TABLE IF NOT EXISTS test_table ( id INT AUTO_INCREMENT PRIMARY KEY, a INTEGER, b INTEGER, c INTEGER, d INTEGER );

@@ -35,7 +35,7 @@ class RTA_DL_DB(ABC):
 
         #print('___/\____/\____/\___RTAlib-init()___/\____/\____/\___')
 
-        if database != 'mysql' and database != 'redis' and database != 'redis-basic':
+        if database != 'mysql' and database != 'redis-basic':
             print("[RTA_DL_DB] Error! Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis-basic'))
             exit()
 
@@ -163,10 +163,10 @@ class RTA_DL_DB(ABC):
     def getConnector(self, databaseEngine, configFilePath):
         if databaseEngine == 'mysql':
             return MySqlDBConnector(configFilePath)
-        elif databaseEngine == 'redis':
-            return RedisDBConnector(configFilePath)
         elif databaseEngine == 'redis-basic':
             return RedisDBConnectorBASIC(configFilePath)
+        
+
 
     def getMySqlConnector(self, configFilePath, connectTo='MySql'):
         return MySqlDBConnector(configFilePath, connectTo)

@@ -8,6 +8,8 @@ numberofthreads=
 [Dtr]
 active=
 debug=
+inputchannel=
+outputchannel=
 
 [MySql]
 host=
@@ -17,5 +19,13 @@ dbname=
 
 [Redis]
 host=
+password=
+dbname=
+
+[MySqlPipelineDatabase]
+active=
+debug=
+host=
+username=
 password=
 dbname=

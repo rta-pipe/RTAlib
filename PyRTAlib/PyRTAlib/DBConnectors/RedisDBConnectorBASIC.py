@@ -231,4 +231,16 @@ class RedisDBConnectorBASIC(DBConnector):
 
 
     def close(self):
-        pass
+        if self.conn and self.config.get('General','debug') == 'yes':
+            print("[RedisConnectorBASIC] Command sent: {}.  Closing connection..".format(self.commandsSent))
+
+        if self.commandsSent > 0:
+            if self.conn and self.config.get('General','debug') == 'yes':
+                print("[RedisConnectorBASIC] Closing transaction..")
+            try:
+                self.commandsSent = 0
+                self.pipe.execute()
+                return True
+            except redis.ConnectionError as e:
+                print("[RedisConnectorBASIC] Error: {}".format(e))
+                return False

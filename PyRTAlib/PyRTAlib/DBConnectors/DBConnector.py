@@ -60,3 +60,7 @@ class DBConnector(ABC):
     @abstractmethod
     def insertData(self, modelName, *args):
         pass
+
+    @abstractmethod
+    def close(self):
+        pass

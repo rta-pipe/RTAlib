@@ -20,6 +20,8 @@
 import os
 import sys
 import cProfile
+from random import randint, uniform
+from time import time
 
 from PyRTAlib.DBConnectors  import MySqlDBConnector
 from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
@@ -42,7 +44,7 @@ def test(numberOfEvents, batchsize, numberofthreads):
         RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
 
         for i in range(int(numberOfEvents)):
-            RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
+            RTA_DL3ASTRI.insertEvent(  i,
                                        evt3data[i][1],
                                        evt3data[i][2],
                                        evt3data[i][3],
@@ -61,34 +63,51 @@ def getUniqueObservationId():
     OBSID += 1
     return OBSID
 
+
+def simulate_evt3_data(numberOfEvents):
+    evt3data = []
+    for i in range(int(numberOfEvents)):
+        rndEvent = []
+        rndEvent.append(randint(0, 9999999))
+        rndEvent.append(time())
+        rndEvent.append(randint(0, 9999999))
+        rndEvent.append(uniform(-180,180))
+        rndEvent.append(uniform(-90, 90))
+        rndEvent.append(uniform(0, 0.5))
+        rndEvent.append(uniform(0, 0.1))
+        rndEvent.append(uniform(0, 0.1))
+        rndEvent.append(randint(0, 9999999))
+        rndEvent.append(randint(0, 9999999))
+        evt3data.append(rndEvent)
+    return evt3data
+
+
 if __name__ == '__main__':
 
     OBSID = 0
 
     os.environ['RTACONFIGFILE'] = './'
 
-    fitspath = sys.argv[1]
 
     """
-        Reading FITS data
+        Simulating FITS data
     """
-    print("Reading data..")
-    evt3datafits = read_data_from_fits(fitspath)
-    evt3data = []
-    for fitsevent in evt3datafits:
-        evt3data.append(fitsevent)
+    print("Generating data..")
+    evt3data = simulate_evt3_data(10000)
 
-    print(evt3data[0])
 
     """
         Truncate Table
     """
+    print("Truncating table..")
     mysqlConn = MySqlDBConnector('./')
     mysqlConn.connect()
     if not mysqlConn.executeQuery('delete from evt3'):
         exit()
     mysqlConn.close()
 
-    cProfile.run('test(1000, 1, 1)', sort='tottime')
+    print("Running test.. number of events = 10000, batchsize = 1")
+    cProfile.run('test(10000, 1, 1)', sort='tottime')
 
-    cProfile.run('test(1000, 200, 1)', sort='tottime')
+    print("Running test.. number of events = 10000, batchsize = 200")
+    cProfile.run('test(10000, 200, 1)', sort='tottime')

@@ -23,6 +23,7 @@ import time
 import collections
 import statistics
 import threading
+from random import randint, uniform
 
 #import matplotlib
 #import matplotlib.pyplot as plt
@@ -58,6 +59,7 @@ def deleteData(database):
         exit()
 
 
+
 def test(batchsize, numberofthreads):
 
     config = Config('./')
@@ -74,9 +76,8 @@ def test(batchsize, numberofthreads):
     for jj in range(5):
 
         obsId = getUniqueObservationId()
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old(database)
+        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old(database, '', True) # pure_multithreading mode on
 
-        start_perf = time.perf_counter()
         for i in range(int(numberOfEvents)):
             RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
                                        evt3data[i][1],
@@ -89,24 +90,21 @@ def test(batchsize, numberofthreads):
                                        obsId
                                      )
 
-        RTA_DL3ASTRI.waitAndClose()
-        end_perf = time.perf_counter()
+        stats = RTA_DL3ASTRI.waitAndClose()
 
-        executionTime = end_perf - start_perf
-        eventSec = int(numberOfEvents)/executionTime
-        eventSecList.append(eventSec)
-        executionTimeList.append(executionTime)
+        eventSecList.append(stats[2])
+        executionTimeList.append(stats[1])
 
 
     Perf = collections.namedtuple('res', ['avg', 'stddev'])
 
     avgES = statistics.mean(eventSecList)
     stddevES = statistics.stdev(eventSecList)
-    ES = Perf(avgES, stddevES)
+    ES = Perf(avgES, round(stddevES,2))
 
     avgET = statistics.mean(executionTimeList)
     stddevET = statistics.stdev(executionTimeList)
-    ET = Perf(avgET, stddevET)
+    ET = Perf(avgET, round(stddevET,2))
 
     print("{} +- {}\n{} +- {}".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
     return ES
@@ -119,6 +117,24 @@ def getUniqueObservationId():
     OBSID += 1
     return OBSID
 
+def simulate_evt3_data(numberOfEvents):
+    evt3data = []
+    for i in range(int(numberOfEvents)):
+        rndEvent = []
+        rndEvent.append(randint(0, 9999999))
+        rndEvent.append(time.time())
+        rndEvent.append(randint(0, 9999999))
+        rndEvent.append(uniform(-180,180))
+        rndEvent.append(uniform(-90, 90))
+        rndEvent.append(uniform(0, 0.5))
+        rndEvent.append(uniform(0, 0.1))
+        rndEvent.append(uniform(0, 0.1))
+        rndEvent.append(randint(0, 9999999))
+        rndEvent.append(randint(0, 9999999))
+        evt3data.append(rndEvent)
+    return evt3data
+
+
 
 if __name__ == '__main__':
 
@@ -127,16 +143,17 @@ if __name__ == '__main__':
     os.environ['RTACONFIGFILE'] = './'
 
     database = sys.argv[1]
-    fitspath = sys.argv[2]
-    numberOfEvents = sys.argv[3]
+    #fitspath = sys.argv[2]
+    numberOfEvents = sys.argv[2]
 
 
     """
         Reading FITS data
-    """
+
     print("Reading data..")
     evt3data = read_data_from_fits(fitspath)
     print(evt3data[0])
+    """
 
 
 
@@ -147,29 +164,36 @@ if __name__ == '__main__':
 
 
 
-
     """
         Test configuration
     """
-    threads = [1]
+    threads = [1, 2, 4, 8]
     batchsizes = [1, 10, 50, 100, 200, 400, 800, 1600, 3200]
 
     insertionsNumber = len(threads)*len(batchsizes)*int(numberOfEvents)
+
+    """
+        Reading FITS data
+    """
+    evt3data = simulate_evt3_data(insertionsNumber)
+
     availableData = len(evt3data)
+
 
     print("Number of insertions: {}".format(insertionsNumber))
     print("Available data: {}".format(len(evt3data)))
 
     if insertionsNumber > availableData:
         print("NOT ENOUGH DATA!!")
+        exit()
 
     """
         Plot
     """
-    #w, h = len(batchsizes), len(threads);
+    w, h = len(batchsizes), len(threads);
     x  = []
-    y = []
-    erry = []
+    y = [[] for y in range(h)]
+    erry = [[] for y in range(h)]
 
 
     """
@@ -182,14 +206,14 @@ if __name__ == '__main__':
 
     for idx_t, t in enumerate(threads):
         for idx_b, b in enumerate(batchsizes):
+
             print("\n--> Number of threads: {}, Batch size: {}".format(t, b))
             p = test(b,t)
             x.append(b)
-            y.append(p[0])
-            erry.append(p[1])
+            y[idx_t].append(p[0])
+            erry[idx_t].append(p[1])
 
             deleteData(database)
-
 
     print(x)
     print(y)

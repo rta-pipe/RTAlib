@@ -8,8 +8,22 @@ In order to execute succesfully the library code, the following softwares are ne
 # PyRTAlib
 The Python version of the RTAlib.
 
-## Description
-TODO
+## Features
+The following features are supported:
+- inserting data in a MySql/Redis database in a batch or a streaming fashion [A1], using a synchronous single-thread or asynchronous (single or multi-threads) strategies [A2].
+- [B] possibility to execute other queries when a commit is made.
+- [C] sending data to Redis channels.
+- [D] specifying the type of data with the implementation of the data model classes.
+
+## Who implements the features
+- DBConnectors [A], [A1]
+  - this module expose an interface that can be used to insert data in a database. Two databases are supported: MySql and Redis. Two types of insertion strategies can be adopted: batch-insert or streaming-insert.
+- RTAInterface [A2], [B], [C]
+  - the RTA_DL_DB.py base class implements the synchronous or asynchronous (even multi-threading) execution.
+  - the RTA_DL3ASTRI_DB.py can be used to execute queries after every commit (when a transaction is closed).
+  - the RTA_DL_DB.py can send data to the Redis channel specified in the configuration file.
+- DataModels [D]
+  - this module contains all the classes that describe the data types that are stored in the database.
 
 ## Installation
 * Create a virtualenv

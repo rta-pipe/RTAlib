@@ -24,8 +24,6 @@ PyRTAlib/PyRTAlib/Utils/__pycache__
 PyRTAlib/dump.rdb
 
 
-sites
-*.d
 
 # Compiled Object files
 *.slo
@@ -58,9 +56,10 @@ sites
 *.app
 
 # Folders
-bin/*
+CxxRTAlib/bin/*
 obj/*
 conf/*
+obj_c/*
 
 
 # Files

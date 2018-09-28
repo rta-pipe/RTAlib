@@ -35,6 +35,8 @@ SYSTEM= $(shell gcc -dumpmachine)
 # Applications
 EXE = testCXXRTAlib
 
+LIB_NAME = CxxRTAlib.a
+
 ####### 2) Directories for the compiler
 OBJECTS_DIR = obj
 SOURCE_DIR = src
@@ -51,7 +53,7 @@ INCLUDE_DIR_C = include_c
 
 CXX = g++
 
-CXXFLAGS = -O3 -funroll-loops -std=c++11 -I $(INCLUDE_DIR) -I $(INCLUDE_DIR_C)
+CXXFLAGS = -O3 -funroll-loops -std=c++11 -I $(INCLUDE_DIR) -I $(INCLUDE_DIR_C) -I ../../../dl2Sim/include/
 
 LIBS += -L$(MYSQL_CXX_CNT)/lib64 -lmysqlcppconn	#NEW ADDED
 
@@ -122,24 +124,29 @@ $(info $$OBJECTS_C is [${OBJECTS_C}])
 %.o : %.c
 	$(C) $(CFLAGS) -c $< -o $(OBJECTS_DIR_C)/$@
 
-#all: compile the entire program.	agextspot performance bayesian
-all: exe
+
+all: exe	staticlib
 	#only if conf directory is present:
 	#$(SYMLINK) $(CONF_DIR) $(CONF_DEST_DIR)
 
 exe: makeobjdir $(OBJECTS_C) $(OBJECTS)
-
-
-
-
 	test -d $(EXE_DESTDIR) || mkdir -p $(EXE_DESTDIR)
 	$(CXX) $(CXXFLAGS) -o $(EXE_DESTDIR)/$(EXE) $(OBJECTS_DIR)/*.o $(LIBS) $(OBJECTS_DIR_C)/*.o
 
 makeobjdir:
 	test -d $(OBJECTS_DIR) || mkdir -p $(OBJECTS_DIR)
 
+staticlib: makelibdir makeobjdir $(OBJECTS_DIR) $(OBJECTS_DIR_C)
+		test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
+		$(AR) $(LIB_DESTDIR)/$(LIB_NAME) $(OBJECTS_DIR)/*.o $(OBJECTS_DIR_C)/*.o
+
+makelibdir:
+	test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
+
+
 
 #clean: delete all files from the current directory that are normally created by building the program.
 clean:
 	$(DEL_FILE) $(OBJECTS_DIR)/*.o
+	$(DEL_FILE) $(LIB_DESTDIR)/$(LIB_NAME)
 	$(DEL_FILE) $(EXE_DESTDIR)/*

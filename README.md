@@ -2,6 +2,7 @@
 
 ## Dependencies
 In order to execute succesfully the library code, the following softwares are needed:
+* Python 3.6+
 * MySql (14.14+)
 * Redis (4.0.10+)
 
@@ -10,18 +11,19 @@ The Python version of the RTAlib.
 
 ## Features
 The following features are supported:
-- inserting data in a MySql/Redis database in a batch or a streaming fashion [A1], using a synchronous single-thread or asynchronous (single or multi-threads) strategies [A2].
-- [B] possibility to execute other queries when a commit is made.
-- [C] sending data to Redis channels.
+- inserting data in a MySql/Redis database in a batch (using transactions) or a streaming fashion [A1], using a synchronous single-thread or asynchronous (single or multi-threads) strategies [A2].
+- [B] possibility to update other tables at the end of each transaction.
+- [C] using the Redis Pub/Sub mechanism to send messages and data into Redis channels to enable asynchronous communication between the RTAlib and other systems.
 - [D] specifying the type of data with the implementation of the data model classes.
+- [E] a stand alone deamon that uses Redis Pub/Sub mechanism, listens for the RTAlib data messages and forward those data message to a [https://github.com/IftachSadeh/ctaOperatorGUI](Graphic User Interface) displaying Data Quality components.
 
 ## Who implements the features
-- DBConnectors [A], [A1]
-  - this module expose an interface that can be used to insert data in a database. Two databases are supported: MySql and Redis. Two types of insertion strategies can be adopted: batch-insert or streaming-insert.
-- RTAInterface [A2], [B], [C]
-  - the RTA_DL_DB.py base class implements the synchronous or asynchronous (even multi-threading) execution.
-  - the RTA_DL3ASTRI_DB.py can be used to execute queries after every commit (when a transaction is closed).
-  - the RTA_DL_DB.py can send data to the Redis channel specified in the configuration file.
+- DBConnectors
+  - [A1] this module expose an interface that can be used to insert data in a database. Two databases are supported: MySql and Redis. Two types of insertion strategies can be adopted: batch-insert or streaming-insert.
+- RTAInterface
+  - [A2] the RTA_DL_DB.py base class implements the synchronous or asynchronous (even multi-threading) execution.
+  - [B] the RTA_DL3ASTRI_DB.py can be used to execute queries after every commit (when a transaction is closed). This is available only in synchronous mode.
+  - [C] the RTA_DL_DB.py can send data to the Redis channel specified in the configuration file.
 - DataModels [D]
   - this module contains all the classes that describe the data types that are stored in the database.
 
@@ -31,17 +33,8 @@ The following features are supported:
 * Activate the virtualenv
   * source activate rtalib
 * python setup.py install
-* Configure the mysql database
-* Rename the configuration file from rtalibconfig_default to rtalibconfig. Fill in the configuration file's fields.
-
-## Setup for test
-* Configure the rtalibconfig file for the test environment.
-* Configure the mysql database for test
-  * For now, create the database with:
-    * mysql -uroot -p --execute="CREATE DATABASE 'evt_test';"
-  * import the tables from an existing backup with:
-    * mysql -uroot -p evt_test < evt_test.sql
-
+* Rename the configuration file from rtalibconfig_default to rtalibconfig.
+* Fill in the configuration file's fields.
 
 
 
@@ -66,6 +59,14 @@ dbname=
 
 [Redis]
 host=
+password=
+dbname=
+
+[MySqlPipelineDatabase]
+active=            # yes/y/True/'True' or any other value for False
+debug=             # yes/y/True/'True' or any other value for False
+host=
+username=
 password=
 dbname=
 ```
@@ -138,10 +139,15 @@ class RTA_DL3ASTRI_DB.forceClose()
 TODO
 ___
 
-
-## Tests
+## Setup the test environment (*NOT UPDATED*)
 In order to be able to run the tests:
 * rtalibconfig_test must be configured with the following parameters: --> TODO <--
+
+* For now, create the database with:
+  * mysql -uroot -p --execute="CREATE DATABASE 'evt_test';"
+* import the tables from an existing backup with:
+  * mysql -uroot -p evt_test < evt_test.sql
+  
 * a MySQL database for testing purpose must be setted up calling the following instructions:
   * CREATE DATABASE 'evt_test'
   * CREATE TABLE IF NOT EXISTS test_table ( id INT AUTO_INCREMENT PRIMARY KEY, a INTEGER, b INTEGER, c INTEGER, d INTEGER );

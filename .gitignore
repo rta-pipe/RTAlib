@@ -1,5 +1,7 @@
 activate_virtual_env.sh
 
+pks1510-089.fits
+
 # Files in PyLibRTA
 PyRTAlib/rtalibconfig
 

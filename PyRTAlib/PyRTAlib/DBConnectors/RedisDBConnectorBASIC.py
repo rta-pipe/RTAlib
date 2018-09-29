@@ -38,9 +38,9 @@ class RedisDBConnectorBASIC(DBConnector):
     def __init__(self, configFilePath=''):
         super().__init__(configFilePath)
 
-        self.cachedIndexes = {}
+        #self.cachedIndexes = {}
         self.pipe = None
-
+        self.indexOn = self.config.get('Redis','indexon','dict')
 
     def connect(self):
         """Connects to Redis.
@@ -59,7 +59,7 @@ class RedisDBConnectorBASIC(DBConnector):
                                     password=self.config.get('Redis','password')
                                 )
         if self.testConnection():
-            self.cacheAllKeyIndexes()
+            #self.cacheAllKeyIndexes()
             #self.cacheUniqueIds()
             self.pipe = self.conn.pipeline()
             #print(self.cachedIndexes)
@@ -137,12 +137,14 @@ class RedisDBConnectorBASIC(DBConnector):
             self.cachedUniqueIds[key] = int(id)
     """
 
+    """
     def cacheAllKeyIndexes(self):
         keys = self.getKeys('indexstring:*')
         for key in keys:
             indexedKey = self.decodeResponse(self.conn.get(key))
             self.cachedIndexes[key] = indexedKey
-        #print(self.cachedIndexes)
+        print(self.cachedIndexes)
+    """
 
     """ let's try to avoid too many Redis calls
     def getUniqueId(self, modelname):
@@ -165,28 +167,32 @@ class RedisDBConnectorBASIC(DBConnector):
         False -- otherwise
         """
 
-        try:
-            index = self.cachedIndexes['indexstring:'+modelName]
+        #try:
+            # index = self.cachedIndexes['indexstring:'+modelName]
             # currentUniqueId = self.cachedUniqueIds['uniqueId:'+modelName]
 
-        except KeyError as e:
-            print('[RedisConnectorBASIC] Error: {}\nPlease, insert in Redis a String with key: "indexstring:{}" and value equal to the query filter attribute for that model'.format(e, modelName))
+        #except KeyError as e:
+            #print('[RedisConnectorBASIC] Error: {}\nPlease, insert in Redis a String with key: "indexstring:{}" and value equal to the query filter attribute for that model'.format(e, modelName))
             # self.conn.delete(modelName) -> the unique key should be deleted
-            return False
+            #return False
 
         if self.conn and self.batchsize == 1:
-            return self.streamingInsert(modelName, dataDict, index)
+            return self.streamingInsert(modelName, dataDict)
         elif self.conn and self.batchsize > 1:
-            return self.batchInsert(modelName, dataDict, index)
+            return self.batchInsert(modelName, dataDict)
         else:
             print("[RedisConnector] Error, self.conn is None")
             return False
 
 
 
-    def streamingInsert(self, modelName, dataDict, index):
+    def streamingInsert(self, modelName, dataDict):
         try:
 
+            if modelName not in self.indexOn:
+                print("[RedisConnectorBASIC] Error: No index exists for model '{}'. Indexes supported: {}.".format(modelName,self.indexOn))
+                return False
+            index = self.indexOn[modelName]
             self.pipe.zadd(modelName, json.dumps(dataDict), dataDict[index])
             # self.pipe.incr('uniqueId:'+modelName)
             # self.cachedUniqueIds['uniqueId:'+modelName] += 1
@@ -198,7 +204,7 @@ class RedisDBConnectorBASIC(DBConnector):
 
 
 
-    def batchInsert(self, modelName, dataDict, index):
+    def batchInsert(self, modelName, dataDict):
         if self.commandsSent == 0:
             try:
                 self.pipe = self.conn.pipeline()
@@ -208,7 +214,10 @@ class RedisDBConnectorBASIC(DBConnector):
                 return False
 
 
-
+        if modelName is not self.indexOn:
+            print("[RedisConnectorBASIC] Error: No index exists for model '{}'.\nPlease, add the name of the index in the rtalibconfig configuration file in the following format: modelName:indexName".format(modelName))
+            return False
+        index = self.indexOn[modelName]
         self.pipe.zadd(modelName, json.dumps(dataDict), dataDict[index])
         # self.cachedUniqueIds['uniqueId:'+modelName] += 1
 

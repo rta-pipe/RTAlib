@@ -29,6 +29,15 @@ class Config(metaclass=Singleton):
                 return True
             else:
                 return False
+        elif cast=='dict':
+            data = {}
+            elements = val.split(',')
+            for e in elements:
+                kv = e.split(':')
+                key = kv[0]
+                value = kv[1]
+                data[key]=value
+            return data
         else:
             return val
 

@@ -30,7 +30,7 @@ from random import randint, uniform
 #import numpy as np
 
 from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
-from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
+from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
 from PyRTAlib.Utils         import read_data_from_fits
 from PyRTAlib.Utils         import Config
 
@@ -76,10 +76,10 @@ def test(batchsize, numberofthreads):
     for jj in range(5):
 
         obsId = getUniqueObservationId()
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old(database, '', True) # pure_multithreading mode on
+        RTA_DLTEST = RTA_DLTEST_DB(database, '', True) # pure_multithreading mode on
 
         for i in range(int(numberOfEvents)):
-            RTA_DL3ASTRI.insertEvent(  evt3data[i][0],
+            RTA_DLTEST.insertEvent(  evt3data[i][0],
                                        evt3data[i][1],
                                        evt3data[i][2],
                                        evt3data[i][3],
@@ -90,7 +90,7 @@ def test(batchsize, numberofthreads):
                                        obsId
                                      )
 
-        stats = RTA_DL3ASTRI.waitAndClose()
+        stats = RTA_DLTEST.waitAndClose()
 
         eventSecList.append(stats[2])
         executionTimeList.append(stats[1])

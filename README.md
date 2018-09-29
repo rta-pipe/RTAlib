@@ -61,6 +61,7 @@ dbname=
 host=
 password=
 dbname=
+indexon=           # key:value,key:value
 
 [MySqlPipelineDatabase]
 active=            # yes/y/True/'True' or any other value for False

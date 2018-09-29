@@ -24,7 +24,7 @@ from ..Utils import time_mjd_to_tt
 from .EVTbase import EVTbase
 
 
-class EVT3_ASTRI_old(EVTbase):
+class EVT3_TEST(EVTbase):
     def __init__(self, eventidfits, timemjd, ra_deg, dec_deg, energy, detx, dety, mcid, mjdref, observationid, datarepositoryid, status):
         super().__init__();
 

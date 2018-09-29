@@ -24,7 +24,7 @@ from random import randint, uniform
 from time import time
 
 from PyRTAlib.DBConnectors  import MySqlDBConnector
-from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
+from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
 from PyRTAlib.Utils         import read_data_from_fits
 from PyRTAlib.Utils         import Config
 
@@ -41,10 +41,10 @@ def test(numberOfEvents, batchsize, numberofthreads):
 
         obsId = getUniqueObservationId()
 
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
+        RTA_DLTEST = RTA_DLTEST_DB('mysql')
 
         for i in range(int(numberOfEvents)):
-            RTA_DL3ASTRI.insertEvent(  i,
+            RTA_DLTEST.insertEvent(  i,
                                        evt3data[i][1],
                                        evt3data[i][2],
                                        evt3data[i][3],
@@ -54,7 +54,7 @@ def test(numberOfEvents, batchsize, numberofthreads):
                                        evt3data[i][7],
                                        obsId
                                      )
-        RTA_DL3ASTRI.waitAndClose()
+        RTA_DLTEST.waitAndClose()
 
 
 

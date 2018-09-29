@@ -1,3 +1,3 @@
 from .RTA_DL_DB import RTA_DL_DB
 from .RTA_DL3ASTRI_DB import RTA_DL3ASTRI_DB
-from .RTA_DL3ASTRI_DB_old import RTA_DL3ASTRI_DB_old
+from .RTA_DLTEST_DB import RTA_DLTEST_DB

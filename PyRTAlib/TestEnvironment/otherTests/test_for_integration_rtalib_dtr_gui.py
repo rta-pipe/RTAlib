@@ -25,7 +25,7 @@ from random import randint, uniform
 
 from PyRTAlib.Utils         import Config
 from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
-from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
+from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
 from PyRTAlib.DTRInterface  import DTR
 
 
@@ -58,14 +58,14 @@ class Integration_rtalib_dtr_gui(unittest.TestCase):
 
 
         # Connect and insert random event
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
+        RTA_DLTEST = RTA_DLTEST_DB('mysql')
 
         for i in range(10000):
             time.sleep(3)
-            RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+            RTA_DLTEST.insertEvent( *RTA_DLTEST.getRandomEvent() )
 
 
-        RTA_DL3ASTRI.waitAndClose()
+        RTA_DLTEST.waitAndClose()
 
         # TODO check number of inserted elements
         self.assertEqual(True, True)

@@ -19,10 +19,10 @@
 # ==========================================================================
 
 from .RTA_DL_DB import RTA_DL_DB
-from ..DataModels import EVT3_ASTRI_old
+from ..DataModels import EVT3_TEST
 
 
-class RTA_DL3ASTRI_DB_old(RTA_DL_DB):
+class RTA_DLTEST_DB(RTA_DL_DB):
 
     def __init__(self, database, configFilePath = '', pure_multithreading = False):
         super().__init__(database, configFilePath, pure_multithreading)
@@ -34,13 +34,13 @@ class RTA_DL3ASTRI_DB_old(RTA_DL_DB):
             print('[RTA_DL3ASTRI_DB] Pipeline updater activated.')
 
     def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid = 1, datarepositoryid = 1, status = 1):
-        evt3 = EVT3_ASTRI_old(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
+        evt3 = EVT3_TEST(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
         committed = super()._insertEvent(evt3)
         if committed and self.config.get('MySqlPipelineDatabase', 'active', 'bool'):
             self.updatePipeline(evt3.timerealtt, evt3.observationid, evt3.datarepositoryid)
 
     def getRandomEvent(self):
-        return EVT3_ASTRI_old.getRandomEvent()
+        return EVT3_TEST.getRandomEvent()
 
     def updatePipeline(self, timerealtt, observationid, datarepositoryid):
         query = 'update observation_to_datarepository set tenddata='+str(timerealtt)+' where observationid='+str(observationid)+' and datarepositoryid='+str(datarepositoryid)
@@ -51,6 +51,6 @@ class RTA_DL3ASTRI_DB_old(RTA_DL_DB):
 
     """
     def fakeInsert(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1):
-        evt3 = EVT3_ASTRI_old(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)
+        evt3 = EVT3_TEST(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)
         return self.dbConnector.fakeInsertData(self.configs['evt3modelname'], evt3.getData())
     """

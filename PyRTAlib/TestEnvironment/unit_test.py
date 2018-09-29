@@ -26,7 +26,7 @@ from random import randint, uniform
 
 from PyRTAlib.Utils         import Config
 from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
-from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
+from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
 from PyRTAlib.DTRInterface  import DTR
 
 
@@ -414,13 +414,13 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         self.assertEqual(True,deleteTable(config))
 
         # Connect and insert random event
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
-        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+        RTA_DLTEST = RTA_DLTEST_DB('mysql')
+        RTA_DLTEST.insertEvent( *RTA_DLTEST.getRandomEvent() )
 
 
         time.sleep(1)
 
-        stats = RTA_DL3ASTRI.waitAndClose()
+        stats = RTA_DLTEST.waitAndClose()
 
         #print('Stats: {}'.format(stats))
         self.assertEqual(1, stats[0])
@@ -444,12 +444,12 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         self.assertEqual(True,deleteTable(config))
 
         # Connect and insert random event
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
-        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+        RTA_DLTEST = RTA_DLTEST_DB('mysql')
+        RTA_DLTEST.insertEvent( *RTA_DLTEST.getRandomEvent() )
 
         time.sleep(1)
 
-        stats = RTA_DL3ASTRI.waitAndClose()
+        stats = RTA_DLTEST.waitAndClose()
 
         #print('Stats: {}'.format(stats))
         self.assertEqual(1, stats[0])
@@ -469,12 +469,12 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         self.assertEqual(True,deleteTable(config))
 
         # Connect and insert random event
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
-        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+        RTA_DLTEST = RTA_DLTEST_DB('mysql')
+        RTA_DLTEST.insertEvent( *RTA_DLTEST.getRandomEvent() )
 
         time.sleep(1)
 
-        RTA_DL3ASTRI.forceClose() # <---------
+        RTA_DLTEST.forceClose() # <---------
 
         # Check number of rows
         self.assertEqual('True-1', checkNumberOfRows(config))
@@ -492,12 +492,12 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         self.assertEqual(True,deleteTable(config))
 
         # Connect and insert random event
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
-        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+        RTA_DLTEST = RTA_DLTEST_DB('mysql')
+        RTA_DLTEST.insertEvent( *RTA_DLTEST.getRandomEvent() )
 
         time.sleep(1)
 
-        RTA_DL3ASTRI.forceClose() # <---------
+        RTA_DLTEST.forceClose() # <---------
 
 
         # Check number of rows
@@ -515,12 +515,12 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         self.assertEqual(True,deleteTable(config))
 
         # Connect and insert random event
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
-        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+        RTA_DLTEST = RTA_DLTEST_DB('mysql')
+        RTA_DLTEST.insertEvent( *RTA_DLTEST.getRandomEvent() )
 
         time.sleep(1) # lets give the threads some time
 
-        RTA_DL3ASTRI.forceClose()
+        RTA_DLTEST.forceClose()
 
         # Check number of rows
         self.assertEqual('True-1', checkNumberOfRows(config))
@@ -537,13 +537,13 @@ class DL3ASTRIDB_interface(unittest.TestCase):
         self.assertEqual(True,deleteTable(config))
 
         # Connect and insert random event
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql', pure_multithreading=True)
-        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+        RTA_DLTEST = RTA_DLTEST_DB('mysql', pure_multithreading=True)
+        RTA_DLTEST.insertEvent( *RTA_DLTEST.getRandomEvent() )
 
 
         time.sleep(1) # lets give the threads some time
 
-        stats = RTA_DL3ASTRI.waitAndClose()
+        stats = RTA_DLTEST.waitAndClose()
 
         #print('Stats: {}'.format(stats))
         self.assertEqual(1, stats[0])
@@ -567,12 +567,12 @@ class DL3ASTRIDB_interface(unittest.TestCase):
 
 
         # Connect and insert random event
-        RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('redis-basic')
-        RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+        RTA_DLTEST = RTA_DLTEST_DB('redis-basic')
+        RTA_DLTEST.insertEvent( *RTA_DLTEST.getRandomEvent() )
 
         time.sleep(1) # lets give the threads some time
 
-        RTA_DL3ASTRI.forceClose()
+        RTA_DLTEST.forceClose()
 
         self.assertEqual(1, redisConn.conn.zcard(config.get('General', 'evt3modelname')) )
         config.reload('./')

@@ -21,6 +21,7 @@ dbname=
 host=
 password=
 dbname=
+indexon=
 
 [MySqlPipelineDatabase]
 active=

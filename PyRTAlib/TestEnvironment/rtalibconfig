@@ -21,6 +21,7 @@ dbname=evt_test
 host=127.0.0.1
 password=rt2017agw@BO@REDIS
 dbname=1
+indexon=evt3:timerealtt,testmodel:a
 
 [MySqlPipelineDatabase]
 active=no

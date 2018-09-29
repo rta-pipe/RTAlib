@@ -20,13 +20,13 @@
 
 import os
 
-from PyRTAlib.RTAInterface  import RTA_DL3ASTRI_DB_old
+from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
 
 os.environ['RTACONFIGFILE'] = './'
 
 # Connect and insert random event
-RTA_DL3ASTRI = RTA_DL3ASTRI_DB_old('mysql')
+RTA_DLTEST = RTA_DLTEST_DB('mysql')
 
-RTA_DL3ASTRI.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
+RTA_DLTEST.insertEvent( *RTA_DL3ASTRI.getRandomEvent() )
 
-RTA_DL3ASTRI.waitAndClose()
+RTA_DLTEST.waitAndClose()

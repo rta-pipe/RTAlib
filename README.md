@@ -15,7 +15,7 @@ The following features are supported:
 - [B] possibility to update other tables at the end of each transaction.
 - [C] using the Redis Pub/Sub mechanism to send messages and data into Redis channels to enable asynchronous communication between the RTAlib and other systems.
 - [D] specifying the type of data with the implementation of the data model classes.
-- [E] a stand alone deamon that uses Redis Pub/Sub mechanism, listens for the RTAlib data messages and forward those data messages to a [https://github.com/IftachSadeh/ctaOperatorGUI](Graphic User Interface) displaying Data Quality components.
+- [E] a stand alone deamon that uses Redis Pub/Sub mechanism, listens for the RTAlib data messages and forward those data messages to a [https://github.com/IftachSadeh/ctaOperatorGUI] (Graphic User Interface) displaying Data Quality components.
 
 ## Who implements the features
 - DBConnectors

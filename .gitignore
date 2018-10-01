@@ -4,8 +4,8 @@ pks1510-089.fits
 
 # Files in PyLibRTA
 PyRTAlib/rtalibconfig
-PyRTAlib/PyRTAlib/TestEnvironment/rtalibconfig
-PyRTAlib/PyRTAlib/TestEnvironment/export_env_var.sh
+PyRTAlib/TestEnvironment/rtalibconfig
+PyRTAlib/TestEnvironment/export_env_var.sh
 
 
 # File in PyLibRTA package

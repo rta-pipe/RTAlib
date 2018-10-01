@@ -142,7 +142,7 @@ class RTA_DL_DB(ABC):
 
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
         if not self.pure_multithreading:
-            return self.dbConnector.insertData(self.config.get('General','evt3modelname'), eventData)
+            return self.dbConnector.insertData(self.config.get('General','modelname'), eventData)
 
         # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
         #                    /\____/\____/\____/\____/\____/\____/\____/\____/\
@@ -165,7 +165,7 @@ class RTA_DL_DB(ABC):
             return MySqlDBConnector(configFilePath)
         elif databaseEngine == 'redis-basic':
             return RedisDBConnectorBASIC(configFilePath)
-        
+
 
 
     def getMySqlConnector(self, configFilePath, connectTo='MySql'):
@@ -186,7 +186,7 @@ class RTA_DL_DB(ABC):
                 break
 
             if event is not None:
-                if not dbConnector.insertData(self.config.get('General','evt3modelname'), event.getData()):
+                if not dbConnector.insertData(self.config.get('General','modelname'), event.getData()):
                     print("-->[RTA_DL_DB thread: {} ] DBconnector insert data error. ".format(threadId))
                     break;
 

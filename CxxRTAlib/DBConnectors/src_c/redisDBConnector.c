@@ -36,7 +36,6 @@ int connection(const char *hostname, const char * password,const char * database
 
           printf("Connection error: %s\n", c->errstr);
           redisFree(c);
-          exit(1);
 
       } else {
 
@@ -55,6 +54,8 @@ int connection(const char *hostname, const char * password,const char * database
 
   printf("SELECT: %s\n", reply->str);
 
+  freeReplyObject(reply);
+
   return 0;
 
 }
@@ -62,6 +63,8 @@ int connection(const char *hostname, const char * password,const char * database
 int close_connection() {
 
   reply = redisCommand(c, "EXEC");
+
+  freeReplyObject(reply);
 
   /* Disconnects and frees the context */
   redisFree(c);
@@ -72,24 +75,15 @@ int close_connection() {
 
 int streamingInsert_c(const char* modelName, const char* score, const char* query){  //query
 
-  // reply = redisCommand(c, "EXIST %s", modelName);
-  //
-  // if(reply == 1){
-    printf("modelName redisDBConnector C: %s\n",modelName);
 
-    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query); //
+  reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query); //
 
-  // } else {
-  //
-  //   printf("[RedisDBConnector]: Key don't exist!\n");
-  //
-  //   exit(1);
-  //
-  // }
 
-  // if(reply->str != "REDIS_ERR") {
+  // if(reply != NULL) {
   //   printf("ZADD: %s\n", reply->str);
   // }
+
+  freeReplyObject(reply);
 
 }
 
@@ -122,4 +116,7 @@ int batchInsert_c(const char * modelName, const char * score, const char * query
     batchInsert_c(modelName,score,query,batchsize);
 
   }
+
+  freeReplyObject(reply);
+
 }

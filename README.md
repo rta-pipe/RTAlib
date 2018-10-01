@@ -1,13 +1,13 @@
 # RTAlib
 
+# PyRTAlib
+The Python version of the RTAlib.
+
 ## Dependencies
-In order to execute succesfully the library code, the following softwares are needed:
+The following dependencies are needed:
 * Python 3.6+
 * MySql (14.14+)
 * Redis (4.0.10+)
-
-# PyRTAlib
-The Python version of the RTAlib.
 
 ## Features
 The following features are supported:
@@ -15,33 +15,46 @@ The following features are supported:
 - [B] possibility to update other tables at the end of each transaction.
 - [C] using the Redis Pub/Sub mechanism to send messages and data into Redis channels to enable asynchronous communication between the RTAlib and other systems.
 - [D] specifying the type of data with the implementation of the data model classes.
-- [E] a stand alone deamon that uses Redis Pub/Sub mechanism, listens for the RTAlib data messages and forward those data message to a [https://github.com/IftachSadeh/ctaOperatorGUI](Graphic User Interface) displaying Data Quality components.
+- [E] a stand alone deamon that uses Redis Pub/Sub mechanism, listens for the RTAlib data messages and forward those data messages to a [https://github.com/IftachSadeh/ctaOperatorGUI](Graphic User Interface) displaying Data Quality components.
 
 ## Who implements the features
 - DBConnectors
   - [A1] this module expose an interface that can be used to insert data in a database. Two databases are supported: MySql and Redis. Two types of insertion strategies can be adopted: batch-insert or streaming-insert.
 - RTAInterface
   - [A2] the RTA_DL_DB.py base class implements the synchronous or asynchronous (even multi-threading) execution.
-  - [B] the RTA_DL3ASTRI_DB.py can be used to execute queries after every commit (when a transaction is closed). This is available only in synchronous mode.
+  - [B] The code to execute queries after every commit (when a transaction is closed) can be inserted within any class that iherits the RTA_DL_DB.py base class. This is available only in synchronous mode.
   - [C] the RTA_DL_DB.py can send data to the Redis channel specified in the configuration file.
 - DataModels [D]
   - this module contains all the classes that describe the data types that are stored in the database.
 
 ## Installation
-* Create a virtualenv
-  * conda create --name rtalib python=3.6
-* Activate the virtualenv
-  * source activate rtalib
-* python setup.py install
+* Create a virtualenv:
+  ```bash
+    conda create --name rtalib python=3.6
+  ```
+* Activate the virtualenv:
+  ```bash
+    source activate rtalib
+  ```
+* Install dependencies with:
+  ```Python
+    python setup.py install
+  ```
 * Rename the configuration file from rtalibconfig_default to rtalibconfig.
 * Fill in the configuration file's fields.
 
-
+## Setup the test environment
+* Call the following script that takes in input a MySql username with enough privileges to create a database:
+  ```bash
+    . PyRTAlib/TestEnvironment/setup_test.sh
+  ```
+  The script will create a database for testing purpose, an associated user and two tables. It will also create a rtalibconfig configuration file for the test environment (located under PyRTAlib/TestEnvironment).
+* Set the Redis password in the rtalibconfig configuration file.
 
 ## Configuration options
 ```
 [General]
-evt3modelname=     # the name of the mysql table or of the redis zset/hashset
+modelname=         # the name of the mysql table or of the redis zset/hashset
 mjdref=            # MJDREFI+MJDREFF
 debug=             # yes/y/True/'True' or any other value for False
 batchsize=         # performance tuning parameter: the input streaming is writed to db with a batch strategy (if batchsize > 1)
@@ -140,33 +153,8 @@ class RTA_DL3ASTRI_DB.forceClose()
 TODO
 ___
 
-## Setup the test environment (*NOT UPDATED*)
-In order to be able to run the tests:
 
-* Export the following variable:
-  ```bash
-    export rtalibBaseDir=<absolute-path-to-rtalib-root-folder>
-    export PYTHONPATH=$rtalibBaseDir:$rtalibBaseDir/PyRTAlib/:$PYTHONPATH
-
-  ```
-* rtalibconfig_test must be configured with the following parameters: --> TODO <--
-
-* For now, create the database with:
-  * mysql -uroot -p --execute="CREATE DATABASE 'evt_test';"
-* import the tables from an existing backup with:
-  * mysql -uroot -p evt_test < evt_test.sql
-
-* a MySQL database for testing purpose must be setted up calling the following instructions:
-  * CREATE DATABASE 'evt_test'
-  * CREATE TABLE IF NOT EXISTS test_table ( id INT AUTO_INCREMENT PRIMARY KEY, a INTEGER, b INTEGER, c INTEGER, d INTEGER );
-  * TABELLA PERFORMANCE --> TODO <-- (dump tabella originale?)
-  * CREATE USER 'rta_test'@'localhost' IDENTIFIED BY 'Rtatest@2018#';
-  * GRANT ALL PRIVILEGES ON evt_test.* to 'rta_test'@'localhost' identified by 'Rtatest@2018#'
-* a Redis database for testing purpose must be setted up calling the following instructions:
-  * redis-cli
-  * auth <redis-password>
-  * set indexstring:testmodel a
---> TODO <--
+## TEST
 
 ### unit test
 Script:
@@ -175,8 +163,8 @@ Script:
 Arguments:
 * -v for verbose mode
 
-```shell
-python unit_test.py -v
+```bash
+  python unit_test.py -v
 ```
 
 ### performance test (single and multithreading)
@@ -189,17 +177,10 @@ Scripts:
 
 Arguments:
 * database
-* file fits path
 * number of events
 
 ```
-python performance_test.py redis-basic /home/cta/pks1510-089.fits 5000
-python performance_test_multithreading.py mysql /home/cta/pks1510-089.fits 5000
+python performance_test.py redis-basic 5000
+python performance_test_multithreading.py mysql 5000
 
-```
-
-
-### cprofile
-```
-python performance_cprofile_test.py /home/cta/pks1510-089.fits
 ```

@@ -28,6 +28,8 @@ from random import randint, uniform
 #import matplotlib
 #import matplotlib.pyplot as plt
 #import numpy as np
+rootFolder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+sys.path.append(rootFolder+'/PyRTAlib/')
 
 from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
 from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
@@ -45,15 +47,15 @@ def deleteData(database):
     if database == 'mysql':
         mysqlConn = MySqlDBConnector('./')
         mysqlConn.connect()
-        if not mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')):
+        if not mysqlConn.executeQuery('delete from '+config.get('General', 'modelname')):
             exit()
-        #if not mysqlConn.executeQuery('delete from '+config.get('General', 'evt3modelname')+'_memory'):
+        #if not mysqlConn.executeQuery('delete from '+config.get('General', 'modelname')+'_memory'):
             #exit()
         mysqlConn.close()
     elif database == 'redis' or database == 'redis-basic':
         redisConn = RedisDBConnectorBASIC('./')
         redisConn.connect()
-        redisConn.conn.delete(config.get('General', 'evt3modelname'))
+        redisConn.conn.delete(config.get('General', 'modelname'))
     else:
         print("Error!! Unknown database {}".format(database))
         exit()

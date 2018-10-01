@@ -52,5 +52,5 @@ class RTA_DLTEST_DB(RTA_DL_DB):
     """
     def fakeInsert(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1):
         evt3 = EVT3_TEST(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)
-        return self.dbConnector.fakeInsertData(self.configs['evt3modelname'], evt3.getData())
+        return self.dbConnector.fakeInsertData(self.configs['modelname'], evt3.getData())
     """

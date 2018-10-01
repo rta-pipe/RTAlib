@@ -39,8 +39,14 @@ class RTA_DL3ASTRI_DB(RTA_DL_DB):
     def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, alt, az, gammaness, observationid = 1, datarepositoryid = 1, status = 1):
         evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, alt, az, gammaness, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
         committed = super()._insertEvent(evt3)
-        if committed and self.config.get('MySqlPipelineDatabase', 'active', 'bool'):
+
+        """ this code is not covered by the unit_test.py script """
+        if committed \
+            and self.config.get('MySqlPipelineDatabase', 'active', 'bool') \
+            and self.config.get('General', 'numberofthreads', 'int') == 1 \
+            and not self.pure_multithreading:
             self.updatePipeline(evt3.timerealtt, evt3.observationid, evt3.datarepositoryid)
+        """ --------------------------------------------------------- """
 
 
     def getRandomEvent(self):
@@ -57,5 +63,5 @@ class RTA_DL3ASTRI_DB(RTA_DL_DB):
     """
     def fakeInsert(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1):
         evt3 = EVT3_ASTRI(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)
-        return self.dbConnector.fakeInsertData(self.configs['evt3modelname'], evt3.getData())
+        return self.dbConnector.fakeInsertData(self.configs['modelname'], evt3.getData())
     """

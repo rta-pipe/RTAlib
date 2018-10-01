@@ -6,8 +6,10 @@ fi
 
 user=$1
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+echo $DIR
 # Setup mysql db
-mysql -u $user -p < setup_test_db.sql
+mysql -u $user -p < $DIR/setup_test_db.sql
 
 
 # Create rtalibconfig configuration file

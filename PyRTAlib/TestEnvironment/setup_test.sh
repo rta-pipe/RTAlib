@@ -1,4 +1,20 @@
-[General]
+if [ $# -eq 0 ]
+  then
+    echo "No arguments supplied. Please, provide a mysql username that has enough privileges to create a database."
+    return
+fi
+
+user=$1
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+echo $DIR
+# Setup mysql db
+mysql -u $user -p -v < $DIR/setup/setup_test_db.sql
+
+
+# Create rtalibconfig configuration file
+> rtalibconfig
+echo "[General]
 modelname=rtalib_dl_test_table
 mjdref=50000
 debug=no
@@ -30,4 +46,4 @@ host=
 username=
 password=
 dbname=
-
+" >> rtalibconfig

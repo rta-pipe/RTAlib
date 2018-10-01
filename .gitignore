@@ -3,6 +3,7 @@ activate_virtual_env.sh
 pks1510-089.fits
 
 # Files in PyLibRTA
+rtalibconfig
 PyRTAlib/rtalibconfig
 PyRTAlib/TestEnvironment/rtalibconfig
 PyRTAlib/TestEnvironment/export_env_var.sh

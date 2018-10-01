@@ -46,7 +46,7 @@ The following features are supported:
 ## Setup the test environment
 * Call the following script that takes in input a MySql username with enough privileges to create a database:
   ```bash
-    . PyRTAlib/TestEnvironment/setup/setup_test.sh
+    . PyRTAlib/TestEnvironment/setup_test.sh
   ```
   The script will create a database for testing purpose, an associated user and two tables. It will also create a rtalibconfig configuration file for the test environment (located under PyRTAlib/TestEnvironment).
 * Set the Redis password in the rtalibconfig configuration file.

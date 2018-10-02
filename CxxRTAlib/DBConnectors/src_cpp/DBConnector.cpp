@@ -27,4 +27,4 @@ DBConnector::DBConnector(string filepath){
 int DBConnector :: connect(){}
 int DBConnector :: disconnect(){}
 int DBConnector :: testConnection(){}
-int DBConnector :: insertData(string modelName, std::vector < pair < string, double > > args){}
+int DBConnector :: insertData(string modelName, map < string, string > args){}

@@ -14,35 +14,24 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-#ifndef DB_CONNECTOR_H
-#define DB_CONNECTOR_H
 
+#ifndef RTA_DL_TEST_DB_H
+#define RTA_DL_TEST_DB_H
 
-/* Standard C++ includes */
-#include <string>
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <map>
+#include"RTA_DL_DB.hpp"
+#include"EVTTest.hpp"
+#include"DBConnector.hpp"
 
-#include "Config.hpp"
-
-using std::string;
-using std::pair;
-using std::vector;
-using std::cout;
-using std::endl;
-using std::map;
-
-class DBConnector {
+class RTA_DLTEST_DB : public RTA_DL_DB {
 public:
-  DBConnector(string filepath="");
-  virtual int connect();
-  virtual int disconnect();
-  virtual int testConnection();
-  virtual int insertData(string modelName, map < string, string > args);
 
-  Config * config;
+  RTA_DLTEST_DB(string database, string configFilePath) : RTA_DL_DB(database, configFilePath) {
+    cout << "RTA_TEST_DB" << endl;
+  };
+
+  int insertEvent(string eventidfits, string time, string ra_deg, string dec_deg, string energy, string detx, string dety, string observationid, string datarepositoryid, string status);
+
+  
 };
 
 #endif

@@ -14,35 +14,33 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-#ifndef DB_CONNECTOR_H
-#define DB_CONNECTOR_H
 
+#include"RTA_DLTEST_DB.hpp"
 
-/* Standard C++ includes */
-#include <string>
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <map>
-
-#include "Config.hpp"
-
-using std::string;
-using std::pair;
-using std::vector;
-using std::cout;
-using std::endl;
-using std::map;
-
-class DBConnector {
-public:
-  DBConnector(string filepath="");
-  virtual int connect();
-  virtual int disconnect();
-  virtual int testConnection();
-  virtual int insertData(string modelName, map < string, string > args);
-
-  Config * config;
+const char* startString = {
+"################################################################\n"
+"###                   - RTAlib/CXXRTAlib -                   ###"
 };
 
-#endif
+const char* endString = {
+"### test RTAlib/CXXRTAlib exiting .......................... ###\n"
+"################################################################"
+};
+
+int main(int argc, char *argv[]) {
+
+  cout << startString << endl;
+
+  string database = argv[1];
+
+  string configFilePath = argv[2];
+
+  cout << "Database: " << database << endl;
+
+  cout << "configFilePath: " << configFilePath << endl;
+
+  RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
+
+  cout << endString << endl;
+
+}

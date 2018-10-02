@@ -14,35 +14,26 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-#ifndef DB_CONNECTOR_H
-#define DB_CONNECTOR_H
 
+#ifndef EVT_BASE_H
+#define EVT_BASE_H
 
-/* Standard C++ includes */
-#include <string>
-#include <vector>
-#include <iostream>
-#include <sstream>
+#include<iostream>
 #include <map>
+#include <string>
 
-#include "Config.hpp"
 
+using std::map;
 using std::string;
-using std::pair;
-using std::vector;
 using std::cout;
 using std::endl;
-using std::map;
 
-class DBConnector {
+
+class EVTbase {
 public:
-  DBConnector(string filepath="");
-  virtual int connect();
-  virtual int disconnect();
-  virtual int testConnection();
-  virtual int insertData(string modelName, map < string, string > args);
 
-  Config * config;
+  EVTbase();
+
 };
 
 #endif

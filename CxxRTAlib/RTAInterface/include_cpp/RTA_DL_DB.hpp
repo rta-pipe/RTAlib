@@ -14,35 +14,34 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-#ifndef DB_CONNECTOR_H
-#define DB_CONNECTOR_H
 
+#ifndef RTA_DL_DB_H
+#define RTA_DL_DB_H
 
-/* Standard C++ includes */
-#include <string>
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <map>
+#include<iostream>
 
 #include "Config.hpp"
+#include "DBConnector.hpp"
+#include "MySqlDBConnector.hpp"
+#include "RedisDBConnector.hpp"
 
-using std::string;
-using std::pair;
-using std::vector;
+#include "EVTTest.hpp"
+
 using std::cout;
 using std::endl;
-using std::map;
+using std::string;
 
-class DBConnector {
+class RTA_DL_DB {
 public:
-  DBConnector(string filepath="");
-  virtual int connect();
-  virtual int disconnect();
-  virtual int testConnection();
-  virtual int insertData(string modelName, map < string, string > args);
+
+  RTA_DL_DB(string database, string configFilePath = "");
+  DBConnector getConnector(string databaseEngine, string configFilePath);
+  int _insertEvent(EVTTest event);
+
+  DBConnector dbConnector;
 
   Config * config;
+
 };
 
 #endif

@@ -126,21 +126,11 @@ string RedisDBConnector :: buildQuery(string modelName, int batchsize, map <stri
 
   queryH = queryH.substr(0,queryH.size()-2);
 
-  // cout << "Indexon cleaned: " << indexon_clean << endl;
-
   int p = queryH.find(indexon_clean);
-
-  // cout << "p: " << p << endl;
 
   int q = queryH.find(":", p);
 
-  // cout << "q: " << q << endl;
-
-  // cout << "QueryH size: " << queryH.size()-1 << endl;
-
   score = queryH.substr(q+2,queryH.size()-1);
-
-  // cout << "score: " << score << endl;
 
   queryH += "}'";
 

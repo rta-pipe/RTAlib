@@ -17,7 +17,7 @@
 
 #include"EVTTest.hpp"
 
-map <string,string> EVTTest :: getData() {
+map <string,string> & EVTTest :: getData() {
 
     return eventData;
 

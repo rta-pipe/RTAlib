@@ -30,41 +30,72 @@ RTA_DL_DB :: RTA_DL_DB(string database, string configFilePath){
 
   // Synchronous (master thread) execution
   dbConnector = getConnector(database, configFilePath);
-  dbConnector.connect();
+  dbConnector->connect();
 
 
 }
 
-DBConnector RTA_DL_DB :: getConnector(string databaseEngine, string configFilePath) {
+DBConnector * RTA_DL_DB :: getConnector(string databaseEngine, string configFilePath) {
 
   if(databaseEngine == "mysql"){
 
-    return MySqlDBConnector(configFilePath);
+    DBConnector * mySqlDBConnector = new MySqlDBConnector(configFilePath);
+
+    return mySqlDBConnector;
 
   } else if(databaseEngine == "redis-basic"){
 
-    return RedisDBConnector(configFilePath);
+    DBConnector * redisDBConnector = new RedisDBConnector(configFilePath);
+
+    return redisDBConnector;
 
   }
 
 }
 
-int RTA_DL_DB :: _insertEvent( EVTTest event) {
+int RTA_DL_DB :: _insertEvent( EVTTest & event) {
 
   string modelname = config->file["General"]["modelname"].getString();
 
   map < string, string > eventData =  event.getData();
 
-  cout << "\n[RTA_DL_DB] New event!" << endl;
+  #ifdef DEBUG
+  cout << eventData["eventidfits"] << " \n" <<
+          eventData["timerealtt"] << " \n"<<
+          eventData["ra_deg"] << " \n"<<
+          eventData["dec_deg"] << " \n"<<
+          eventData["energy"] << " \n"<<
+          eventData["detx"] << " \n"<<
+          eventData["dety"] << " \n"<<
+          eventData["observationid"] << " \n"<<
+          eventData["datarepositoryid"] << " \n"<<
+          eventData["status"] << " \n"<<
+          eventData["mcid"] << " \n"<<
+          eventData["insert_time"]  << endl;
+  #endif
+
+  // cout << "\n[RTA_DL_DB] New event!" << endl;
 
   // Transform data for visualization and notify GUIs
   //  TODO
 
-  // Synchronous (master thread)
-  return dbConnector.insertData(modelname, eventData);
-
-   // Multi threading mode
+  // Multi threading mode
   //  TODO
 
+
+  // Synchronous (master thread)
+  return dbConnector->insertData(modelname, eventData);
+
+
+
+}
+
+int RTA_DL_DB :: waitAndClose() {
+
+  #ifdef DEBUG
+  cout << "waitAndClose" << endl;
+  #endif
+
+  return dbConnector->disconnect();
 
 }

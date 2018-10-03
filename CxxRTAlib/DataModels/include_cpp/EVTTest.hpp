@@ -23,13 +23,14 @@
 class EVTTest : public EVTbase {
 
 public:
-          
-  EVTTest(string eventidfits, string timer,string ra_deg, string dec_deg, string energy, string detx, string dety,  string observationid, string datarepositoryid, string status) : EVTbase() {
 
-    cout << "EvtTest" << endl;
+  EVTTest(string eventidfits, string timerealtt,string ra_deg, string dec_deg, string energy, string detx, string dety,  string observationid, string datarepositoryid, string mcid, string insert_time, string status) : EVTbase() {
+  // EVTTest(map <string, string> eventFields) : EVTbase() {
+
+    // cout << "EvtTest" << endl;
 
     eventData["eventidfits"] = eventidfits;
-    eventData["timerealtt"] = timer;
+    eventData["timerealtt"] = timerealtt;
     eventData["observationid"] = observationid;
     eventData["datarepositoryid"] = datarepositoryid;
     eventData["ra_deg"] = ra_deg;
@@ -38,12 +39,12 @@ public:
     eventData["detx"] = detx;
     eventData["dety"] = dety;
     eventData["status"] = status;
-    // eventData["mcid"] = mcid;
-    // eventData["insert_time"] = insert_time;
+    eventData["mcid"] = mcid;
+    eventData["insert_time"] = insert_time;
 
   };
 
-  map <string,string> getData();
+  map <string,string> & getData();
 
   map <string,string> eventData;
 

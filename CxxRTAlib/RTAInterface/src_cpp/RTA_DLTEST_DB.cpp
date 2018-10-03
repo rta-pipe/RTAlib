@@ -17,9 +17,9 @@
 
 #include"RTA_DLTEST_DB.hpp"
 
-int RTA_DLTEST_DB :: insertEvent(string eventidfits, string timer, string ra_deg, string dec_deg, string energy, string detx, string dety, string observationid, string  datarepositoryid, string status) {
+int RTA_DLTEST_DB :: insertEvent(string eventidfits, string timerealtt, string ra_deg, string dec_deg, string energy, string detx, string dety, string observationid, string  datarepositoryid, string mcid, string insert_time, string status) {
 
-  EVTTest evtTest = EVTTest(eventidfits, timer, ra_deg, dec_deg, energy, detx, dety, observationid, datarepositoryid, status);
+  EVTTest evtTest = EVTTest(eventidfits, timerealtt, ra_deg, dec_deg, energy, detx, dety, observationid, datarepositoryid, mcid, insert_time,status);
 
   int commit = _insertEvent(evtTest);
 }

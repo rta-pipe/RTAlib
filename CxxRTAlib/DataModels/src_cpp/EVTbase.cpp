@@ -19,6 +19,6 @@
 
 EVTbase :: EVTbase() {
 
-  cout << "EVTbase class"  << endl;
-  
+  // cout << "EVTbase class"  << endl;
+
 }

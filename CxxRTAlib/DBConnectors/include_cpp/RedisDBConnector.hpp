@@ -28,7 +28,7 @@ public:
   virtual int connect();
   virtual int disconnect();
   virtual int testConnection();
-  virtual int insertData(map < string, string > args);
+  virtual int insertData(string modelname, map < string, string > args);
 
   string buildQuery(string modelName, int batchsize, map <string,string> args);
   int streamingInsert(string query);

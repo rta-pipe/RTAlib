@@ -35,10 +35,10 @@ using namespace std;
 class MySqlDBConnector : public DBConnector {
 public:
   MySqlDBConnector(string filepath="") : DBConnector(filepath){ cout << "MySqlDBConnector" << endl; };
-  virtual int connect();
-  virtual int disconnect();
-  virtual int testConnection();
-  virtual int insertData(map < string, string > args);
+  int connect();
+  int disconnect();
+  int testConnection();
+  int insertData(string modelName, map < string, string > args);
 
   string buildQuery(string modelName, int batchsize, map <string,string> args);
   int streamingInsert(string query);

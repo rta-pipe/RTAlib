@@ -29,9 +29,10 @@ public:
     cout << "RTA_TEST_DB" << endl;
   };
 
-  int insertEvent(string eventidfits, string time, string ra_deg, string dec_deg, string energy, string detx, string dety, string observationid, string datarepositoryid, string status);
+  int insertEvent(string eventidfits, string time, string ra_deg, string dec_deg, string energy, string detx, string dety, string observationid, string datarepositoryid, string mcid, string insert_time, string status);
+  // int insertEvent(map <string, string> eventFields);
 
-  
+
 };
 
 #endif

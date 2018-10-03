@@ -15,18 +15,25 @@
  ==========================================================================
 */
 
+#ifndef EVT_BASE_H
+#define EVT_BASE_H
 
-#include "DBConnector.hpp"
+#include<iostream>
+#include <map>
+#include <string>
 
-DBConnector::DBConnector(string filepath){
 
-  cout << "DBConnector" << endl;
+using std::map;
+using std::string;
+using std::cout;
+using std::endl;
 
-  config = Config::getIstance(filepath);
 
-}
+class EVTbase {
+public:
 
-int DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
-int DBConnector :: disconnect(){}
-int DBConnector :: testConnection(){}
-int DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}
+  EVTbase();
+
+};
+
+#endif

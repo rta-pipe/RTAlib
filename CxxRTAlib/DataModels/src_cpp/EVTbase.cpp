@@ -15,18 +15,10 @@
  ==========================================================================
 */
 
+#include"EVTbase.hpp"
 
-#include "DBConnector.hpp"
+EVTbase :: EVTbase() {
 
-DBConnector::DBConnector(string filepath){
-
-  cout << "DBConnector" << endl;
-
-  config = Config::getIstance(filepath);
+  // cout << "EVTbase class"  << endl;
 
 }
-
-int DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
-int DBConnector :: disconnect(){}
-int DBConnector :: testConnection(){}
-int DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}

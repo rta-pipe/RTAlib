@@ -15,18 +15,24 @@
  ==========================================================================
 */
 
+#ifndef RTA_DL_TEST_DB_H
+#define RTA_DL_TEST_DB_H
 
-#include "DBConnector.hpp"
+#include"RTA_DL_DB.hpp"
+#include"EVTTest.hpp"
+#include"DBConnector.hpp"
 
-DBConnector::DBConnector(string filepath){
+class RTA_DLTEST_DB : public RTA_DL_DB {
+public:
 
-  cout << "DBConnector" << endl;
+  RTA_DLTEST_DB(string database, string configFilePath) : RTA_DL_DB(database, configFilePath) {
+    cout << "RTA_TEST_DB" << endl;
+  };
 
-  config = Config::getIstance(filepath);
+  int insertEvent(string eventidfits, string time, string ra_deg, string dec_deg, string energy, string detx, string dety, string observationid, string datarepositoryid, string mcid, string insert_time, string status);
+  // int insertEvent(map <string, string> eventFields);
 
-}
 
-int DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
-int DBConnector :: disconnect(){}
-int DBConnector :: testConnection(){}
-int DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}
+};
+
+#endif

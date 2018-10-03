@@ -40,7 +40,7 @@ public:
   virtual int connect();
   virtual int disconnect();
   virtual int testConnection();
-  virtual int insertData(string modelName, std::vector < pair < string, double > > args);
+  virtual int insertData(string modelName, map < string, string > args);
 
   Config * config;
 };

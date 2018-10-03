@@ -15,18 +15,11 @@
  ==========================================================================
 */
 
+#include"EVTTest.hpp"
 
-#include "DBConnector.hpp"
+map <string,string> & EVTTest :: getData() {
 
-DBConnector::DBConnector(string filepath){
+    return eventData;
 
-  cout << "DBConnector" << endl;
-
-  config = Config::getIstance(filepath);
 
 }
-
-int DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
-int DBConnector :: disconnect(){}
-int DBConnector :: testConnection(){}
-int DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}

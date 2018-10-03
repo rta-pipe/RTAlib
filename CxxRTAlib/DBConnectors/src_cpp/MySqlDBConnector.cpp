@@ -83,7 +83,7 @@ int MySqlDBConnector::connect(){
 
 int MySqlDBConnector::testConnection(){}
 
-int MySqlDBConnector::insertData(map < string, string > args){
+int MySqlDBConnector::insertData(string modelName, map < string, string > args){
 
   insertDataCall ++;
 

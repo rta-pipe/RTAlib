@@ -52,7 +52,7 @@ int RedisDBConnector :: testConnection(){
 
 }
 
-int RedisDBConnector :: insertData(map < string, string > args){
+int RedisDBConnector :: insertData(string modelname, map < string, string > args){
 
 
   #ifdef DEBUG

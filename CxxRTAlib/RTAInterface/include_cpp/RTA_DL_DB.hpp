@@ -15,18 +15,34 @@
  ==========================================================================
 */
 
+#ifndef RTA_DL_DB_H
+#define RTA_DL_DB_H
 
+#include<iostream>
+
+#include "Config.hpp"
 #include "DBConnector.hpp"
+#include "MySqlDBConnector.hpp"
+#include "RedisDBConnector.hpp"
 
-DBConnector::DBConnector(string filepath){
+#include "EVTTest.hpp"
 
-  cout << "DBConnector" << endl;
+using std::cout;
+using std::endl;
+using std::string;
 
-  config = Config::getIstance(filepath);
+class RTA_DL_DB {
+public:
 
-}
+  RTA_DL_DB(string database, string configFilePath = "");
+  DBConnector * getConnector(string databaseEngine, string configFilePath);
+  int _insertEvent(EVTTest & event);
+  int waitAndClose();
 
-int DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
-int DBConnector :: disconnect(){}
-int DBConnector :: testConnection(){}
-int DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}
+  DBConnector * dbConnector;
+
+  Config * config;
+
+};
+
+#endif

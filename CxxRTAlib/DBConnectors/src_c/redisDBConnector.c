@@ -87,8 +87,7 @@ int streamingInsert_c(const char* modelName, const char* score, const char* quer
 
 }
 
-int batchInsert_c(const char * modelName, const char * score, const char * query, int batchsize){    //query, batchsize
-
+int batchInsert_c(const char * modelName, const char * score, const char * query, int batchsize){
 
   if(commandsSent==0) {
 
@@ -99,7 +98,7 @@ int batchInsert_c(const char * modelName, const char * score, const char * query
     commandsSent++;
 
 
-  }else if(commandsSent <= batchsize) {
+  }else if(commandsSent < batchsize) {
 
     reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query); //
 
@@ -117,6 +116,6 @@ int batchInsert_c(const char * modelName, const char * score, const char * query
 
   }
 
-  freeReplyObject(reply);
+  // freeReplyObject(reply);
 
 }

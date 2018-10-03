@@ -15,18 +15,11 @@
  ==========================================================================
 */
 
+#include"RTA_DLTEST_DB.hpp"
 
-#include "DBConnector.hpp"
+int RTA_DLTEST_DB :: insertEvent(string eventidfits, string timerealtt, string ra_deg, string dec_deg, string energy, string detx, string dety, string observationid, string  datarepositoryid, string mcid, string insert_time, string status) {
 
-DBConnector::DBConnector(string filepath){
+  EVTTest evtTest = EVTTest(eventidfits, timerealtt, ra_deg, dec_deg, energy, detx, dety, observationid, datarepositoryid, mcid, insert_time,status);
 
-  cout << "DBConnector" << endl;
-
-  config = Config::getIstance(filepath);
-
+  int commit = _insertEvent(evtTest);
 }
-
-int DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
-int DBConnector :: disconnect(){}
-int DBConnector :: testConnection(){}
-int DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}

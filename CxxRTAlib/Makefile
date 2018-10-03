@@ -40,22 +40,47 @@ EXE = testRTAlib
 
 
 ####### 2) Directories for the compiler
+
+### Object directories
 OBJECTS_DIR = obj_cpp
-SOURCE_DIR = src_cpp
-INCLUDE_DIR = include_cpp
+OBJECTS_DIR_C = obj_c
+
+#### Source Cxx directories
+SOURCE_DIR_CXX_DBC = DBConnectors/src_cpp
+SOURCE_DIR_CXX_DM = DataModels/src_cpp
+SOURCE_DIR_CXX_RTA = RTAInterface/src_cpp
+SOURCE_DIR_CXX_U = Utils/src_cpp
+
+### Include Cxx directories
+INCLUDE_DIR_CXX_DBC = DBConnectors/include_cpp
+INCLUDE_DIR_CXX_DM = DataModels/include_cpp
+INCLUDE_DIR_CXX_RTA = RTAInterface/include_cpp
+INCLUDE_DIR_CXX_U = Utils/include_cpp
+
+
+#### Source C directories
+SOURCE_DIR_C_DBC = DBConnectors/src_c
+SOURCE_DIR_C_U = Utils/src_c
+# SOURCE_DIR_C_DM = DataModels/src_c
+# SOURCE_DIR_C_RTA = RTAInterface/src_c
+
+
+### Include C directories
+INCLUDE_DIR_C_DBC = DBConnectors/include_c
+INCLUDE_DIR_C_U = Utils/include_c
+# INCLUDE_DIR_C_DM = DataModels/include_c
+# INCLUDE_DIR_C_RTA = RTAInterface/include_c
+
+
 PROJECTS_DIR = projects
 EXE_DESTDIR  = bin
 LIB_DESTDIR = lib
-
-OBJECTS_DIR_C = obj_c
-SOURCE_DIR_C = src_c
-INCLUDE_DIR_C = include_c
 
 ####### 3) Compiler, tools and options
 
 CXX = g++
 
-CXXFLAGS = -O3 -funroll-loops -std=c++11 -I $(INCLUDE_DIR) -I $(INCLUDE_DIR_C) -I$(REDIS)
+CXXFLAGS = -O3 -funroll-loops -std=c++11 -I $(INCLUDE_DIR_CXX_DBC) -I$(INCLUDE_DIR_CXX_DM) -I$(INCLUDE_DIR_CXX_RTA) -I$(INCLUDE_DIR_CXX_U) -I$(INCLUDE_DIR_C_U) -I$(INCLUDE_DIR_C_DBC) -I$(REDIS)
 
 LIBS += -L$(MYSQL_CXX_CNT)/lib64 -lmysqlcppconn	#NEW ADDED
 
@@ -73,7 +98,7 @@ CXXFLAGS += -I/usr/local/include/cppconn	#NEW ADDED
 ######### C COMPILING
 C = gcc
 
-CFLAGS = -std=c99 -I$(INCLUDE_DIR_C)
+CFLAGS = -std=c99 -I$(INCLUDE_DIR_C_DBC) -I$(INCLUDE_DIR_C_DM) -I$(INCLUDE_DIR_C_RTA) -I$(INCLUDE_DIR_C_U)
 
 CFLAGS += -I$(REDIS)
 
@@ -105,21 +130,35 @@ MKDIR    = mkdir -p	# -p
 
 
 #######  4) VPATH
-VPATH=$(SOURCE_DIR):$(INCLUDE_DIR):$(SOURCE_DIR_C):$(INCLUDE_DIR_C)
+# VPATH=$(SOURCE_DIR):$(INCLUDE_DIR):$(SOURCE_DIR_C):$(INCLUDE_DIR_C)	## NUOVI PATH
+# vpath %.o $(OBJECTS_DIR)
+VPATH=$(SOURCE_DIR_CXX_DBC):$(INCLUDE_DIR_CXX_DBC):$(SOURCE_DIR_CXX_DM):$(INCLUDE_DIR_CXX_DM):$(SOURCE_DIR_CXX_RTA):$(INCLUDE_DIR_CXX_RTA):$(SOURCE_DIR_CXX_U):$(INCLUDE_DIR_CXX_U):$(SOURCE_DIR_C_DBC):$(INCLUDE_DIR_C_DBC):$(SOURCE_DIR_C_U):$(INCLUDE_DIR_C_U)
 vpath %.o $(OBJECTS_DIR)
 
-INCLUDE=$(foreach dir,$(INCLUDE_DIR), $(wildcard $(dir)/*))
-SOURCE=$(foreach dir,$(SOURCE_DIR), $(wildcard $(dir)/*.cpp))
-OBJECTS=$(addsuffix .o, $(basename $(notdir $(SOURCE))))
+INCLUDE_CXX=$(foreach dir,$(INCLUDE_DIR_CXX_DBC), $(wildcard $(dir)/*))
+INCLUDE_CXX+=$(foreach dir,$(INCLUDE_DIR_CXX_DM), $(wildcard $(dir)/*))
+INCLUDE_CXX+=$(foreach dir,$(INCLUDE_DIR_CXX_RTA), $(wildcard $(dir)/*))
+INCLUDE_CXX+=$(foreach dir,$(INCLUDE_DIR_CXX_U), $(wildcard $(dir)/*))
+
+SOURCE_CXX=$(foreach dir,$(SOURCE_DIR_CXX_DBC), $(wildcard $(dir)/*.cpp))
+SOURCE_CXX+=$(foreach dir,$(SOURCE_DIR_CXX_DM), $(wildcard $(dir)/*.cpp))
+SOURCE_CXX+=$(foreach dir,$(SOURCE_DIR_CXX_RTA), $(wildcard $(dir)/*.cpp))
+SOURCE_CXX+=$(foreach dir,$(SOURCE_DIR_CXX_U), $(wildcard $(dir)/*.cpp))
+
+OBJECTS=$(addsuffix .o, $(basename $(notdir $(SOURCE_CXX))))
 
 
 # INI PARSER
-INCLUDE_C=$(foreach dir,$(INCLUDE_DIR_C), $(wildcard $(dir)/*.h))
-SOURCE_C=$(foreach dir,$(SOURCE_DIR_C), $(wildcard $(dir)/*.c))
+INCLUDE_C=$(foreach dir,$(INCLUDE_DIR_C_DBC), $(wildcard $(dir)/*.h))
+INCLUDE_C+=$(foreach dir,$(INCLUDE_DIR_C_U), $(wildcard $(dir)/*.h))
+
+SOURCE_C=$(foreach dir,$(SOURCE_DIR_C_DBC), $(wildcard $(dir)/*.c))
+SOURCE_C+=$(foreach dir,$(SOURCE_DIR_C_U), $(wildcard $(dir)/*.c))
+
 OBJECTS_C=$(addsuffix .o, $(basename $(notdir $(SOURCE_C))))
 
-$(info $$INCLUDE is [${INCLUDE}])
-$(info $$SOURCE is [${SOURCE}])
+$(info $$INCLUDE_CXX is [${INCLUDE_CXX}])
+$(info $$SOURCE_CXX is [${SOURCE_CXX}])
 $(info $$OBJECTS is [${OBJECTS}])
 
 $(info $$INCLUDE_C is [${INCLUDE_C}])

@@ -23,15 +23,7 @@
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>
 
-
-#include"RedisDBConnector.hpp"
-#include"MySqlDBConnector.hpp"
-
-
-using std::cout;
-using std::endl;
-using std::string;
-using std::to_string;
+#include"RTA_DLTEST_DB.hpp"
 
 const char* startString = {
 "################################################################\n"
@@ -50,92 +42,73 @@ int main(int argc, char *argv[]) {
   /* initialize random seed: */
   srand (time(NULL));
 
-  std::map <string, string> args;
+  string database = argv[1];
 
-  string connector = argv[1];
-  int size = atoi(argv[2]);
-  int commandsSent;
+  string configFilePath = argv[2];
 
-  cout << "Connector: " << connector << endl;
+  int size = atoi(argv[3]);
+
+  cout << "Database: " << database << endl;
+
+  cout << "configFilePath: " << configFilePath << endl;
+
   cout << "Size: " << size << endl;
+
+  map <string, string> args;
 
   vector < map <string, string> > events;
 
   /*  CREAZIONE EVENTI RANDOM  */
   for(int i=0; i<size; i++){
-
     args["eventidfits"] =to_string(rand());
-    args["observationid"] =to_string(rand());
-    args["datarepositoryid"] =to_string(rand());
+    args["timerealtt"] =to_string(rand());
     args["ra_deg"] =to_string(rand());
     args["dec_deg"] =to_string(rand());
     args["energy"] =to_string(rand());
     args["detx"] =to_string(rand());
     args["dety"] =to_string(rand());
-    args["mcid"] =to_string(rand());
-    args["status"] =to_string(rand());
-    args["timerealtt"] =to_string(rand());
+    args["observationid"] =to_string(rand());
+    args["datarepositoryid"] =to_string(rand());
+    args["status"] =to_string(1);
+    args["mcid"] =to_string(1);
     args["insert_time"] =to_string(rand());
 
     events.push_back(args);
 
   }
 
-  if(connector=="redis"){
+  auto start = std::chrono::system_clock::now();
 
-    RedisDBConnector * redisDBConnector = new RedisDBConnector();
+  RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
 
-    redisDBConnector->connect();
+  for(vector < map <string, string> >::iterator it=events.begin(); it!=events.end(); it++) {
 
-    /*  INSERIMENTO EVENTI DATABASE*/
-    auto start = std::chrono::system_clock::now();
+    map < string, string > currentEvent = *it;
 
-    for(vector < map <string, string> >::iterator it=events.begin(); it!=events.end(); it++) {
-
-      commandsSent = redisDBConnector->insertData(*it);
-
-    }
-
-    auto stop = std::chrono::system_clock::now();
-
-    std::chrono::duration<double> diff = stop-start;
-
-    cout << "Tempo impiegato per inserire " << size << " eventi = " << diff.count() << " s" << endl;
-
-    cout << "Event rate: " << size/diff.count() << endl;
-
-    redisDBConnector->disconnect();
-
-  }else if(connector=="mysql"){
-
-    MySqlDBConnector * mysqlDBConnector = new MySqlDBConnector();
-
-    mysqlDBConnector->connect();
-
-    /*  INSERIMENTO EVENTI DATABASE*/
-    auto start = std::chrono::system_clock::now();
-
-    for(vector < map <string, string> >::iterator it=events.begin(); it!=events.end(); it++) {
-
-    commandsSent = mysqlDBConnector->insertData(*it);
-
-    }
-
-    auto stop = std::chrono::system_clock::now();
-
-    std::chrono::duration<double> diff = stop-start;
-
-
-    cout << "Tempo impiegato per inserire " << size << " eventi = " << diff.count() << " s" << endl;
-
-    cout << "Event rate: " << size/diff.count() << endl;
-
-    int r = mysqlDBConnector->disconnect();
-
+    rtaTestDb->insertEvent( currentEvent["eventidfits"],
+                            currentEvent["timerealtt"],
+                            currentEvent["ra_deg"],
+                            currentEvent["dec_deg"],
+                            currentEvent["energy"],
+                            currentEvent["detx"],
+                            currentEvent["dety"],
+                            currentEvent["observationid"],
+                            currentEvent["datarepositoryid"],
+                            currentEvent["mcid"],
+                            currentEvent["insert_time"],
+                            currentEvent["status"] );
   }
 
-  cout << endString << endl;
+  rtaTestDb->waitAndClose();
 
-  return 0;
+  auto stop = std::chrono::system_clock::now();
+
+  std::chrono::duration<double> diff = stop-start;
+
+  cout << "Tempo impiegato per inserire " << size << " eventi = " << diff.count() << " s" << endl;
+
+  cout << "Event rate: " << size/diff.count() << endl;
+
+  cout << endString << endl;
 
 }

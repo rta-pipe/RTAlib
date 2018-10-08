@@ -26,6 +26,8 @@ RTA_DL_DB :: RTA_DL_DB(string database, string configFilePath){
 
   }
 
+  cout << "RTA_DL_DB configFilePath: " << configFilePath << endl;
+
   config = Config::getIstance(configFilePath);
 
   // Synchronous (master thread) execution

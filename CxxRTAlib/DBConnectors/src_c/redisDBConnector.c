@@ -20,7 +20,7 @@
 
 redisContext *c;
 redisReply *reply;
-int commandsSent = 0;
+int rc_commandsSent = 0;
 
 int connection(const char *hostname, const char * password,const char * database) {
 
@@ -76,46 +76,58 @@ int close_connection() {
 int streamingInsert_c(const char* modelName, const char* score, const char* query){  //query
 
 
-  reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query); //
+  reply = redisCommand(c,"ZADD %s %s %s", modelName, score, query); //
 
 
-  // if(reply != NULL) {
-  //   printf("ZADD: %s\n", reply->str);
-  // }
+  if(reply->str != NULL) {
+
+    printf("ZADD: %s\n", reply->str);
+
+    rc_commandsSent = -1;
+
+    exit(-1);
+
+  } else {
+
+    rc_commandsSent++;
+
+  }
 
   freeReplyObject(reply);
+
+  return rc_commandsSent;
 
 }
 
 int batchInsert_c(const char * modelName, const char * score, const char * query, int batchsize){
 
-  if(commandsSent==0) {
+  if(rc_commandsSent==0) {
 
     redisCommand(c,"MULTI");
 
-    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query); //
+    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query);
 
-    commandsSent++;
+    rc_commandsSent++;
 
+  }else if(rc_commandsSent < batchsize) {
 
-  }else if(commandsSent < batchsize) {
+    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query);
 
-    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query); //
+    rc_commandsSent++;
 
-    commandsSent++;
+  }else if(rc_commandsSent >= (batchsize)){
 
-  }else if(commandsSent >= (batchsize)){
-
-    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query); //
+    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query); 
 
     redisCommand(c,"EXEC");
 
-    commandsSent = 0;
+    rc_commandsSent = 0;
 
     batchInsert_c(modelName,score,query,batchsize);
 
   }
 
   // freeReplyObject(reply);
+  return rc_commandsSent;
 
 }

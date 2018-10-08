@@ -37,10 +37,11 @@ using std::map;
 class DBConnector {
 public:
   DBConnector(string filepath="");
-  virtual int connect();
+  virtual bool connect();
   virtual int disconnect();
   virtual int testConnection();
-  virtual int insertData(string modelName, map < string, string > args);
+  virtual bool insertData(string modelName, map < string, string > args);
+  virtual bool executeQuery(string query);
 
   Config * config;
 };

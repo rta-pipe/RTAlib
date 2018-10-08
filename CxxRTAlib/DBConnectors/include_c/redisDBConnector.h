@@ -23,20 +23,20 @@
 extern "C" {
 #endif // __cplusplus
 
+#include <stdlib.h>
 
 #include "hiredis.h"
+#include "errno.h"
 
 int connection(const char *hostname, const char * password, const char * database);
 
 int close_connection();
 
-int insertData(); //map < string, string > args
+int insertData();
 
-// string buildQuery(string modelName, int batchsize, map <string,string> args);
+int streamingInsert_c(const char* modelName, const char* score, const char* query);
 
-int streamingInsert_c(const char* modelName, const char* score, const char* query);  //char * query
-
-int batchInsert_c(const char * modelName, const char * score, const char * query, int batchsize);  //
+int batchInsert_c(const char * modelName, const char * score, const char * query, int batchsize);
 
 
 #ifdef __cplusplus

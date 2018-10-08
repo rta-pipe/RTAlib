@@ -24,11 +24,19 @@
 
 class RedisDBConnector : public DBConnector {
 public:
-  RedisDBConnector(string filepath="") : DBConnector( filepath ){ cout << "RedisDBConnector" << endl; };
-  virtual int connect();
+  RedisDBConnector(string filepath="") : DBConnector( filepath ){ cout << "RedisDBConnector" << endl;
+                                                                  hostname = config->file["Redis"]["host"].getString();
+                                                                  username = config->file["Redis"]["username"].getString();
+                                                                  password = config->file["Redis"]["password"].getString();
+                                                                  database = config->file["Redis"]["dbname"].getString();
+                                                                  indexon = config->file["Redis"]["indexon"].getString();
+                                                                  modelName = config->file["General"]["modelname"].getString();
+                                                                  batchsize = config->file["General"]["batchsize"].getInt();
+                                                                 };
+  virtual bool connect();
   virtual int disconnect();
   virtual int testConnection();
-  virtual int insertData(string modelname, map < string, string > args);
+  virtual bool insertData(string modelname, map < string, string > args);
 
   string buildQuery(string modelName, int batchsize, map <string,string> args);
   int streamingInsert(string query);

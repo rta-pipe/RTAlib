@@ -20,13 +20,16 @@
 
 DBConnector::DBConnector(string filepath){
 
+  #ifdef DEBUG
   cout << "DBConnector" << endl;
+  #endif
 
   config = Config::getIstance(filepath);
 
 }
 
-int DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
+bool DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
 int DBConnector :: disconnect(){}
 int DBConnector :: testConnection(){}
-int DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}
+bool DBConnector :: executeQuery(string query){}
+bool DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}

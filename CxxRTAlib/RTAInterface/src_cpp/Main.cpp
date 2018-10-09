@@ -48,6 +48,8 @@ int main(int argc, char *argv[]) {
 
   int size = atoi(argv[3]);
 
+  int count = 0;
+
   cout << "Database: " << database << endl;
 
   cout << "configFilePath: " << configFilePath << endl;
@@ -85,7 +87,7 @@ int main(int argc, char *argv[]) {
 
     map < string, string > currentEvent = *it;
 
-    rtaTestDb->insertEvent( currentEvent["eventidfits"],
+    count = rtaTestDb->insertEvent( currentEvent["eventidfits"],
                             currentEvent["timerealtt"],
                             currentEvent["ra_deg"],
                             currentEvent["dec_deg"],
@@ -98,6 +100,8 @@ int main(int argc, char *argv[]) {
                             currentEvent["insert_time"],
                             currentEvent["status"] );
   }
+
+  cout << "rtaTestDB insertEvent rturned value: " << count << endl;
 
   rtaTestDb->waitAndClose();
 

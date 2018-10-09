@@ -60,6 +60,7 @@ IniFile &IniParser::load(std::string path, enum ini_utf8_mode utf8_mode,
  */
 void IniParser::store(IniFile ini, std::string path,
                       enum ini_utf8_mode utf8_mode, char equals, char comment) {
+
   if (path == "")
     return;
 
@@ -72,12 +73,14 @@ void IniParser::store(IniFile ini, std::string path,
     throw parser_exception;
   }
 
+
   if (ini.getComment() != "") {
     if (!ini_write_comment(&file, ini.getComment().c_str())) {
       error = WRITE_ERROR;
       throw parser_exception;
     }
   }
+
 
   for (IniSection section : ini.getAllSections()) {
     if (section.getComment() != "") {

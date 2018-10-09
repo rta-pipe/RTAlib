@@ -39,8 +39,10 @@ The following dependencies are needed:
 
 ## General usage
 In order to obtain the googletest framework when cloning the project run:
+
 ```git clone --recursive
 ```
+
 In RTAlib/CxxRTAlib/ modify install_local.sh file in order to set correctly the environment variables:
 ``` export MYSQL_CXX_CNT=/path/to/mysql-connector-cpp-install/
     export BOOST_PATH=/path/to/boost_1_67_0
@@ -48,6 +50,7 @@ In RTAlib/CxxRTAlib/ modify install_local.sh file in order to set correctly the 
     export LD_LIBRARY_PATH=/path/to/mysql-connector-cpp-install/lib64:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/path/to/hiredis:$LD_LIBRARY_PATH
 ```
+
 To execute CxxRTAlib simulation run:
 ```\./bin/testRTAlib  mysql ../path/to/rtalibconfig  eventsNumber
 ```

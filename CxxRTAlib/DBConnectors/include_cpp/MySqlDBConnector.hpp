@@ -43,7 +43,7 @@ public:
                                                                 batchsize = config->file["General"]["batchsize"].getInt();
                                                               };
   bool connect();
-  int disconnect();
+  bool disconnect();
   int testConnection();
   bool insertData(string modelName, map < string, string > args);
 

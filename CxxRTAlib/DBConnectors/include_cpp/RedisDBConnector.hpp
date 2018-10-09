@@ -34,7 +34,7 @@ public:
                                                                   batchsize = config->file["General"]["batchsize"].getInt();
                                                                  };
   virtual bool connect();
-  virtual int disconnect();
+  virtual bool disconnect();
   virtual int testConnection();
   virtual bool insertData(string modelname, map < string, string > args);
 

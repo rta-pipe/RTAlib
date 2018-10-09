@@ -43,6 +43,7 @@ int connection(const char *hostname, const char * password,const char * database
 
       }
 
+      return -1;
 
   }
 
@@ -64,12 +65,26 @@ int close_connection() {
 
   reply = redisCommand(c, "EXEC");
 
-  freeReplyObject(reply);
+  if(reply->str != NULL) {
+
+    printf("EXEC: %s\n", reply->str);
+
+    freeReplyObject(reply);
+
+    return -1;
+
+  } else {
+
+    freeReplyObject(reply);
+
+    return 0;
+
+  }
 
   /* Disconnects and frees the context */
   redisFree(c);
 
-  return 0;
+
 }
 
 
@@ -117,7 +132,7 @@ int batchInsert_c(const char * modelName, const char * score, const char * query
 
   }else if(rc_commandsSent >= (batchsize)){
 
-    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query); 
+    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query);
 
     redisCommand(c,"EXEC");
 

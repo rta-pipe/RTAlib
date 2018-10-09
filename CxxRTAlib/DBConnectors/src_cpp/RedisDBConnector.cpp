@@ -21,14 +21,6 @@ bool RedisDBConnector::connect(){
 
   cout << "REDISDBCONNECTOR CONNECT" << endl;
 
-  // hostname = config->file["Redis"]["host"].getString();
-  // username = config->file["Redis"]["username"].getString();
-  // password = config->file["Redis"]["password"].getString();
-  // database = config->file["Redis"]["dbname"].getString();
-  // indexon = config->file["Redis"]["indexon"].getString();
-  // modelName = config->file["General"]["modelname"].getString();
-  // batchsize = config->file["General"]["batchsize"].getInt();
-
   int dp = indexon.find(":");
   indexon_clean = indexon.substr(dp+1,indexon.size());
 
@@ -40,11 +32,20 @@ bool RedisDBConnector::connect(){
   connection(hostname.c_str(),password.c_str(),database.c_str());
 }
 
-int RedisDBConnector :: disconnect(){
+bool RedisDBConnector :: disconnect(){
 
-  cout << "REDISDBCONNECTOR DISCONNECT" << endl;
+  if (close_connection() == 0) {
 
-  close_connection();
+    cout << "REDISDBCONNECTOR DISCONNECT" << endl;
+
+    return true;
+
+  }else{
+
+    return false;
+
+  }
+
 
 }
 

@@ -72,13 +72,13 @@ int Config :: setSection(string filepath, string sectionName, vector < map <stri
   #endif
 
 
-    for(vector < map <string, string> >::iterator it=values.begin(); it!=values.end(); it++) {
+    for(vector < map <string, string> >::iterator it=values.begin(); it!=values.end(); ++it) {
 
         IniSection section(sectionName);
 
         map < string, string > currentEntry = *it;
 
-        for(map < string, string >::iterator map_it=currentEntry.begin(); map_it!=currentEntry.end(); map_it++ ) {
+        for(map < string, string >::iterator map_it=currentEntry.begin(); map_it!=currentEntry.end(); ++map_it ) {
 
           // cout << map_it->first << " " << map_it->second << endl;
 

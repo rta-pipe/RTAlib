@@ -1,4 +1,4 @@
-#1/bin/sh
+#!/bin/sh
 
 export GTEST_DIR=/home/zollino/development/working/RTAlib/CxxRTAlib/TESTSUITE/googletest-1.8.1/googletest
 export MYSQL_CXX_CNT=/home/zollino/mysql-connector-cpp-install/

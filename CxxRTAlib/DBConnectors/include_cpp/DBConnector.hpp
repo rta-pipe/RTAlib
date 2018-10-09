@@ -38,7 +38,7 @@ class DBConnector {
 public:
   DBConnector(string filepath="");
   virtual bool connect();
-  virtual int disconnect();
+  virtual bool disconnect();
   virtual int testConnection();
   virtual bool insertData(string modelName, map < string, string > args);
   virtual bool executeQuery(string query);

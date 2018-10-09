@@ -21,13 +21,6 @@
 
 bool MySqlDBConnector::connect(){
 
-  // hostname = config->file["MySql"]["host"].getString();
-  // username = config->file["MySql"]["username"].getString();
-  // password = config->file["MySql"]["password"].getString();
-  // database = config->file["MySql"]["dbname"].getString();
-  // modelName = config->file["General"]["modelname"].getString();
-  // batchsize = config->file["General"]["batchsize"].getInt();
-
   #ifdef DEBUG
   cout << "Hostname: " << hostname << endl;
   cout << "Database: " << database << endl;
@@ -41,7 +34,6 @@ bool MySqlDBConnector::connect(){
     driver = sql::mysql::get_driver_instance();
 
     /* Using the Driver to create a connection */
-    //con.reset(driver->connect (hostname, username, password)); // connect to mysql
     con = driver->connect (hostname, username, password); // connect to mysql
 
     con->setSchema(database);
@@ -113,7 +105,6 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
 
   // #ifdef DEBUG
   cout << "Command sent: " << commandsSent << " Insert data call: " << insertDataCall << endl;
-
   // #endif
 
 
@@ -126,8 +117,6 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
     return false;
 
   }
-
-
   // return insertDataCall;
 
 }
@@ -273,8 +262,6 @@ bool MySqlDBConnector::batchInsert(string query, int batchsize) {
 
   boost::scoped_ptr< sql::Statement > stmt(con->createStatement());
 
-  //cout << "[MySqlConnector]: Batch insert.." << endl;
-
   if(commandsSent==0) {
 
     try {
@@ -413,7 +400,7 @@ string MySqlDBConnector::buildQuery(string modelName, int batchsize, map <string
 }
 
 
-int MySqlDBConnector::disconnect(){
+bool MySqlDBConnector::disconnect(){
 
   try
     {
@@ -436,12 +423,12 @@ int MySqlDBConnector::disconnect(){
         #endif
 
         cout << "Disconnected to MySql!" << endl;
-        return 0;
+        return true;
     }
     catch(sql::SQLException &e)
     {
         cout << "# ERR: " << e.what() << endl;
         //CLogger::LogEvent("Failed To Close Connection to DataBase Server" ,e.what());
-        return -1;
+        return false;
     }
 }

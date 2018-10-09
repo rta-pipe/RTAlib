@@ -43,7 +43,13 @@ TEST(MySqlDBConnector, CorrectConnection) {
 
   Config * myConf;
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","RTA@test18@","rta_test","evt_test");
+  myConf = Config::getIstance("../../PyRTAlib");
+
+  string password = myConf->file["MySql"]["password"].getString();
+
+  myConf->deleteInstance();
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",password,"rta_test","evt_test");
 
   DBConnector * mySqlDBTest = new MySqlDBConnector(".");
 
@@ -51,11 +57,14 @@ TEST(MySqlDBConnector, CorrectConnection) {
 
   myConf->deleteInstance();
 
+  myConf->clearConfFile("./rtalibconfig");
+
 }
 
 TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
 
   Config * myConf;
+
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","asdasd","rta_test","evt_test");
 
@@ -65,19 +74,29 @@ TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
 
   myConf->deleteInstance();
 
+  myConf->clearConfFile("./rtalibconfig");
+
 }
 
 TEST(MySqlDBConnector, FailedConnectionWrongUserName) {
 
   Config * myConf;
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","RTA@test18@","pippo","evt_test");
+  myConf = Config::getIstance("../../PyRTAlib");
+
+  string password = myConf->file["MySql"]["password"].getString();
+
+  myConf->deleteInstance();
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost", password,"fkajhuis","evt_test");
 
   DBConnector * mySqlDBTest = new MySqlDBConnector(".");
 
   EXPECT_FALSE( mySqlDBTest->connect() );
 
   myConf->deleteInstance();
+
+  myConf->clearConfFile("./rtalibconfig");
 
 }
 
@@ -85,7 +104,13 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
 
   Config * myConf;
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","RTA@test18@","rta_test","ciao");
+  myConf = Config::getIstance("../../PyRTAlib");
+
+  string password = myConf->file["MySql"]["password"].getString();
+
+  myConf->deleteInstance();
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",password,"rta_test","qwerty");
 
   DBConnector * mySqlDBTest = new MySqlDBConnector(".");
 
@@ -93,13 +118,21 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
 
   myConf->deleteInstance();
 
+  myConf->clearConfFile("./rtalibconfig");
+
 }
 
 TEST(MySqlDBConnector, WriteWrongTable) {
 
   Config * myConf;
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","RTA@test18@","rta_test","evt_test");
+  myConf = Config::getIstance("../../PyRTAlib");
+
+  string password = myConf->file["MySql"]["password"].getString();
+
+  myConf->deleteInstance();
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost", password,"rta_test","evt_test");
 
   DBConnector * mySqlDBTest = new MySqlDBConnector(".");
 
@@ -115,13 +148,21 @@ TEST(MySqlDBConnector, WriteWrongTable) {
 
   myConf->deleteInstance();
 
+  myConf->clearConfFile("./rtalibconfig");
+
 }
 
 TEST(MySqlDBConnector, InsertDataSuccefully) {
 
   Config * myConf;
 
-  writeConfFile(myConf,"test_table","51544.5","yes","1","1","localhost","RTA@test18@","rta_test","evt_test");
+  myConf = Config::getIstance("../../PyRTAlib");
+
+  string password = myConf->file["MySql"]["password"].getString();
+
+  myConf->deleteInstance();
+
+  writeConfFile(myConf,"test_table","51544.5","yes","1","1","localhost", password,"rta_test","evt_test");
 
   DBConnector * mySqlDBTest = new MySqlDBConnector(".");
 
@@ -137,48 +178,9 @@ TEST(MySqlDBConnector, InsertDataSuccefully) {
 
   myConf->deleteInstance();
 
-}
+  myConf->clearConfFile("./rtalibconfig");
 
-// TEST(MySqlDBConnector, InsertBatchDataSuccefully) {
-//
-//   Config * myConf;
-//
-//   writeConfFile(myConf,"test_table","51544.5","yes","2","1","localhost","RTA@test18@","rta_test","evt_test");
-//
-//   DBConnector * mySqlDBTest = new MySqlDBConnector(".");
-//
-//   mySqlDBTest->connect();
-//
-//   map <string, string > args1;
-//   args1["a"] = "1";
-//   args1["b"] = "2";
-//   args1["c"] = "3";
-//   args1["d"] = "4";
-//
-//   mySqlDBTest->executeQuery("delete from test_table");
-//
-//   EXPECT_TRUE( mySqlDBTest->insertData("test_table", args1) );
-//
-//   map <string, string > args2;
-//   args2["a"] = "5";
-//   args2["b"] = "6";
-//   args2["c"] = "7";
-//   args2["d"] = "8";
-//
-//   EXPECT_TRUE( mySqlDBTest->insertData("test_table", args2) );
-//
-//   mySqlDBTest->disconnect();
-//
-//   // mySqlDBTest->connect();
-//   // mySqlDBTest->executeQuery("SELECT COUNT(*) FROM test_table");
-//   //
-//   // // int count = stoi(mySqlDBTest->count);
-//   //
-//   // EXPECT_EQ(1,mySqlDBTest->commitCall);
-//
-//   myConf->deleteInstance();
-//
-// }
+}
 
 
 void writeConfFile(Config * myConf, string modelname, string mjdref, string debug, string batchsize, string numberofthread,string mhost, string mpwd, string musr, string mdb ){
@@ -189,9 +191,13 @@ void writeConfFile(Config * myConf, string modelname, string mjdref, string debu
 
   map < string, string > Mentries;
 
+  map < string, string > Rentries;
+
   vector < map <string, string > > GSection;
 
   vector < map <string, string > > MSection;
+
+  vector < map <string, string > > RSection;
 
   Gentries["modelname"]= modelname;
   Gentries["mjdref"]= mjdref;
@@ -210,11 +216,13 @@ void writeConfFile(Config * myConf, string modelname, string mjdref, string debu
 
   for(int i=0; i <2; i++) {
 
-    if(i==0) {
-      writeConf->setSection("./rtalibconfig", "General", GSection);
-    }else{
-      writeConf->setSection("./rtalibconfig", "MySql", MSection);
+    switch(i) {
+
+      case 1 : writeConf->setSection("./rtalibconfig", "General", GSection);
+
+      case 2 : writeConf->setSection("./rtalibconfig", "MySql", MSection);
     }
+
   }
 
   writeConf->setConfFile("./rtalibconfig");

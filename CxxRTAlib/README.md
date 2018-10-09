@@ -60,5 +60,5 @@ In RTAlib/CxxRTAlib/TESTSUITE/ modify run.sh file in order to set correctly the 
     export LD_LIBRARY_PATH=/path/to/hiredis:$LD_LIBRARY_PATH
 ```
 To execute unit test run:
-```\./bin/unitTest
+```bin/unitTest
 ```

@@ -52,8 +52,7 @@ In RTAlib/CxxRTAlib/ modify install_local.sh file in order to set correctly the 
 ```
 
 To execute CxxRTAlib simulation run:
-```\./bin/testRTAlib  mysql ../path/to/rtalibconfig  eventsNumber
-```
+./bin/testRTAlib  mysql ../path/to/rtalibconfig  eventsNumber
 
 ## TEST
 

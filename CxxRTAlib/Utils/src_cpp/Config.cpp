@@ -17,6 +17,7 @@
 
 #include "Config.hpp"
 
+IniFile inifile;
 Config* Config::_instance = 0;
 
 Config::Config(string filepath){
@@ -46,10 +47,75 @@ Config::Config(string filepath){
 
 }
 
+void Config :: deleteInstance() {
+
+  delete _instance;
+  _instance = 0;
+
+}
+
 Config* Config::getIstance(string filepath){
 
   if(_instance == 0)
     _instance = new Config(filepath);
 
   return _instance;
+}
+
+
+int Config :: setSection(string filepath, string sectionName, vector < map <string, string > > values){
+
+
+  #ifdef DEBUG
+  cout << "Config set filepath: " << filepath << endl;
+  cout << "Config set SectionName: " << sectionName << endl;
+  #endif
+
+
+    for(vector < map <string, string> >::iterator it=values.begin(); it!=values.end(); ++it) {
+
+        IniSection section(sectionName);
+
+        map < string, string > currentEntry = *it;
+
+        for(map < string, string >::iterator map_it=currentEntry.begin(); map_it!=currentEntry.end(); ++map_it ) {
+
+          // cout << map_it->first << " " << map_it->second << endl;
+
+          string key = map_it->first;
+
+          string value = map_it->second;
+
+          IniEntry entry(key, value);
+
+
+          section.insert(entry);
+
+
+
+        }
+
+          inifile.insert(section);
+
+      }
+
+}
+
+int Config :: setConfFile(string filepath) {
+
+  try{
+  IniParser::store(inifile, filepath, INI_UTF8_MODE_ALLOW, '=', ';');
+
+
+  }catch(IniParser::ParserException e) {
+
+    std::cerr << "Error while loading file!\n";
+
+  }
+}
+
+void Config :: clearConfFile(string filepath) {
+
+  inifile.clear();
+
 }

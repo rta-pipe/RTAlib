@@ -20,17 +20,26 @@
 
 #include <string>
 #include <iostream>
+#include <map>
+#include <vector>
 #include "IniParser.hpp"
 #include <stdlib.h>     /* getenv */
 
 using std::string;
 using std::cout;
 using std::endl;
+using std::vector;
+using std::map;
 
 class Config{
 public:
   static Config* getIstance(string filepath="");
+  static void deleteInstance(); 
+  int setSection(string filepath, string sectionName, vector < map <string, string > > values);
+  int setConfFile(string filepath);
+  void clearConfFile(string filepath);
   IniFile file;
+
 
 private:
   Config(string filepath="");

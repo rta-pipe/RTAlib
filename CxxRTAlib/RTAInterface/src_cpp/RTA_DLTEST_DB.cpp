@@ -22,4 +22,8 @@ int RTA_DLTEST_DB :: insertEvent(string eventidfits, string timerealtt, string r
   EVTTest evtTest = EVTTest(eventidfits, timerealtt, ra_deg, dec_deg, energy, detx, dety, observationid, datarepositoryid, mcid, insert_time,status);
 
   int commit = _insertEvent(evtTest);
+
+  // cout << "Commit RTADLTEST: " << commit << endl;
+
+  return commit;
 }

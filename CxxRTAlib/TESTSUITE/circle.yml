@@ -1,0 +1,13 @@
+
+dependencies:
+  pre:
+    - cd googletest-1.8.1/googletest/; mkdir build; cd build; cmake ..; make
+  override:
+    - make; sh run.sh
+test:
+  override:
+    - cd bin; ./unitTest
+checkout:
+  post:
+    - git submodule init
+    - git submodule update

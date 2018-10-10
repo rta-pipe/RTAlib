@@ -43,6 +43,7 @@ int ini_open_file(struct ini_file *file, const char *path, char equals,
   file->equals = equals;
   file->comment = comment;
 
+  
   return 1;
 }
 

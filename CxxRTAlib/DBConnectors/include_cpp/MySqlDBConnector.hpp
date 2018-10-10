@@ -34,20 +34,29 @@ using namespace std;
 
 class MySqlDBConnector : public DBConnector {
 public:
-  MySqlDBConnector(string filepath="") : DBConnector(filepath){ cout << "MySqlDBConnector" << endl; };
-  int connect();
-  int disconnect();
+  MySqlDBConnector(string filepath="") : DBConnector(filepath){ cout << "MySqlDBConnector" << endl;
+                                                                hostname = config->file["MySql"]["host"].getString();
+                                                                username = config->file["MySql"]["username"].getString();
+                                                                password = config->file["MySql"]["password"].getString();
+                                                                database = config->file["MySql"]["dbname"].getString();
+                                                                modelName = config->file["General"]["modelname"].getString();
+                                                                batchsize = config->file["General"]["batchsize"].getInt();
+                                                              };
+  bool connect();
+  bool disconnect();
   int testConnection();
-  int insertData(string modelName, map < string, string > args);
+  bool insertData(string modelName, map < string, string > args);
 
   string buildQuery(string modelName, int batchsize, map <string,string> args);
-  int streamingInsert(string query);
-  int batchInsert(string query, int batchsize);
+  bool streamingInsert(string query);
+  bool executeQuery(string query);
+  bool batchInsert(string query, int batchsize);
 
   sql::Driver *driver;
   sql::Connection *con;
   //boost::shared_ptr <sql::Connection> con;
   int commandsSent = 0;
+  bool inserted;
   int insertDataCall = 0;
   int strTrCall = 0;
   int commitCall = 0;

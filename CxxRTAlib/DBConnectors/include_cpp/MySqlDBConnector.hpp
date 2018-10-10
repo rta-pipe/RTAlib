@@ -34,7 +34,7 @@ using namespace std;
 
 class MySqlDBConnector : public DBConnector {
 public:
-  MySqlDBConnector(string filepath="") : DBConnector(filepath){ cout << "MySqlDBConnector" << endl;
+  MySqlDBConnector(string filepath="") : DBConnector(filepath){ //cout << "MySqlDBConnector" << endl;
                                                                 hostname = config->file["MySql"]["host"].getString();
                                                                 username = config->file["MySql"]["username"].getString();
                                                                 password = config->file["MySql"]["password"].getString();
@@ -49,7 +49,7 @@ public:
 
   string buildQuery(string modelName, int batchsize, map <string,string> args);
   bool streamingInsert(string query);
-  bool executeQuery(string query);
+  // bool executeQuery(string query);
   bool batchInsert(string query, int batchsize);
 
   sql::Driver *driver;

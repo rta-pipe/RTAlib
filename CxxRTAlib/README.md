@@ -40,8 +40,7 @@ The following dependencies are needed:
 ## General usage
 In order to obtain the googletest framework when cloning the project run:
 
-git clone --recursive
-
+git clone --recursive https://github.com/rta-pipe/RTAlib
 
 In RTAlib/CxxRTAlib/ modify install_local.sh file in order to set correctly the environment variables:
 ``` export MYSQL_CXX_CNT=/path/to/mysql-connector-cpp-install/
@@ -57,6 +56,13 @@ To execute CxxRTAlib simulation run:
 ## TEST
 
 ### unit test
+Use cmake to build googletest framework:
+```cd CxxRTAlib/TESTSUITE/googletest-1.8.1/googletest/
+    mkdir build
+    cd build
+    cmake ..
+    make
+```
 In RTAlib/CxxRTAlib/TESTSUITE/ modify run.sh file in order to set correctly the environment variables:
 ``` export MYSQL_CXX_CNT=/path/to/mysql-connector-cpp-install/
     export BOOST_PATH=/path/to/boost_1_67_0
@@ -65,5 +71,3 @@ In RTAlib/CxxRTAlib/TESTSUITE/ modify run.sh file in order to set correctly the 
     export LD_LIBRARY_PATH=/path/to/hiredis:$LD_LIBRARY_PATH
 ```
 To execute unit test run: bin/unitTest
-```
-```

@@ -31,5 +31,5 @@ DBConnector::DBConnector(string filepath){
 bool DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
 bool DBConnector :: disconnect(){}
 int DBConnector :: testConnection(){}
-bool DBConnector :: executeQuery(string query){}
+// bool DBConnector :: executeQuery(string query){}
 bool DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}

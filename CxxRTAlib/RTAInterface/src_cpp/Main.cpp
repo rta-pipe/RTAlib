@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
                             currentEvent["status"] );
   }
 
-  cout << "rtaTestDB insertEvent rturned value: " << count << endl;
+  cout << "\nEvents inserted correctly."<< endl;
 
   rtaTestDb->waitAndClose();
 

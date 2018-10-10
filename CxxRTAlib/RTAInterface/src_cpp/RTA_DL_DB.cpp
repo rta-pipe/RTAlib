@@ -62,7 +62,8 @@ int RTA_DL_DB :: _insertEvent( EVTTest & event) {
   map < string, string > eventData =  event.getData();
 
   #ifdef DEBUG
-  cout << eventData["eventidfits"] << " \n" <<
+  cout << "DEBUG event print in RTA_DL_DB" << " \n" <<
+          eventData["eventidfits"] << " \n" <<
           eventData["timerealtt"] << " \n"<<
           eventData["ra_deg"] << " \n"<<
           eventData["dec_deg"] << " \n"<<

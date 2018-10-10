@@ -26,13 +26,17 @@ class RTA_DLTEST_DB : public RTA_DL_DB {
 public:
 
   RTA_DLTEST_DB(string database, string configFilePath) : RTA_DL_DB(database, configFilePath) {
+    #ifdef DEBUG
     cout << "RTA_TEST_DB" << endl;
+    #endif
   };
 
   int insertEvent(string eventidfits, string time, string ra_deg, string dec_deg, string energy, string detx, string dety, string observationid, string datarepositoryid, string mcid, string insert_time, string status);
-  // int insertEvent(map <string, string> eventFields);
 
+  int commit = 0;
 
 };
+
+
 
 #endif

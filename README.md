@@ -23,7 +23,7 @@ The following features are supported:
 - RTAInterface
   - [A2] the RTA_DL_DB.py base class implements the synchronous or asynchronous (even multi-threading) execution.
   - [B] The code to execute queries after every commit (when a transaction is closed) can be inserted within any class that iherits the RTA_DL_DB.py base class. This is available only in synchronous mode.
-  - [C] the RTA_DL_DB.py can send data to the Redis channel specified in the configuration file.
+  - [C] the RTA_DL_DB.py can send data to a Redis channel specified in the configuration file (Dtr/inputchannel).
 - DataModels [D]
   - this module contains all the classes that describe the data types that are stored in the database.
 
@@ -61,8 +61,11 @@ batchsize=         # performance tuning parameter: the input streaming is writed
 numberofthreads=   # performance tuning parameter: more than one thread may help to sustain a high-rate input streaming
 
 [Dtr]
+guiname=
 active=            # yes/y/True/'True' or any other value for False
-debug=
+debug=             # yes/y/True/'True' or any other value for False
+inputchannel=
+outputchannel=
 
 [MySql]
 host=
@@ -184,3 +187,12 @@ python performance_test.py redis-basic 5000
 python performance_test_multithreading.py mysql 5000
 
 ```
+
+# DTR
+## Starting the DTR deamon  
+Execute the startDTR script and give to it the path to the configuration file.
+```bash
+  cd RTAlib/PyRTAlib
+  python startDTR.py ./
+```
+The DTR will subscribe to a Redis channel (specified in the configuration file) and will listen for data, adding the data to a queue. A thread (started by the DTR) will process the queue, using transformator classes that take the data and output a data format for gui visualization.

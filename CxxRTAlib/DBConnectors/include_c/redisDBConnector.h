@@ -24,6 +24,7 @@ extern "C" {
 #endif // __cplusplus
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "hiredis.h"
 #include "errno.h"

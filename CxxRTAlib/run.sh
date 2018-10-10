@@ -7,4 +7,4 @@ if [ $# -eq 0 ]
     return
 fi
 
-./bin/testRTAlib  $1 ../PyRTAlib  5000
+./bin/testRTAlib  $1 ../PyRTAlib  1000

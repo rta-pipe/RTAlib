@@ -13,14 +13,16 @@ The following dependencies are needed:
 
 ## Installation
 * Install Boost C++ library:
-```wget https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2
+```
+  wget https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2
   tar --bzip2 -xf boost_1_67_0.tar.bz2
   cd boost_1_67_0/tools/build
   . bootstrap.sh
 ```
 
 * Install MySql C++ Connector:
-```git clone https://github.com/mysql/mysql-connector-cpp.git
+```
+  git clone https://github.com/mysql/mysql-connector-cpp.git
   mkdir mysql-connector-cpp-install
   cd mysql-connector-cpp
   git checkout 1.1
@@ -32,7 +34,8 @@ The following dependencies are needed:
 ```
 
 * Install hiredis library:
-```https://github.com/redis/hiredis.git
+```
+  git clone https://github.com/redis/hiredis.git
   cd /path/to/hiredis/
   make
 ```
@@ -43,7 +46,8 @@ In order to obtain the googletest framework when cloning the project run:
 git clone --recursive https://github.com/rta-pipe/RTAlib
 
 In RTAlib/CxxRTAlib/ modify install_local.sh file in order to set correctly the environment variables:
-``` export MYSQL_CXX_CNT=/path/to/mysql-connector-cpp-install/
+```
+    export MYSQL_CXX_CNT=/path/to/mysql-connector-cpp-install/
     export BOOST_PATH=/path/to/boost_1_67_0
     export REDIS=/path/to/hiredis
     export LD_LIBRARY_PATH=/path/to/mysql-connector-cpp-install/lib64:$LD_LIBRARY_PATH
@@ -57,14 +61,16 @@ To execute CxxRTAlib simulation run:
 
 ### unit test
 Use cmake to build googletest framework:
-```cd CxxRTAlib/TESTSUITE/googletest-1.8.1/googletest/
+```
+    cd CxxRTAlib/TESTSUITE/googletest-1.8.1/googletest/
     mkdir build
     cd build
     cmake ..
     make
 ```
 In RTAlib/CxxRTAlib/TESTSUITE/ modify run.sh file in order to set correctly the environment variables:
-``` export MYSQL_CXX_CNT=/path/to/mysql-connector-cpp-install/
+```
+    export MYSQL_CXX_CNT=/path/to/mysql-connector-cpp-install/
     export BOOST_PATH=/path/to/boost_1_67_0
     export REDIS=/path/to/hiredis
     export LD_LIBRARY_PATH=/path/to/mysql-connector-cpp-install/lib64:$LD_LIBRARY_PATH

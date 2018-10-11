@@ -1,2 +1,4 @@
 from .DTR import DTR
-from .DTRtimeVSenergy import DTRtimeVSenergy
+from .DTR_Transformer import DTR_Transformer
+from .DTR_DetectionsDataTransformer import DTR_DetectionsDataTransformer
+from .DTR_ASTRIEVT3DataTransformer import DTR_ASTRIEVT3DataTransformer

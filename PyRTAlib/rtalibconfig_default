@@ -6,6 +6,7 @@ batchsize=
 numberofthreads=
 
 [Dtr]
+guiname=
 active=
 debug=
 inputchannel=

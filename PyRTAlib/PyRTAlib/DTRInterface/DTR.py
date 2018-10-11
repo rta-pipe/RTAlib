@@ -17,7 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # ==========================================================================
-from abc import ABC, abstractmethod
+
+#from abc import ABC, abstractmethod
 import redis
 import threading
 from collections import deque
@@ -27,9 +28,7 @@ from ast import literal_eval # to convert string into dictionary
 from ..Utils import Config
 
 
-class DTR(ABC):
-
-
+class DTR():
 
     def __init__(self, configFilePath=''):
 
@@ -41,6 +40,7 @@ class DTR(ABC):
             self.DEBUG = True
             print("[DTR] DTR system started!")
 
+        self.transformers = []
 
         self.redisConn = redis.Redis(
                                         host=self.config.get('Redis','host'),
@@ -49,19 +49,23 @@ class DTR(ABC):
                                         password=self.config.get('Redis','password')
                                     )
 
+        self.guiName = self.config.get('Dtr','guiname')
+
         self.workingQueue = deque([])
 
         self.senderWorker = threading.Thread(target=self.processQueue, args=())
         self.senderWorker.start()
 
+    def addTransformer(self, transformer):
+        if self.DEBUG:
+            print('[DTR] Added new transformer: ', transformer.getName())
+        self.transformers.append(transformer)
 
-    @staticmethod
-    def pub(channel, message):
-        pass
-
-    @staticmethod
-    def sub(channel):
-        pass
+    def getAllowedTransformers(self, eventData):
+        validated = ( t for t in self.transformers if t.getDataType()==eventData['dataType'] )
+        if self.DEBUG:
+            print("-->[DTR thread] Allowed transformers for eventData => ", validated)
+        return validated
 
     def start(self):
 
@@ -117,20 +121,32 @@ class DTR(ABC):
                     print("-->[DTR thread] Transforming data..")
 
                 # Transform data
-                transformedData = self.transformData(eventData)
+                for dataTransformer in self.getAllowedTransformers(eventData):
 
-                if self.DEBUG:
-                    print("-->[DTR thread] Saving transformed data to Redis")
+                    transformerName = dataTransformer.getName()
+                    dataType = dataTransformer.getDataType()
+                    indexData = dataTransformer.getIndexForData()
+                    transformedData = dataTransformer.transformData(eventData)
+                    outputChannel = dataTransformer.getOutputChannel(eventData)
+                    storeLocationKey = dataTransformer.getStoreLocationKey(eventData)
 
-                # Save it to Redis
-                self.redisConn.lpush(self.outputchannel, json.dumps(transformedData))
+                    if self.DEBUG:
+                        print("-->[DTR thread] Data transformer ",transformerName,"\n" \
+                                            "Saving transformed data to Redis at ",storeLocationKey,"\n" \
+                                            "Data type: ", dataType, "\n" \
+                                            "Output channel: ", outputChannel, "\n" \
+                                            "storeLocationKey: ", storeLocationKey)
 
-                if self.DEBUG:
-                    print("-->[DTR thread] Publishing transformed data on channel {}".format(self.outputchannel))
+                    # Save it to Redis
+                    #self.redisConn.lpush(storeLocationKey, json.dumps(transformedData))  # --> changed to ZSET
+                    self.redisConn.zadd(storeLocationKey, json.dumps(transformedData), transformedData[indexData])
 
-                # Publish on channel
-                message = {'type': 'lc', 'loc': self.outputchannel, 'last_data': transformedData}
-                self.redisConn.publish(self.outputchannel, message)
+                    if self.DEBUG:
+                        print("-->[DTR thread] Publishing transformed data on channel {}".format(outputChannel))
+
+                    # Publish on channel
+                    message = {'type': dataType, 'loc': storeLocationKey, 'last_data': transformedData}
+                    self.redisConn.publish(outputChannel, message)
 
             else:
                 print("-->[DTR thread] Something is wrong..  Type of eventData: {}".format(type(eventData)))

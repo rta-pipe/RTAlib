@@ -27,7 +27,6 @@ import time
 from ..DBConnectors import RedisDBConnector, MySqlDBConnector, RedisDBConnectorBASIC
 from ..Utils import Config
 from ..Utils import RedisPublisher
-from ..DTRInterface import DTR  # is this import really needed ?
 
 class RTA_DL_DB(ABC):
 

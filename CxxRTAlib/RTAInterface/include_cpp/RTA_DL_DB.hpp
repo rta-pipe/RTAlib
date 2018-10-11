@@ -37,7 +37,7 @@ public:
   RTA_DL_DB(string database, string configFilePath = "");
   DBConnector * getConnector(string databaseEngine, string configFilePath);
   int _insertEvent(EVTTest & event);
-  int waitAndClose();
+  bool waitAndClose();
 
   DBConnector * dbConnector;
 

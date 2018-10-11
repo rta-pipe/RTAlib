@@ -35,7 +35,6 @@ public:
                                                                  };
   virtual bool connect();
   virtual bool disconnect();
-  virtual int testConnection();
   virtual bool insertData(string modelname, map < string, string > args);
 
   string buildQuery(string modelName, int batchsize, map <string,string> args);
@@ -48,7 +47,8 @@ public:
   int strTrCall = 0;
   int commitCall = 0;
   int flagTransaction = 0;
-  bool inserted;
+  bool inserted = false;
+  int batchsize = 0;
 
   string hostname;
   string username;
@@ -58,7 +58,7 @@ public:
   string indexon;
   string indexon_clean;
   string score;
-  int batchsize;
+
 
 };
 

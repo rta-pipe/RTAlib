@@ -23,6 +23,7 @@
 #include "DBConnector.hpp"
 #include "MySqlDBConnector.hpp"
 #include "RedisDBConnector.hpp"
+#include "RTA_DLTEST_DB.hpp"
 
 using std::cout;
 using std::endl;
@@ -39,6 +40,14 @@ const char* endString = {
 };
 
 void writeConfFile(Config * myConf, string modelname, string mjdref, string debug, string batchsize, string numberofthread,string mhost, string mpwd, string musr, string mdb, string rhost, string rpwd, string rdb, string indexon );
+
+/*
+ ==================================
+*                                 *
+*         MYSQL TEST CASE         *
+*                                 *
+ ==================================
+*/
 
 TEST(MySqlDBConnector, CorrectConnection) {
 
@@ -63,6 +72,7 @@ TEST(MySqlDBConnector, CorrectConnection) {
   myConf->clearConfFile("./rtalibconfig");
 
 }
+
 
 TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
 
@@ -134,6 +144,32 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
 
 }
 
+TEST(MySqlDBConnector, SelectRowsTestTable) {
+
+  Config * myConf;
+
+  myConf = Config::getIstance("../../PyRTAlib");
+
+  string m_password = myConf->file["MySql"]["password"].getString();
+
+  string r_password = myConf->file["Redis"]["password"].getString();
+
+  myConf->deleteInstance();
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
+  DBConnector * mySqlDBTest = new MySqlDBConnector(".");
+
+  mySqlDBTest->connect();
+
+  EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
+
+  myConf->deleteInstance();
+
+  myConf->clearConfFile("./rtalibconfig");
+
+}
+
 TEST(MySqlDBConnector, WriteWrongTable) {
 
   Config * myConf;
@@ -197,6 +233,16 @@ TEST(MySqlDBConnector, InsertDataSuccefully) {
   myConf->clearConfFile("./rtalibconfig");
 
 }
+
+
+/*
+ ==================================
+*                                 *
+*         REDIS TEST CASE         *
+*                                 *
+ ==================================
+*/
+
 
 TEST(RedisDBConnector, CorrectConnection) {
 
@@ -340,6 +386,63 @@ TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
   myConf->clearConfFile("./rtalibconfig");
 
 }
+
+/*
+ ==================================
+*                                 *
+*       RTA_DL_DB TEST CASE       *
+*                                 *
+ ==================================
+*/
+
+TEST(RTA_DL_DB, waitAndCloseMysqlTest) {
+
+  Config * myConf;
+
+  myConf = Config::getIstance("../../PyRTAlib");
+
+  string m_password = myConf->file["MySql"]["password"].getString();
+
+  string r_password = myConf->file["Redis"]["password"].getString();
+
+  myConf->deleteInstance();
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
+  RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB("mysql", ".");
+
+  EXPECT_TRUE( rtaTestDb->waitAndClose() );
+
+  myConf->deleteInstance();
+
+  myConf->clearConfFile("./rtalibconfig");
+
+}
+
+TEST(RTA_DL_DB, waitAndCloseRedisTest) {
+
+  Config * myConf;
+
+  myConf = Config::getIstance("../../PyRTAlib");
+
+  string m_password = myConf->file["MySql"]["password"].getString();
+
+  string r_password = myConf->file["Redis"]["password"].getString();
+
+  myConf->deleteInstance();
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
+  RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB("redis-basic", ".");
+
+  EXPECT_TRUE( rtaTestDb->waitAndClose() );
+
+  myConf->deleteInstance();
+
+  myConf->clearConfFile("./rtalibconfig");
+
+}
+
 
 void writeConfFile( Config * myConf,
                     string modelname,

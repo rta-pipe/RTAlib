@@ -44,30 +44,30 @@ public:
                                                               };
   bool connect();
   bool disconnect();
-  int testConnection();
   bool insertData(string modelName, map < string, string > args);
 
   string buildQuery(string modelName, int batchsize, map <string,string> args);
   bool streamingInsert(string query);
-  // bool executeQuery(string query);
+  bool executeQuery(string query);
   bool batchInsert(string query, int batchsize);
 
   sql::Driver *driver;
   sql::Connection *con;
   //boost::shared_ptr <sql::Connection> con;
   int commandsSent = 0;
-  bool inserted;
+  bool inserted = false;
   int insertDataCall = 0;
   int strTrCall = 0;
   int commitCall = 0;
   int flagTransaction = 0;
+  int batchsize = 0;
 
   string hostname;
   string username;
   string password;
   string database;
   string modelName;
-  int batchsize;
+
 
 
 };

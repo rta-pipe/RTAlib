@@ -1,6 +1,5 @@
 /*
  ==========================================================================
-
  Copyright (C) 2018 Giancarlo Zollino
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -49,15 +48,35 @@ int connection(const char *hostname, const char * password,const char * database
 
   reply = redisCommand(c,"AUTH %s", password);
 
-  printf("AUTH: %s\n", reply->str);
+  int checkPwd = strcmp(reply->str,"OK");
+
+  #ifdef DEBUG
+  printf("database: %s\n",database);
+  #endif
 
   reply = redisCommand(c,"select %s",database);
 
+  #ifdef DEBUG
   printf("SELECT: %s\n", reply->str);
+  #endif
+
+  if(checkPwd == 0 ){
+
+     #ifdef DEBUG
+     printf("AUTH: %s\n", reply->str);
+     #endif
+
+     return 0;
+
+  }else{
+
+     printf("AUTH: %s\n", reply->str);
+
+     return -1;
+
+   }
 
   freeReplyObject(reply);
-
-  return 0;
 
 }
 
@@ -65,25 +84,10 @@ int close_connection() {
 
   reply = redisCommand(c, "EXEC");
 
-  if(reply->str != NULL) {
-
-    printf("EXEC: %s\n", reply->str);
-
-    freeReplyObject(reply);
-
-    return -1;
-
-  } else {
-
-    freeReplyObject(reply);
-
-    return 0;
-
-  }
-
   /* Disconnects and frees the context */
   redisFree(c);
 
+  return 0;
 
 }
 
@@ -142,7 +146,6 @@ int batchInsert_c(const char * modelName, const char * score, const char * query
 
   }
 
-  // freeReplyObject(reply);
   return rc_commandsSent;
 
 }

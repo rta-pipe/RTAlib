@@ -19,17 +19,31 @@
 
 bool RedisDBConnector::connect(){
 
+  #ifdef DEBUG
   cout << "REDISDBCONNECTOR CONNECT" << endl;
+  #endif
 
   int dp = indexon.find(":");
   indexon_clean = indexon.substr(dp+1,indexon.size());
 
+  #ifdef DEBUG
   cout << "Hostname: " << hostname << endl;
   cout << "Database: " << database << endl;
   cout << "Batchsize: " << batchsize << endl;
   cout << "Indexon: " << indexon << endl;
+  cout << "indexon_clean: " << indexon_clean << endl;
+  #endif
 
-  connection(hostname.c_str(),password.c_str(),database.c_str());
+  if( connection(hostname.c_str(),password.c_str(),database.c_str()) == 0 ) {
+
+    return true;
+
+  }else{
+
+    return false;
+
+  }
+
 }
 
 bool RedisDBConnector :: disconnect(){
@@ -67,22 +81,39 @@ bool RedisDBConnector :: insertData(string modelname, map < string, string > arg
 
   if( batchsize == 1){
 
-    commandsSent = streamingInsert(query);
+    // commandsSent = streamingInsert(query);
+    inserted = streamingInsert(query);
+
+    #ifdef DEBUG
+    cout << "inserted value INSERT DATA FUNCTION: " << inserted << endl;
+    #endif
 
   }else if(batchsize > 1){
 
     flagTransaction = 1;
 
-    commandsSent = batchInsert(query, batchsize);
+    // commandsSent = batchInsert(query, batchsize);
+     inserted = batchInsert(query, batchsize);
 
   }else{
     cout << "[RedisConnector] Error, self.conn is None" << endl;
     return EXIT_FAILURE;
   }
 
+  #ifdef DEBUG
   cout << "Command sent: " << commandsSent << " Insert data call: " << insertDataCall << endl;
+  #endif
 
-  return insertDataCall;
+  if(inserted== true) {
+
+    return true;
+
+  }else{
+
+    return false;
+
+  }
+  // return insertDataCall;
 
 }
 
@@ -95,7 +126,9 @@ int RedisDBConnector :: streamingInsert(string query){
 
   commandsSent = streamingInsert_c(modelName.c_str(), score.c_str(), query.c_str());
 
-  cout << "RedisDBConnector CXX: " << commandsSent << endl;
+  #ifdef DEBUG
+  cout << "RedisDBConnector CXX streaming commandsSent: " << commandsSent << endl;
+  #endif
 
   return commandsSent;
 
@@ -110,7 +143,9 @@ int RedisDBConnector :: batchInsert(string query, int batchsize){
 
   commandsSent = batchInsert_c(modelName.c_str(), score.c_str(),query.c_str(),batchsize);
 
-  cout << "RedisDBConnector CXX: " << commandsSent << endl;
+  #ifdef DEBUG
+  cout << "RedisDBConnector CXX batch commandsSent: " << commandsSent << endl;
+  #endif
 
   return commandsSent;
 
@@ -139,9 +174,33 @@ string RedisDBConnector :: buildQuery(string modelName, int batchsize, map <stri
 
   int q = queryH.find(":", p);
 
-  score = queryH.substr(q+2,queryH.size()-1);
+  int e = queryH.find("}", q);
+
+  if ( e == -1) {
+
+    e = queryH.find(",", q);
+
+  }
+
+  score = queryH.substr(q+2, e-q-2);//queryH.size()-1
+
+  #ifdef DEBUG
+  cout << "p value: " << p << endl;
+  cout << "q value: " << q << endl;
+  cout << "e value: " << e << endl;
+  cout << "len: " << e-q << endl;
+  cout << "Score: " << score << endl;
+  #endif
 
   queryH += "}'";
+
+  #ifdef DEBUG
+  cout << queryH << endl;
+  #endif
+
+  #ifdef DEBUG
+  cout << "Querie construct!" << endl;
+  #endif
 
 
   return queryH;

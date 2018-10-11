@@ -24,7 +24,7 @@
 
 class RedisDBConnector : public DBConnector {
 public:
-  RedisDBConnector(string filepath="") : DBConnector( filepath ){ cout << "RedisDBConnector" << endl;
+  RedisDBConnector(string filepath="") : DBConnector( filepath ){ //cout << "RedisDBConnector" << endl;
                                                                   hostname = config->file["Redis"]["host"].getString();
                                                                   username = config->file["Redis"]["username"].getString();
                                                                   password = config->file["Redis"]["password"].getString();
@@ -48,6 +48,7 @@ public:
   int strTrCall = 0;
   int commitCall = 0;
   int flagTransaction = 0;
+  bool inserted;
 
   string hostname;
   string username;

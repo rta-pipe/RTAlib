@@ -1,6 +1,5 @@
 #!/bin/sh
 
-export RTACONFIGFILE=/home/zollino/development/working/RTAlib/PyRTAlib
 export MYSQL_CXX_CNT=/home/zollino/mysql-connector-cpp-install/
 export BOOST_PATH=/home/zollino/boost_1_67_0
 export REDIS=/home/zollino/hiredis

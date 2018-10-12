@@ -30,28 +30,16 @@ RTA_DL_DB :: RTA_DL_DB(string database, string configFilePath){
 
   config = Config::getIstance(configFilePath);
 
-  numberofthreads = config->file["General"]["numberofthreads"].getInt();
 
-  if( numberofthreads == 1 ) {
+  // Synchronous (master thread) execution
+  dbConnector = getConnector(database, configFilePath);
 
-    // Synchronous (master thread) execution
-    dbConnector = getConnector(database, configFilePath);
+  if( dbConnector->connect() == false ) {
 
-    dbConnector->connect();
+    cout << "CXX_RTA_DL_X_DB Connection Error!" << endl;
 
-  }else if( numberofthreads > 1) {
+    exit(EXIT_FAILURE);
 
-    // Multi threading mode
-    Buffer * buffer = new Buffer("rta_dl_bugger",1000);
-
-    //Running the threads. Each thread has its own db connector.
-    // self.threads = []
-    //       for i in range(self.config.get('General','numberofthreads', 'int')):
-    //
-    //           dbConnector = self.getConnector(database, configFilePath)
-    //           t = threading.Thread(target=self.consumeQueue, args=(i, dbConnector))
-    //           self.threads.append(t)
-    //           t.start()
   }
 
 
@@ -119,12 +107,20 @@ int RTA_DL_DB :: _insertEvent( EVTTest & event) {
 
 }
 
-int RTA_DL_DB :: waitAndClose() {
+bool RTA_DL_DB :: waitAndClose() {
 
   #ifdef DEBUG
   cout << "waitAndClose" << endl;
   #endif
 
-  return dbConnector->disconnect();
+  if ( dbConnector->disconnect() == true ) {
+
+    return true;
+
+  }else {
+
+    return false;
+
+  }
 
 }

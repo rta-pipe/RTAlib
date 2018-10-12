@@ -23,7 +23,7 @@
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>
 
-#include"RTA_DLTEST_DB.hpp"
+#include "RTA_DLTEST_DB.hpp"
 
 const char* startString = {
 "################################################################\n"
@@ -42,11 +42,32 @@ int main(int argc, char *argv[]) {
   /* initialize random seed: */
   srand (time(NULL));
 
+  if( argc != 4 ) {
+
+    cout << "Error: wrong input number." << "\n" <<
+            " * Database: mysql or redis-basic" << "\n" <<
+            " * Configuration file path: ../PyRTAlib/rtalibconfig" << "\n" <<
+            " * Size: event number to simulate" << "\n" << endl;
+
+    cout << endString << endl;
+
+    exit(EXIT_FAILURE);
+
+  }
+
   string database = argv[1];
 
   string configFilePath = argv[2];
 
   int size = atoi(argv[3]);
+
+  if( size <= 0 ) {
+
+    cout << "Error: event numer to simulate MUST BE grater than 0" << endl;
+
+    exit(EXIT_FAILURE);
+
+  }
 
   int count = 0;
 
@@ -87,21 +108,21 @@ int main(int argc, char *argv[]) {
 
     map < string, string > currentEvent = *it;
 
-    count = rtaTestDb->insertEvent( currentEvent["eventidfits"],
-                                    currentEvent["timerealtt"],
-                                    currentEvent["ra_deg"],
-                                    currentEvent["dec_deg"],
-                                    currentEvent["energy"],
-                                    currentEvent["detx"],
-                                    currentEvent["dety"],
-                                    currentEvent["observationid"],
-                                    currentEvent["datarepositoryid"],
-                                    currentEvent["mcid"],
-                                    currentEvent["insert_time"],
-                                    currentEvent["status"] );
+    count += rtaTestDb->insertEvent( currentEvent["eventidfits"],
+                            currentEvent["timerealtt"],
+                            currentEvent["ra_deg"],
+                            currentEvent["dec_deg"],
+                            currentEvent["energy"],
+                            currentEvent["detx"],
+                            currentEvent["dety"],
+                            currentEvent["observationid"],
+                            currentEvent["datarepositoryid"],
+                            currentEvent["mcid"],
+                            currentEvent["insert_time"],
+                            currentEvent["status"] );
   }
 
-  cout << "\nEvents inserted correctly."<< endl;
+  cout << "\n"<< count <<" events inserted correctly."<< endl;
 
   rtaTestDb->waitAndClose();
 

@@ -23,13 +23,17 @@ Config* Config::_instance = 0;
 Config::Config(string filepath){
 
   char* pPath;
+
   pPath = getenv("RTACONFIGFILE");
+
   if (pPath!=NULL){
 
     filepath = pPath;
 
   }else if(filepath==""){
+
     cout << "[Config] Cant configure. Neither the filepath parameter or the RTACONFIGFILE environment variable have been provided." << endl;
+
   }
 
   filepath += "/rtalibconfig";
@@ -40,9 +44,15 @@ Config::Config(string filepath){
 
   // try loading file
   try {
+
     file = IniParser::load(filepath);
+
   } catch (IniParser::ParserException e) {
+
     std::cerr << "Error while loading file!\n";
+
+    exit(EXIT_FAILURE);
+
   }
 
 }
@@ -50,6 +60,7 @@ Config::Config(string filepath){
 void Config :: deleteInstance() {
 
   delete _instance;
+
   _instance = 0;
 
 }
@@ -80,18 +91,13 @@ int Config :: setSection(string filepath, string sectionName, vector < map <stri
 
         for(map < string, string >::iterator map_it=currentEntry.begin(); map_it!=currentEntry.end(); ++map_it ) {
 
-          // cout << map_it->first << " " << map_it->second << endl;
-
           string key = map_it->first;
 
           string value = map_it->second;
 
           IniEntry entry(key, value);
 
-
           section.insert(entry);
-
-
 
         }
 
@@ -104,14 +110,15 @@ int Config :: setSection(string filepath, string sectionName, vector < map <stri
 int Config :: setConfFile(string filepath) {
 
   try{
-  IniParser::store(inifile, filepath, INI_UTF8_MODE_ALLOW, '=', ';');
 
+  IniParser::store(inifile, filepath, INI_UTF8_MODE_ALLOW, '=', ';');
 
   }catch(IniParser::ParserException e) {
 
     std::cerr << "Error while loading file!\n";
 
   }
+
 }
 
 void Config :: clearConfFile(string filepath) {

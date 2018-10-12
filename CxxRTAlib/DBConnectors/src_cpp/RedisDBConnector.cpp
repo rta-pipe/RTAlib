@@ -50,7 +50,9 @@ bool RedisDBConnector :: disconnect(){
 
   if (close_connection() == 0) {
 
+    #ifdef DEBUG
     cout << "REDISDBCONNECTOR DISCONNECT" << endl;
+    #endif
 
     return true;
 
@@ -63,9 +65,6 @@ bool RedisDBConnector :: disconnect(){
 
 }
 
-int RedisDBConnector :: testConnection(){
-
-}
 
 bool RedisDBConnector :: insertData(string modelname, map < string, string > args){
 

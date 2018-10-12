@@ -32,7 +32,13 @@ RTA_DL_DB :: RTA_DL_DB(string database, string configFilePath){
 
   // Synchronous (master thread) execution
   dbConnector = getConnector(database, configFilePath);
-  dbConnector->connect();
+
+  if( dbConnector->connect() == false ) {
+
+    cout << "CXX_RTA_DL_X_DB Connection Error!" << endl;
+
+    exit(EXIT_FAILURE);
+  }
 
 
 }
@@ -93,12 +99,20 @@ int RTA_DL_DB :: _insertEvent( EVTTest & event) {
 
 }
 
-int RTA_DL_DB :: waitAndClose() {
+bool RTA_DL_DB :: waitAndClose() {
 
   #ifdef DEBUG
   cout << "waitAndClose" << endl;
   #endif
 
-  return dbConnector->disconnect();
+  if ( dbConnector->disconnect() == true ) {
+
+    return true;
+
+  }else {
+
+    return false;
+
+  }
 
 }

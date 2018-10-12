@@ -24,7 +24,7 @@
 #include "DBConnector.hpp"
 #include "MySqlDBConnector.hpp"
 #include "RedisDBConnector.hpp"
-
+#include "Buffer.hpp"
 #include "EVTTest.hpp"
 
 using std::cout;
@@ -42,6 +42,8 @@ public:
   DBConnector * dbConnector;
 
   Config * config;
+
+  int numberofthreads = 0;
 
 };
 

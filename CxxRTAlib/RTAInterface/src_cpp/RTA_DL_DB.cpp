@@ -30,9 +30,29 @@ RTA_DL_DB :: RTA_DL_DB(string database, string configFilePath){
 
   config = Config::getIstance(configFilePath);
 
-  // Synchronous (master thread) execution
-  dbConnector = getConnector(database, configFilePath);
-  dbConnector->connect();
+  numberofthreads = config->file["General"]["numberofthreads"].getInt();
+
+  if( numberofthreads == 1 ) {
+
+    // Synchronous (master thread) execution
+    dbConnector = getConnector(database, configFilePath);
+
+    dbConnector->connect();
+
+  }else if( numberofthreads > 1) {
+
+    // Multi threading mode
+    Buffer * buffer = new Buffer("rta_dl_bugger",1000);
+
+    //Running the threads. Each thread has its own db connector.
+    // self.threads = []
+    //       for i in range(self.config.get('General','numberofthreads', 'int')):
+    //
+    //           dbConnector = self.getConnector(database, configFilePath)
+    //           t = threading.Thread(target=self.consumeQueue, args=(i, dbConnector))
+    //           self.threads.append(t)
+    //           t.start()
+  }
 
 
 }
@@ -82,12 +102,18 @@ int RTA_DL_DB :: _insertEvent( EVTTest & event) {
   // Transform data for visualization and notify GUIs
   //  TODO
 
-  // Multi threading mode
-  //  TODO
+  if( numberofthreads == 1 ) {
+
+    // Synchronous (master thread)
+    return dbConnector->insertData(modelname, eventData);
+
+  }else if( numberofthreads >1 ){
+
+    // Multi threading mode
+    //  TODO
+  }
 
 
-  // Synchronous (master thread)
-  return dbConnector->insertData(modelname, eventData);
 
 
 

@@ -88,17 +88,17 @@ int main(int argc, char *argv[]) {
     map < string, string > currentEvent = *it;
 
     count = rtaTestDb->insertEvent( currentEvent["eventidfits"],
-                            currentEvent["timerealtt"],
-                            currentEvent["ra_deg"],
-                            currentEvent["dec_deg"],
-                            currentEvent["energy"],
-                            currentEvent["detx"],
-                            currentEvent["dety"],
-                            currentEvent["observationid"],
-                            currentEvent["datarepositoryid"],
-                            currentEvent["mcid"],
-                            currentEvent["insert_time"],
-                            currentEvent["status"] );
+                                    currentEvent["timerealtt"],
+                                    currentEvent["ra_deg"],
+                                    currentEvent["dec_deg"],
+                                    currentEvent["energy"],
+                                    currentEvent["detx"],
+                                    currentEvent["dety"],
+                                    currentEvent["observationid"],
+                                    currentEvent["datarepositoryid"],
+                                    currentEvent["mcid"],
+                                    currentEvent["insert_time"],
+                                    currentEvent["status"] );
   }
 
   cout << "\nEvents inserted correctly."<< endl;

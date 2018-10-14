@@ -7,7 +7,7 @@ jobs:
   build:
     working_directory: ~/rtalib-circleci-testing
     docker:
-      - image: circleci/python:3.6.6         # primary container
+      - image: circleci/python:3.6.6
         environment:
           PIPENV_VENV_IN_PROJECT: true
           DATABASE_URL: mysql://root@localhost/rtalib_test_db
@@ -24,8 +24,8 @@ jobs:
             sudo pip install pipenv
             pipenv install
      - run:
-       command: |
-        echo "Test!!"
+          command: |
+            echo "Test!!"
 
       
           

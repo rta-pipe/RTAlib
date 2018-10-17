@@ -15,16 +15,38 @@
  ==========================================================================
 */
 
+#ifndef THREAD_STATISTICS_H
+#define THREAD_STATISTICS_H
 
-#include "DBConnector.hpp"
+#include <utility>      // std::pair
+#include <cstdio>
+#include <ctime>
+#include <iostream>
 
-DBConnector::DBConnector(string filepath){
 
-  config = Config::getIstance(filepath);
 
-}
+using std::pair;
+using std::cout;
+using std::endl;
 
-bool DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
-bool DBConnector :: disconnect(){}
-bool DBConnector :: executeQuery(string query){}
-bool DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}
+class ThreadStatistic {
+  public:
+    ThreadStatistic(int tid) : startTime(0), endTime(0), insertedEvents(0), thread_id(tid) {}
+    std::clock_t startTime;
+    std::clock_t endTime;
+    int insertedEvents;
+    int thread_id;
+
+    // Total events , Execution time
+    void printThreadId();
+    void start();
+    void finish();
+    void addEvent();
+
+    pair<int,double >& getStatistics();
+
+};
+
+
+
+#endif

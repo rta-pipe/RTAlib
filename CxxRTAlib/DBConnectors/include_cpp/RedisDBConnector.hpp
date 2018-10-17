@@ -24,15 +24,26 @@
 
 class RedisDBConnector : public DBConnector {
 public:
-  RedisDBConnector(string filepath="") : DBConnector( filepath ){ //cout << "RedisDBConnector" << endl;
-                                                                  hostname = config->file["Redis"]["host"].getString();
-                                                                  username = config->file["Redis"]["username"].getString();
-                                                                  password = config->file["Redis"]["password"].getString();
-                                                                  database = config->file["Redis"]["dbname"].getString();
-                                                                  indexon = config->file["Redis"]["indexon"].getString();
-                                                                  modelName = config->file["General"]["modelname"].getString();
-                                                                  batchsize = config->file["General"]["batchsize"].getInt();
-                                                                 };
+  RedisDBConnector(int id,string filepath="") : DBConnector(filepath ){ //cout << "RedisDBConnector" << endl;
+                                                                            cout << "[RedisDBConnector] idConnector: " << id << endl;
+                                                                            idConnector = id;
+
+                                                                            commandsSent = 0;
+                                                                            insertDataCall = 0;
+                                                                            strTrCall = 0;
+                                                                            commitCall = 0;
+                                                                            flagTransaction = 0;
+                                                                            inserted = false;
+                                                                            batchsize = 0;
+
+                                                                            hostname = config->file["Redis"]["host"].getString();
+                                                                            username = config->file["Redis"]["username"].getString();
+                                                                            password = config->file["Redis"]["password"].getString();
+                                                                            database = config->file["Redis"]["dbname"].getString();
+                                                                            indexon = config->file["Redis"]["indexon"].getString();
+                                                                            modelName = config->file["General"]["modelname"].getString();
+                                                                            batchsize = config->file["General"]["batchsize"].getInt();
+                                                                           };
   virtual bool connect();
   virtual bool disconnect();
   virtual bool insertData(string modelname, map < string, string > args);
@@ -41,14 +52,14 @@ public:
   int streamingInsert(string query);
   int batchInsert(string query, int batchsize);
 
-
-  int commandsSent = 0;
-  int insertDataCall = 0;
-  int strTrCall = 0;
-  int commitCall = 0;
-  int flagTransaction = 0;
-  bool inserted = false;
-  int batchsize = 0;
+  int idConnector;
+  int commandsSent;
+  int insertDataCall;
+  int strTrCall;
+  int commitCall;
+  int flagTransaction;
+  bool inserted;
+  int batchsize;
 
   string hostname;
   string username;

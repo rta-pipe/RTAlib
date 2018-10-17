@@ -18,14 +18,10 @@
 #ifndef RTA_DL_DB_H
 #define RTA_DL_DB_H
 
-#include<iostream>
 
-#include "Config.hpp"
-#include "DBConnector.hpp"
 #include "MySqlDBConnector.hpp"
 #include "RedisDBConnector.hpp"
-#include "Buffer.hpp"
-#include "EVTTest.hpp"
+#include "RTAThread.hpp"
 
 using std::cout;
 using std::endl;
@@ -35,15 +31,22 @@ class RTA_DL_DB {
 public:
 
   RTA_DL_DB(string database, string configFilePath = "");
-  DBConnector * getConnector(string databaseEngine, string configFilePath);
-  int _insertEvent(EVTTest & event);
-  bool waitAndClose();
 
   DBConnector * dbConnector;
-
   Config * config;
+  CTABuffer * eventBuffer;
+
 
   int numberofthreads = 0;
+  string modelname;
+
+  std::vector<Thread*> thread_array;
+  std::vector<ThreadStatistic*> thread_statistics_array;
+
+  void start();
+  DBConnector * getConnector(int id,string databaseEngine, string configFilePath);
+  int _insertEvent(EVTbase *event);
+  bool waitAndClose();
 
 };
 

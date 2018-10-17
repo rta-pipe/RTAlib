@@ -24,12 +24,7 @@ class EVTTest : public EVTbase {
 
 public:
 
-  EVTTest(string eventidfits, string timerealtt,string ra_deg, string dec_deg, string energy, string detx, string dety,  string observationid, string datarepositoryid, string mcid, string insert_time, string status) : EVTbase() {
-  // EVTTest(map <string, string> eventFields) : EVTbase() {
-
-    #ifdef DEBUG
-    cout << "EvtTest" << endl;
-    #endif
+  EVTTest(bool last=false, string eventidfits="", string timerealtt="" ,string ra_deg="", string dec_deg="", string energy="", string detx="", string dety="",  string observationid="", string datarepositoryid="", string mcid="", string insert_time="", string status="") : EVTbase(last) {
 
     eventData["eventidfits"] = eventidfits;
     eventData["timerealtt"] = timerealtt;

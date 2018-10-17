@@ -15,60 +15,44 @@
  ==========================================================================
 */
 
-#ifndef BUFFER_H
-#define BUFFER_H
+#ifndef RTA_THREAD_H
+#define RTA_THREAD_H
 
-#include <pthread.h>
-#include <semaphore.h>
-#include <string>
 #include <iostream>
-#include <fcntl.h>
-
+ 
 #include "EVTbase.hpp"
+#include "DBConnector.hpp"
+#include "ThreadStatistic.hpp"
 
-using std:: string;
+#include "Thread.h"
+#include "CTABuffer.h"
 
 
-class Buffer {
+using CTAUtils :: Thread;
+using CTAAlgorithm::CTABuffer;
 
-  private:
+using std::cout;
+using std::endl;
 
-    EVTbase ** buffer;
-    int fill;
-    int use;
-    int circularBuffer;
-    sem_t* empty;
-    sem_t* full;
-    pthread_mutex_t mutex;
-    std::string semname1;
-    std::string semname2;
-
-    std::string _name;
-
-    int size;
-
+class RTAThread : public Thread{
 public:
+	RTAThread(int idThread, string _modelname, DBConnector *_dbConnector, CTABuffer *buff, ThreadStatistic * threadStatistic) : Thread(){
+		cout << "RTAThread Constructor" << endl;
+		cout << "[RTAThread] threadStatistic for thread id: " << threadStatistic->thread_id << endl;
+		modelname = _modelname;
+		dbConnector = _dbConnector;
+		eventBuffer = buff;
+		id = idThread;
+		totalEvents = 0;
+	}
+	void *run();
+	int id;
+	int totalEvents;
+	string modelname;
 
-  Buffer(string name, int size);
-  ~Buffer();
-  ///Put data into local buffer
-  ///The call is blocking if the buffer is full. Test it before with isFull()
-  void put(EVTbase* data);
-
-  ///get processed data from buffer
-  ///The call is blocking if the buffer is empty.
-  EVTbase* get();
-
-  std::string getName() {
-    return _name;
-  }
-
-  int getBufferSize();
-
-  bool isFull();
-
-  EVTbase* getNextCircularBuffer();
-
+	DBConnector * dbConnector;
+	CTABuffer * eventBuffer;
+	ThreadStatistic * threadStatistic;
 
 };
 

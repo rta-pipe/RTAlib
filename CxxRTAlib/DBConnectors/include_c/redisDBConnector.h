@@ -25,19 +25,22 @@ extern "C" {
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "hiredis.h"
 #include "errno.h"
 
-int connection(const char *hostname, const char * password, const char * database);
+bool connection(int idConnector,const char *hostname, const char * password, const char * database);
 
-int close_connection();
+bool checkRedisReply(redisReply * r, int idConnector, char* functionCalling);
 
-int insertData();
+bool close_connection(int idConnector);
 
-int streamingInsert_c(const char* modelName, const char* score, const char* query);
+int insertData(int idConnector);
 
-int batchInsert_c(const char * modelName, const char * score, const char * query, int batchsize);
+bool streamingInsert_c(int idConnector,const char* modelName, const char* score, const char* query);
+
+int batchInsert_c(int idConnector,const char * modelName, const char * score, const char * query, int batchsize);
 
 
 #ifdef __cplusplus

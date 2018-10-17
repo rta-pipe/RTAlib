@@ -22,28 +22,24 @@
 bool MySqlDBConnector::connect(){
 
   #ifdef DEBUG
-  cout << "Hostname: " << hostname << endl;
-  cout << "Database: " << database << endl;
-  cout << "Modelname: " << modelName << endl;
-  cout << "Batchsize: " << batchsize << endl;
-  cout << "Password: " << password << endl;
+  cout << "[MySqlDBConnector "<<  idConnector <<"] Connecting.." << endl;
   #endif
 
-  try {
+  // #ifdef DEBUG
+  // cout << "Hostname connect: " << hostname << endl;
+  // cout << "Database connect: " << database << endl;
+  // cout << "Modelname connect: " << modelName << endl;
+  // cout << "Batchsize connect: " << batchsize << endl;
+  // cout << "Password connect: " << password << endl;
+  // #endif
 
+  try {
+    // std::lock_guard<std::mutex> lock(mut);
     driver = sql::mysql::get_driver_instance();
 
     /* Using the Driver to create a connection */
     con = driver->connect (hostname, username, password); // connect to mysql
-
     con->setSchema(database);
-
-    #ifdef DEBUG
-    cout << "Connection ok!"<< endl;
-    #endif
-
-
-
 
   } catch (sql::SQLException &e) {
     /*
@@ -60,6 +56,8 @@ bool MySqlDBConnector::connect(){
     cout << " (MySQL error code: " << e.getErrorCode();
     cout << ", SQLState: " << e.getSQLState() << " )" << endl;
 
+    cout << "[MySqlDBConnector "<<  idConnector <<"] Connection FAILED!" << endl;
+
     return false;
   } catch (std::runtime_error &e) {
 
@@ -68,8 +66,14 @@ bool MySqlDBConnector::connect(){
     cout << "# ERR: " << e.what() << endl;
     cout << "not ok 1 - examples/connect.php" << endl;
 
+    cout << "[MySqlDBConnector "<<  idConnector <<"] Connection FAILED!" << endl;
+
     return false;
   }
+
+  #ifdef DEBUG
+  cout << "[MySqlDBConnector "<<  idConnector <<"] Connected" << endl;
+  #endif
 
   return true;
 
@@ -81,35 +85,37 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
 
   insertDataCall ++;
 
-  #ifdef DEBUG
-  cout << "INSERT DATA FUNCTION" << endl;
-  cout << "Batchsize: " << batchsize << endl;
-  cout << "Modelname: " << modelName << endl;
-  #endif
+  // #ifdef DEBUG
+  cout << "[MySqlDBConnector "<<  idConnector <<"] Insert data()" << endl;
+  // cout << "Batchsize: " << batchsize << endl;
+  // cout << "Modelname: " << modelName << endl;
+  // #endif
 
-  string query = buildQuery(modelName, batchsize, args);
+  string query = buildQuery( modelName, batchsize, args);
 
   if( batchsize == 1){
 
-    inserted = streamingInsert(query);
+    inserted = streamingInsert( query);
 
-    #ifdef DEBUG
-    cout << "inserted value INSERT DATA FUNCTION: " << inserted << endl;
-    #endif
+    if(inserted==true) {
+      cout << "\n[MySqlDBConnector " <<idConnector << "] event iserted." << endl;
+    } else {
+      cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted." << endl;
+    }
 
   }else if(batchsize > 1){
 
     flagTransaction = 1;
 
-    inserted = batchInsert(query, batchsize);
+    inserted = batchInsert( query, batchsize);
 
   }else{
-    cout << "[MySqlConnector] Error, self.conn is None" << endl;
+    cout << "[MySqlConnector " <<idConnector << "] Error, self.conn is None" << endl;
     return EXIT_FAILURE;
   }
 
   #ifdef DEBUG
-  cout << "Command sent: " << commandsSent << " Insert data call: " << insertDataCall << endl;
+  cout << "[MySqlDBConnector  " <<idConnector << "] Command sent: " << commandsSent << " Insert data call: " << insertDataCall << endl;
   #endif
 
 
@@ -130,7 +136,7 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
 bool MySqlDBConnector::streamingInsert(string query) {
 
   #ifdef DEBUG
-  cout << "[MySqlConnector] Streaming insert.." << endl;
+    cout << "[MySqlDBConnector "<<  idConnector <<"] streaming Insert() " << endl;
   cout << query << endl;
   #endif
 
@@ -200,6 +206,10 @@ bool MySqlDBConnector::streamingInsert(string query) {
 
 
 bool MySqlDBConnector::batchInsert(string query, int batchsize) {
+
+  #ifdef DEBUG
+  cout << "[MySqlConnector  " <<idConnector << "] batchInsert()" << endl;
+  #endif
 
   boost::scoped_ptr< sql::Statement > stmt(con->createStatement());
 
@@ -281,7 +291,7 @@ bool MySqlDBConnector::batchInsert(string query, int batchsize) {
 
       commitCall++;
 
-      batchInsert(query,batchsize);
+      batchInsert( query,batchsize);
 
     }catch(sql::SQLException &e){
 
@@ -296,7 +306,7 @@ bool MySqlDBConnector::batchInsert(string query, int batchsize) {
 
 
   #ifdef DEBUG
-  cout << "commandsSent:" << commandsSent << endl;
+  cout << "[MySqlConnector  " <<idConnector << "] CXX batch commandsSent:" << commandsSent << endl;
   #endif
 
   return true;
@@ -304,11 +314,6 @@ bool MySqlDBConnector::batchInsert(string query, int batchsize) {
 }
 
 string MySqlDBConnector::buildQuery(string modelName, int batchsize, map <string,string> args) {
-
-  #ifdef DEBUG
-  cout << "BUILDQUERY FUNCTION" << endl;
-  cout <<"Tablename: " << modelName << endl;
-  #endif
 
   string query;
 
@@ -331,11 +336,6 @@ string MySqlDBConnector::buildQuery(string modelName, int batchsize, map <string
 
   query = queryS + queryH + queryV;
 
-  #ifdef DEBUG
-  cout << query << endl;
-  cout << "Querie construct!" << endl;
-  #endif
-
   return query;
 
 }
@@ -355,8 +355,8 @@ bool MySqlDBConnector::disconnect(){
           commandsSent=0;
 
           #ifdef DEBUG
-          cout << "Start transaction called " << strTrCall << " times." << endl;
-          cout << "Commit transaction called " << commitCall << " times." << endl;
+          cout << "[MySqlConnector  " <<idConnector << "] Start transaction called " << strTrCall << " times." << endl;
+          cout << "[MySqlConnector  " <<idConnector << "] Commit transaction called " << commitCall << " times." << endl;
           #endif
 
         }
@@ -366,15 +366,15 @@ bool MySqlDBConnector::disconnect(){
         delete con;
 
         #ifdef DEBUG
-          cout << "Insert data function called " << insertDataCall << " times." << endl;
-          cout << "Disconnected to MySql!" << endl;
+          // cout << "[MySqlConnector  " <<idConnector << "] Insert data function called " << insertDataCall << " times." << endl;
+          cout << "[MySqlConnector  " <<idConnector << "]Disconnected to MySql!" << endl;
         #endif
 
         return true;
 
     }catch(sql::SQLException &e){
 
-        cout << "# ERR: " << e.what() << endl;
+        cout << "[MySqlConnector  " <<idConnector << "] # ERR: " << e.what() << endl;
 
         return false;
 

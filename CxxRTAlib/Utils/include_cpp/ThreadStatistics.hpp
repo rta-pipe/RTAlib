@@ -15,16 +15,27 @@
  ==========================================================================
 */
 
+#ifndef UTILS_THREAD_H
+#define UTILS_THREAD_H
 
-#include "DBConnector.hpp"
+#include <utility>      // std::pair
 
-DBConnector::DBConnector(string filepath){
+class ThreadStatistic {
 
-  config = Config::getIstance(filepath);
+  ThreadStatistic() : startTime(0), endTime(0), insertedEvents(0) {}
+  double startTime;
+  double endTime;
+  int insertedEvents;
 
-}
+  // Total events , Execution time
+  pair<int,double>& getStatistics(){
+    std::pair <int,int> statistics;
+    statistics = std::make_pair (totalEvents,executionTime);
+    return statistics;
+  }
 
-bool DBConnector :: connect(){ cout << "DBConnector connect" << endl; }
-bool DBConnector :: disconnect(){}
-bool DBConnector :: executeQuery(string query){}
-bool DBConnector :: insertData(string modelName, map < string, string > args){ cout << "Insert data DBConnector" << endl;}
+
+
+};
+
+#endif

@@ -34,14 +34,22 @@ using namespace std;
 
 class MySqlDBConnector : public DBConnector {
 public:
-  MySqlDBConnector(string filepath="") : DBConnector(filepath){ //cout << "MySqlDBConnector" << endl;
-                                                                hostname = config->file["MySql"]["host"].getString();
-                                                                username = config->file["MySql"]["username"].getString();
-                                                                password = config->file["MySql"]["password"].getString();
-                                                                database = config->file["MySql"]["dbname"].getString();
-                                                                modelName = config->file["General"]["modelname"].getString();
-                                                                batchsize = config->file["General"]["batchsize"].getInt();
-                                                              };
+  MySqlDBConnector(int id,string filepath="") : DBConnector(filepath){  //cout << "MySqlDBConnector" << endl;
+                                                                            cout << "[MySqlDBConnector] idConnector: " << id << endl;
+                                                                            commandsSent = 0;
+                                                                            inserted = false;
+                                                                            insertDataCall = 0;
+                                                                            strTrCall = 0;
+                                                                            commitCall = 0;
+                                                                            flagTransaction = 0;
+                                                                            batchsize = 0;
+                                                                            hostname = config->file["MySql"]["host"].getString();
+                                                                            username = config->file["MySql"]["username"].getString();
+                                                                            password = config->file["MySql"]["password"].getString();
+                                                                            database = config->file["MySql"]["dbname"].getString();
+                                                                            modelName = config->file["General"]["modelname"].getString();
+                                                                            batchsize = config->file["General"]["batchsize"].getInt();
+                                                                          };
   bool connect();
   bool disconnect();
   bool insertData(string modelName, map < string, string > args);
@@ -53,14 +61,15 @@ public:
 
   sql::Driver *driver;
   sql::Connection *con;
-  //boost::shared_ptr <sql::Connection> con;
-  int commandsSent = 0;
-  bool inserted = false;
-  int insertDataCall = 0;
-  int strTrCall = 0;
-  int commitCall = 0;
-  int flagTransaction = 0;
-  int batchsize = 0;
+
+  int idConnector;
+  int commandsSent;
+  bool inserted;
+  int insertDataCall;
+  int strTrCall;
+  int commitCall;
+  int flagTransaction;
+  int batchsize;
 
   string hostname;
   string username;

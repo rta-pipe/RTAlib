@@ -31,11 +31,11 @@ class MySqlDBConnector(DBConnector):
     SUCCESS_AND_COMMIT = 201
 
 
-    def __init__(self, configFilePath='', connectTo='MySql'):
+    def __init__(self, configFilePath='', connectTo=''):
         super().__init__(configFilePath);
         self.cursor = None
         self.autocommit = False
-        self.whichDB = connectTo
+
 
 
 
@@ -64,23 +64,35 @@ class MySqlDBConnector(DBConnector):
         if self.config.get('General','batchsize', 'int') == 1:
             self.autocommit = True
 
+        connConfig = {}
+        connConfig['user']       = self.config.get('MySql','username')
+        connConfig['host']       = self.config.get('MySql','host')
+        connConfig['database']   = self.config.get('MySql','dbname')
+        connConfig['password']   = self.config.get('MySql','password')
+        connConfig['use_pure']   = False
+        connConfig['autocommit'] = self.autocommit
+
         try:
-            self.conn = mysql.connector.connect(
-                                                    user=self.config.get(self.whichDB,'username'),
-                                                    password=self.config.get(self.whichDB,'password'),
-                                                    host=self.config.get(self.whichDB,'host'),
-                                                    database=self.config.get(self.whichDB,'dbname'),
-                                                    use_pure=False,
-                                                    autocommit=self.autocommit
-                                                )
-            self.cursor = self.conn.cursor()#raw=True)
-            if self.config.get('General','debug') == 'yes':
-                print("[MySqlConnector] Connected to MySql. {}@{} -> {}".format(self.config.get('MySql','username'), self.config.get('MySql','host'), self.config.get('MySql','dbname')))
-            return True
+            self.conn = mysql.connector.connect(**connConfig)
+
         except mysql.connector.Error as err:
             print(err)
             self.conn = None
             return False
+
+        try:
+            self.cursor = self.conn.cursor()#raw=True)
+
+        except mysql.connector.Error as err:
+            print(err)
+            self.conn = None
+            return False
+
+
+        if self.config.get('General','debug') == 'yes':
+            print("[MySqlConnector] Connected to MySql. {}@{} -> {}".format(connConfig['user'], connConfig['host'], connConfig['database']))
+
+        return True
 
     def testConnection(self):
         return self.conn.is_connected()

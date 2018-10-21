@@ -24,10 +24,6 @@ import json
 
 """
 Redis wrapper that exposes a connect/disconnet/insert API.
-
-Redis web-interface:
-    http://agilepipedev.iasfbo.inaf.it/php-redis-admin-interface/?view&s=0&d=0&key=test
-    auth Redis@RTA18#
 """
 
 
@@ -52,12 +48,19 @@ class RedisDBConnectorBASIC(DBConnector):
         True  -- if connection is established
         False -- otherwise
         """
-        self.conn = redis.Redis(
-                                    host=self.config.get('Redis','host'),
-                                    port=6379,
-                                    db=self.config.get('Redis','dbname'),
-                                    password=self.config.get('Redis','password')
-                                )
+
+
+        connConfig = {}
+        connConfig['host']       = self.config.get('Redis','host')
+        connConfig['database']   = self.config.get('Redis','dbname')
+        connConfig['port']       = 6379
+
+        password = self.config.get(self.whichDB,'password')
+        if(password):
+            connConfig['password'] = self.config.get('Redis','password')
+
+        self.conn = redis.Redis( connConfig )
+
         if self.testConnection():
             #self.cacheAllKeyIndexes()
             #self.cacheUniqueIds()

@@ -13,30 +13,56 @@ class Config(metaclass=Singleton):
             self.configs = {}
 
     def get(self, sectionName = '', attributeName = '', cast=''):
+
         if sectionName and attributeName:
-            val = self.configs[sectionName][attributeName]
+
+            if sectionName in self.configs:
+
+                if attributeName in self.configs[sectionName]:
+
+                    val = self.configs[sectionName][attributeName]
+                else:
+                    return False
+            else:
+                return False
+
+
         elif sectionName and not attributeName:
-            val = self.configs[sectionName]
+
+            if sectionName in self.configs:
+
+                val = self.configs[sectionName]
+
+            else:
+                return False
         else:
             val = self.configs
 
+
         if cast=='int':
             return int(val)
+
         elif cast=='float':
             return float(val)
+
         elif cast=='bool':
+
             if val == 'True' or val == True or val == 'yes' or val == 'y':
                 return True
             else:
                 return False
+
         elif cast=='dict':
+
             data = {}
             elements = val.split(',')
+
             for e in elements:
                 kv = e.split(':')
                 key = kv[0]
                 value = kv[1]
                 data[key]=value
+                
             return data
         else:
             return val

@@ -52,14 +52,14 @@ class RedisDBConnectorBASIC(DBConnector):
 
         connConfig = {}
         connConfig['host']       = self.config.get('Redis','host')
-        connConfig['database']   = self.config.get('Redis','dbname')
+        connConfig['db']         = self.config.get('Redis','dbname')
         connConfig['port']       = 6379
 
-        password = self.config.get(self.whichDB,'password')
+        password = self.config.get('Redis','password')
         if(password):
             connConfig['password'] = self.config.get('Redis','password')
 
-        self.conn = redis.Redis( connConfig )
+        self.conn = redis.Redis( **connConfig )
 
         if self.testConnection():
             #self.cacheAllKeyIndexes()

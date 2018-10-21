@@ -73,7 +73,7 @@ class MySqlDBConnector(DBConnector):
         connConfig['autocommit'] = self.autocommit
 
         try:
-            self.conn = mysql.connector.connect(connConfig)
+            self.conn = mysql.connector.connect(**connConfig)
 
         except mysql.connector.Error as err:
             print(err)

@@ -48,7 +48,7 @@ class DTR_DetectionsDataTransformer(DTR_Transformer):
 
         eventData["timerealtt"] = (float(self.config.get('General','mjdref')) - 53005.0) * 86400.0 + float(eventData['t_start_mjd'])
 
-        if float(eventData['sqrtts']) <= 2.9:
+        if float(eventData['sqrtts']) <= 4:
             eventData['isUpperLimit'] = True
             eventData['class'] = 0
             eventData['error_y'] = 0

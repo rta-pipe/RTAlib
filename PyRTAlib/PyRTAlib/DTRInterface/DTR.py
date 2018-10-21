@@ -146,7 +146,7 @@ class DTR():
 
                     # Publish on channel
                     message = {'type': dataType, 'loc': storeLocationKey, 'last_data': transformedData}
-                    self.redisConn.publish(outputChannel, message)
+                    self.redisConn.publish(outputChannel, json.dumps(message))
 
             else:
                 print("-->[DTR thread] Something is wrong..  Type of eventData: {}".format(type(eventData)))

@@ -25,6 +25,7 @@ rootFolder = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(rootFolder+'/PyRTAlib/')
 from PyRTAlib.DTRInterface.DTR import DTR
 from PyRTAlib.DTRInterface.DTR_DetectionsDataTransformer import DTR_DetectionsDataTransformer
+from PyRTAlib.DTRInterface.DTR_CTA_DetectionsDataTransformer import DTR_CTA_DetectionsDataTransformer
 
 
 if __name__ == '__main__':
@@ -39,7 +40,7 @@ if __name__ == '__main__':
 
     dtr = DTR(configFilePath)
 
-    dtr.addTransformer(DTR_DetectionsDataTransformer(configFilePath))
+    dtr.addTransformer(DTR_CTA_DetectionsDataTransformer(configFilePath))
     # dtr.addTransformer(...)
 
     dtr.start()

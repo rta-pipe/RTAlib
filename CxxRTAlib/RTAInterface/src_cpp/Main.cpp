@@ -103,10 +103,13 @@ int main(int argc, char *argv[]) {
 
   }
 
-  auto start = std::chrono::system_clock::now();
 
   RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
+
   sleep(1);
+
+  auto start = std::chrono::system_clock::now();
+
   rtaTestDb->start();
 
   #ifdef DEBUG
@@ -117,7 +120,7 @@ int main(int argc, char *argv[]) {
 
     map < string, string > currentEvent = *it;
 
-    count += rtaTestDb->insertEvent(  currentEvent["eventidfits"],
+    count +=rtaTestDb->insertEvent(  currentEvent["eventidfits"],
                                       currentEvent["timerealtt"],
                                       currentEvent["ra_deg"],
                                       currentEvent["dec_deg"],
@@ -137,7 +140,19 @@ int main(int argc, char *argv[]) {
 
   auto stop = std::chrono::system_clock::now();
 
-  std::chrono::duration<double> diff = stop-start;
+  int numberofthreads = rtaTestDb->getNumberOfThreads();
+
+  std::chrono::duration<double> diff;
+
+  if(numberofthreads>1){
+    std::chrono::duration<double> overhead(0.5*rtaTestDb->getNumberOfThreads());
+
+    diff = stop - start/* - overhead*/; // BE CAREFUL! POSSIBILE BUG ON 0.5 hardcoded value (sleep time of RTA_DL_DB between each thread start)
+
+  }
+  else
+    diff = stop-start;
+
 
   cout << "Tempo impiegato per inserire " << size << " eventi = " << diff.count() << " s" << endl;
 

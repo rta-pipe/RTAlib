@@ -22,22 +22,22 @@
 void *RTAThread::run()  {
 
   // threadStatistic->start();
+  #ifdef DEBUG
   cout <<  "[Thread " << id << "]  Started! " << endl;
-  cout <<  "[Thread " << id << "]  RedisDb connector id: " << ((RedisDBConnector *)dbConnector)->idConnector << endl;
+  #endif
 
-
-  bool con = dbConnector->connect();
-  // #ifdef DEBUG
-  // cout <<  "[Thread " << id << "]  Connected! " << endl;
-  // #endif
+  bool con = dbConnector->connect(mux);
+  #ifdef DEBUG
+  cout <<  "[Thread " << id << "]  Connected! " << endl;
+  #endif
 
   if( !con ) {
-    // #ifdef DEBUG
-    // cout << "[Thread " << id <<"] CXX_RTA_DL_X_DB Connection Error!" << endl;
-    // #endif
 
-    // exit(EXIT_FAILURE);
-      return NULL;
+    #ifdef DEBUG
+    cout << "[Thread " << id <<"] CXX_RTA_DL_X_DB Connection Error!" << endl;
+    #endif
+
+    return NULL;
 
   }else{
     bool running = true;
@@ -53,9 +53,10 @@ void *RTAThread::run()  {
         totalEvents++;
         // threadStatistic->addEvent();
 
-        // #ifdef DEBUG
-        // cout << "[Thread " << id<<"] Inserted!" << endl;
-        // #endif
+
+        #ifdef DEBUG
+        cout << "[Thread " << id<<"] Inserted!" << endl;
+        #endif
       }
       else {
         running = false;
@@ -63,15 +64,14 @@ void *RTAThread::run()  {
     }
 
     dbConnector->disconnect();
-    cout << "[Thread " << id<< "]: totalEvents inserted " << totalEvents << endl;
 
-    #ifdef DEBUG
-    cout << "[Thread " << id<<"] Quitting.." << endl;
-    #endif
+//    #ifdef DEBUG
+    cout << "[Thread " << id<< "]: totalEvents inserted " << totalEvents << endl;
+  //  cout << "[Thread " << id<<"] Quitting.." << endl;
+//    #endif
 
   }
 
-  cout << "[Thread " << id<<"] retuning RUN value.." << endl;
   return NULL;
 
 }

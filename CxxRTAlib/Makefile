@@ -122,7 +122,9 @@ LIBS += -L$(REDIS) -lhiredis
 ifeq ($(DEBUG),1)
 	CXXFLAGS += -DDEBUG
 endif
-
+ifeq ($(VALGRIND),1)
+	CXXFLAGS += -g -O0
+endif
 
 
 AR       = ar cqs

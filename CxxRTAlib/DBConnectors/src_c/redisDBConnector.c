@@ -16,18 +16,21 @@
 
 #include "redisDBConnector.h"
 
+redisContext * connection(int idConnector, const char *hostname, const char * password,const char * database) {
 
-redisContext *c;
-redisReply *reply;
-int rc_commandsSent = 0;
+  redisReply * reply;
 
-bool connection(int idConnector, const char *hostname, const char * password,const char * database) {
+  #ifdef DEBUG
+  printf("[RedisDBConnector C %d ]Connecting..\n",idConnector);
+  #endif
+
 
   int port = 6379;
 
   struct timeval timeout = { 1, 500000 }; // 1.5 seconds
 
-  c = redisConnectWithTimeout(hostname, port, timeout);
+  redisContext * c = redisConnectWithTimeout(hostname, port, timeout);
+  // c = redisConnect(hostname, port);
 
   if (c == NULL || c->err) {
       if (c) {
@@ -36,40 +39,56 @@ bool connection(int idConnector, const char *hostname, const char * password,con
       } else {
           printf("[RedisDBConnector C %d] Connection error: can't allocate redis context\n",idConnector);
       }
-      return false;
+
+      return NULL;
   }
 
   reply = redisCommand(c,"AUTH %s", password);
 
-  bool checkAuth = checkRedisReply(reply, idConnector, "AUTH");
+  bool checkAuth = checkRedisReply(c, reply, idConnector, "AUTH");
   if(! checkAuth){
-    return false;
+    return NULL;
   }
 
   reply = redisCommand(c,"select %s",database);
-  bool checkSelect = checkRedisReply(reply, idConnector,"SELECT");
+  bool checkSelect = checkRedisReply(c,reply, idConnector,"SELECT");
   if(! checkSelect){
-    return false;
+    return NULL;
   }
 
-  return true;
+  return c;
 }
 
-bool close_connection(int idConnector) {
+bool close_connection(redisContext *c, bool flagTransaction,int idConnector) {
 
-  // reply = redisCommand(c, "EXEC");
+  redisReply * reply;
+
+  if (flagTransaction) {
+    reply = redisCommand(c, "EXEC");
+    bool checkCommit = checkRedisReply(c, reply, idConnector, "EXEC - close_connection()");
+    if(! checkCommit){
+      return false;
+    }
+  }
 
   /* Disconnects and frees the context */
   redisFree(c);
 
-  return checkRedisReply(reply, idConnector, "close_connection");
+  #ifdef DEBUG
+  printf("[RedisDBConnector C %d] disconected.\n",idConnector);
+  #endif
 
+  return true;
 }
 
-bool checkRedisReply(redisReply * reply, int idConnector, char* functionCalling){
-  if(reply){
+bool checkRedisReply(redisContext *c,redisReply * reply, int idConnector, char* functionCalling){
 
-    printf("[RedisDBConnector C %d] %s reply->str: %s\n",idConnector,functionCalling, reply->str);
+  // redisReply * reply;
+
+  if(reply){
+    #ifdef DEBUG
+    printf("[RedisDBConnector C %d] %s reply->str: %s\n",idConnector, functionCalling, reply->str);
+
 
     if(reply->type==REDIS_REPLY_STATUS){
       printf("REDIS_REPLY_STATUS\n");
@@ -92,14 +111,17 @@ bool checkRedisReply(redisReply * reply, int idConnector, char* functionCalling)
     else {
       printf("REDIS_REPLY_??\n");
     }
+    #endif
 
   freeReplyObject(reply);
+
   return true;
 
   }
   else{
-
+    #ifdef DEBUG
     printf("[RedisDBConnector C %d] %s reply is NULL\n",idConnector, functionCalling);
+    #endif
 
     if(c->err == REDIS_ERR_IO){
       printf("[RedisDBConnector C %d] REDIS_ERR_IO!! There was an I/O error while creating the connection, trying to write to the socket or read from the socket. If you included errno.h in your application, you can use the global errno variable to find out what is wrong. Err: %s\n",idConnector, c->errstr);
@@ -124,42 +146,55 @@ bool checkRedisReply(redisReply * reply, int idConnector, char* functionCalling)
 }
 
 
-bool streamingInsert_c(int idConnector,const char* modelName, const char* score, const char* query){  //query
+bool streamingInsert_c(redisContext *c, int idConnector,const char* modelName, const char* score, const char* query){  //query
 
-  printf("[RedisDBConnector C %d] ZADD %s %s %s\n",idConnector, modelName, score, query);
+  redisReply * reply;
 
-  reply = redisCommand(c,"ZADD %s %s %s", modelName, score, query);
+  #ifdef DEBUG
+  printf("[RedisDBConnector C %d] streamingInsert_c(): ZADD %s %s %s\n", idConnector, modelName, score, query);
+  #endif
+  reply = redisCommand(c, "ZADD %s %s %s", modelName, score, query);
 
-  return checkRedisReply(reply, idConnector, "streamingInsert");
-
+  return checkRedisReply(c, reply, idConnector, "streamingInsert");
 }
 
-int batchInsert_c(int idConnector,const char * modelName, const char * score, const char * query, int batchsize){
+bool batchInsert_c(int rc_commandsSent, redisContext *c, int idConnector,const char * modelName, const char * score, const char * query, int batchsize){
+
+  redisReply * reply;
 
   if(rc_commandsSent==0) {
+    reply = redisCommand(c,"MULTI");
+    if(! checkRedisReply(c,reply,idConnector,"batchInsert_c_MULTI"))
+      return false;
+  }
 
-    redisCommand(c,"MULTI");
 
-    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query);
+  reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query);
 
+  if(checkRedisReply(c,reply,idConnector,"batchInsert_c_ZADD")) {
     rc_commandsSent++;
+  }
+  else {
+    return false;
+  }
 
-  }else if(rc_commandsSent < batchsize) {
+  if(rc_commandsSent >= batchsize){
 
-    reply = redisCommand(c,"ZADD %s %s  %s", modelName, score, query);
+    reply = redisCommand(c,"EXEC");
 
-    rc_commandsSent++;
+    if(checkRedisReply(c,reply,idConnector,"EXEC batchinsert-c()")) {
 
-  }else if(rc_commandsSent >= (batchsize)){
+      rc_commandsSent = 0;
+      return true;
 
-    redisCommand(c,"EXEC");
+    }
+    else{
+      return false;
 
-    rc_commandsSent = 0;
-
-    batchInsert_c(idConnector,modelName,score,query,batchsize);
+    }
 
   }
 
-  return rc_commandsSent;
+  return true;
 
 }

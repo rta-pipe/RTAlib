@@ -18,10 +18,9 @@
 #ifndef MYSQL_DB_CONNECTOR_H
 #define MYSQL_DB_CONNECTOR_H
 
-#include "DBConnector.hpp"
-
 #include <string>
-#include <boost/scoped_ptr.hpp>
+
+#include "DBConnector.hpp"
 
 #include "mysql_connection.h"
 #include "cppconn/statement.h"
@@ -30,27 +29,30 @@
 
 #define ONE_ROW 1
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::stringstream;
+using std::runtime_error;
+using std::to_string;
 
 class MySqlDBConnector : public DBConnector {
 public:
   MySqlDBConnector(int id,string filepath="") : DBConnector(filepath){  //cout << "MySqlDBConnector" << endl;
-                                                                            cout << "[MySqlDBConnector] idConnector: " << id << endl;
-                                                                            commandsSent = 0;
-                                                                            inserted = false;
-                                                                            insertDataCall = 0;
-                                                                            strTrCall = 0;
-                                                                            commitCall = 0;
-                                                                            flagTransaction = 0;
-                                                                            batchsize = 0;
-                                                                            hostname = config->file["MySql"]["host"].getString();
-                                                                            username = config->file["MySql"]["username"].getString();
-                                                                            password = config->file["MySql"]["password"].getString();
-                                                                            database = config->file["MySql"]["dbname"].getString();
-                                                                            modelName = config->file["General"]["modelname"].getString();
-                                                                            batchsize = config->file["General"]["batchsize"].getInt();
-                                                                          };
-  bool connect();
+                                                                        // cout << "[MySqlDBConnector] idConnector: " << id << endl;
+                                                                        idConnector = id;
+                                                                        commandsSent = 0;
+                                                                        inserted = false;
+                                                                        insertDataCall = 0;
+                                                                        flagTransaction = 0;
+                                                                        batchsize = 0;
+                                                                        hostname = config->file["MySql"]["host"].getString();
+                                                                        username = config->file["MySql"]["username"].getString();
+                                                                        password = config->file["MySql"]["password"].getString();
+                                                                        database = config->file["MySql"]["dbname"].getString();
+                                                                        modelName = config->file["General"]["modelname"].getString();
+                                                                        batchsize = config->file["General"]["batchsize"].getInt();
+                                                                      };
+  bool connect(Mutex* mux);
   bool disconnect();
   bool insertData(string modelName, map < string, string > args);
 
@@ -59,6 +61,7 @@ public:
   bool executeQuery(string query);
   bool batchInsert(string query, int batchsize);
 
+
   sql::Driver *driver;
   sql::Connection *con;
 
@@ -66,8 +69,6 @@ public:
   int commandsSent;
   bool inserted;
   int insertDataCall;
-  int strTrCall;
-  int commitCall;
   int flagTransaction;
   int batchsize;
 

@@ -19,10 +19,8 @@
 
 int RTA_DLTEST_DB :: insertEvent(string eventidfits, string timerealtt, string ra_deg, string dec_deg, string energy, string detx, string dety, string observationid, string  datarepositoryid, string mcid, string insert_time, string status) {
 
-  // EVTbase evtTest = EVTTest(eventidfits, timerealtt, ra_deg, dec_deg, energy, detx, dety, observationid, datarepositoryid, mcid, insert_time,status);
   EVTbase * evtTest = new EVTTest(false, eventidfits, timerealtt, ra_deg, dec_deg, energy, detx, dety, observationid, datarepositoryid, mcid, insert_time,status);
 
-  // commit = _insertEvent(evtTest);
   commit = _insertEvent(evtTest);
 
 

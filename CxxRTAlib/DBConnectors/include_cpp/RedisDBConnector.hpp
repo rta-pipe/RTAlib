@@ -25,32 +25,38 @@
 class RedisDBConnector : public DBConnector {
 public:
   RedisDBConnector(int id,string filepath="") : DBConnector(filepath ){ //cout << "RedisDBConnector" << endl;
-                                                                            cout << "[RedisDBConnector] idConnector: " << id << endl;
-                                                                            idConnector = id;
+                                                                        // cout << "[RedisDBConnector] idConnector: " << id << endl;
+                                                                        idConnector = id;
 
-                                                                            commandsSent = 0;
-                                                                            insertDataCall = 0;
-                                                                            strTrCall = 0;
-                                                                            commitCall = 0;
-                                                                            flagTransaction = 0;
-                                                                            inserted = false;
-                                                                            batchsize = 0;
+                                                                        commandsSent = 0;
+                                                                        insertDataCall = 0;
+                                                                        strTrCall = 0;
+                                                                        commitCall = 0;
+                                                                        flagTransaction = 0;
+                                                                        inserted = false;
+                                                                        batchsize = 0;
 
-                                                                            hostname = config->file["Redis"]["host"].getString();
-                                                                            username = config->file["Redis"]["username"].getString();
-                                                                            password = config->file["Redis"]["password"].getString();
-                                                                            database = config->file["Redis"]["dbname"].getString();
-                                                                            indexon = config->file["Redis"]["indexon"].getString();
-                                                                            modelName = config->file["General"]["modelname"].getString();
-                                                                            batchsize = config->file["General"]["batchsize"].getInt();
-                                                                           };
-  virtual bool connect();
-  virtual bool disconnect();
-  virtual bool insertData(string modelname, map < string, string > args);
+                                                                        hostname = config->file["Redis"]["host"].getString();
+                                                                        username = config->file["Redis"]["username"].getString();
+                                                                        password = config->file["Redis"]["password"].getString();
+                                                                        database = config->file["Redis"]["dbname"].getString();
+                                                                        indexon = config->file["Redis"]["indexon"].getString();
+                                                                        modelName = config->file["General"]["modelname"].getString();
+                                                                        batchsize = config->file["General"]["batchsize"].getInt();
+
+                                                                        int dp = indexon.find(":");
+                                                                        indexon_clean = indexon.substr(dp+1,indexon.size());
+
+                                                                       };
+  bool connect(Mutex* mux);
+  bool disconnect();
+  bool insertData(string modelname, map < string, string > args);
 
   string buildQuery(string modelName, int batchsize, map <string,string> args);
-  int streamingInsert(string query);
-  int batchInsert(string query, int batchsize);
+  bool streamingInsert(string query);
+  bool batchInsert(string query, int batchsize);
+
+  redisContext *c;
 
   int idConnector;
   int commandsSent;

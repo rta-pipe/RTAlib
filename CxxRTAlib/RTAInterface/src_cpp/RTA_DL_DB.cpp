@@ -26,25 +26,29 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
 
   }
 
+  #ifdef DEBUG
   cout << "RTA_DL_DB configFilePath: " << configFilePath << endl;
+  #endif
 
   config = Config::getIstance(configFilePath);
 
   numberofthreads = config->file["General"]["numberofthreads"].getInt();
   modelname = config->file["General"]["modelname"].getString();
+  Mutex* mux = Mutex::getIstance();
+
 
   if( numberofthreads == 1 ) {
 
-    // Synchronous (master thread) execution
-    dbConnector = getConnector(0, database, configFilePath);
+      // Synchronous (master thread) execution
+      dbConnector = getConnector(0, database, configFilePath);
 
-    if( dbConnector->connect() == false ) {
+      if( dbConnector->connect(mux) == false ) {
 
-      cout << "CXX_RTA_DL_X_DB Connection Error!" << endl;
+        cout << "CXX_RTA_DL_X_DB Connection Error!" << endl;
 
-      exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
 
-    }
+      }
 
   }else if( numberofthreads > 1) {
 
@@ -53,18 +57,18 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
     cout << "Number of threads: " << numberofthreads << endl;
 
 
-    for( int i = 0; i < numberofthreads; i++ ) {
-     ThreadStatistic * ts = new ThreadStatistic(i);
-     thread_statistics_array.push_back(ts);
-    }
+    // for( int i = 0; i < numberofthreads; i++ ) {
+    //  // ThreadStatistic * ts = new ThreadStatistic(i);
+    //  // thread_statistics_array.push_back(ts);
+    // }
 
     for( int i = 0; i < numberofthreads; i++ ) {
       dbConnector = getConnector(i, database, configFilePath);
 
-      ThreadStatistic * ts = thread_statistics_array[i];
-      ts->printThreadId();
+      // ThreadStatistic * ts = thread_statistics_array[i];
+      // ts->printThreadId();
 
-      Thread * t = new RTAThread(i, modelname, dbConnector, eventBuffer, ts);
+      Thread * t = new RTAThread(i, mux, modelname, dbConnector, eventBuffer); //, ts
       thread_array.push_back(t);
 
     }
@@ -80,8 +84,10 @@ void RTA_DL_DB::start() {
 
   }else {
     for( int i = 0; i < numberofthreads; i++ ) {
-      sleep(1);
+      //sleep(0.5);
+      #ifdef DEBUG
       cout << "[RTA_DL_DB] Starting thread: " <<i << endl;
+      #endif
       thread_array[i]->start();
     }
   }
@@ -137,13 +143,14 @@ int RTA_DL_DB::_insertEvent( EVTbase *event ) {
     // Synchronous (master thread)
     return dbConnector->insertData(modelname, eventData);
 
+
   }else if( numberofthreads > 1 ){
 
     // Multi threading mode
     eventBuffer->put(event);
-    // #ifdef DEBUG
-    // cout<< "\n[RTA_DL_DB] Event inserted in buffer" << endl;
-    // #endif
+    #ifdef DEBUG
+    cout<< "\n[RTA_DL_DB] Event inserted in buffer" << endl;
+    #endif
 
     return 1;
 
@@ -166,19 +173,23 @@ bool RTA_DL_DB::waitAndClose() {
     }
 
     for(int i=0; i < numberofthreads; i++ ) {
-      cout << "[RTA_DL_DB] thread "<< i << "joining..." << endl;
       thread_array[i]->join();
+      #ifdef DEBUG
+      cout << "[RTA_DL_DB] thread "<< i << " joined" << endl;
+      #endif
     }
 
-    cout << "[RTA_DL_DB] Collecting statistics.. " << endl;
-    for(int i=0; i < numberofthreads; i++ ) {
-      // thread_statistics_array[i]->getStatistics();
-    }
+    // cout << "[RTA_DL_DB] Collecting statistics.. " << endl;
+    // for(int i=0; i < numberofthreads; i++ ) {
+    //   // thread_statistics_array[i]->getStatistics();
+    // }
 
   }else{
 
     if ( dbConnector->disconnect() == true ) {
+      #ifdef DEBUG
       cout << "[RTA_DL_DB] disconnect" << endl;
+      #endif
       return true;
 
     }else {
@@ -189,4 +200,8 @@ bool RTA_DL_DB::waitAndClose() {
 
   }
 
+}
+
+int RTA_DL_DB::getNumberOfThreads() {
+  return numberofthreads;
 }

@@ -30,17 +30,17 @@ extern "C" {
 #include "hiredis.h"
 #include "errno.h"
 
-bool connection(int idConnector,const char *hostname, const char * password, const char * database);
+redisContext * connection(int idConnector,const char *hostname, const char * password, const char * database);
 
-bool checkRedisReply(redisReply * r, int idConnector, char* functionCalling);
+bool checkRedisReply(redisContext *c, redisReply * r, int idConnector, char* functionCalling);
 
-bool close_connection(int idConnector);
+bool close_connection(redisContext *c, bool flagTransaction, int idConnector);
 
 int insertData(int idConnector);
 
-bool streamingInsert_c(int idConnector,const char* modelName, const char* score, const char* query);
+bool streamingInsert_c(redisContext *c, int idConnector,const char* modelName, const char* score, const char* query);
 
-int batchInsert_c(int idConnector,const char * modelName, const char * score, const char * query, int batchsize);
+bool batchInsert_c(int rc_commandsSent, redisContext *c,int idConnector,const char * modelName, const char * score, const char * query, int batchsize);
 
 
 #ifdef __cplusplus

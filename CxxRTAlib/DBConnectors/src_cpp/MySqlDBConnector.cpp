@@ -19,29 +19,40 @@
 #include "MySqlDBConnector.hpp"
 
 
-bool MySqlDBConnector::connect(){
+
+/*
+If you don't know ahead of time whether the SQL statement will be a SELECT or an INSERT, UPDATE,
+or DELETE, use the execute method.
+execute() returns true if the SQL query was a SELECT, and returns false if the statement was an INSERT,
+UPDATE, or DELETE.
+If the statement was a SELECT query, you can retrieve the results by calling the getResultSet method
+on the Statement instance. If the statement was an INSERT, UPDATE, or DELETE statement, you can retrieve
+the count of affected rows by calling getUpdateCount().
+https://dba.stackexchange.com/questions/24542/execute-vs-executequery-in-mysql-connector-c
+https://stackoverflow.com/questions/27480741/which-execute-function-should-i-use-in-mysql-connector-c
+*/
+
+
+bool MySqlDBConnector::connect(Mutex* mux){
 
   #ifdef DEBUG
   cout << "[MySqlDBConnector "<<  idConnector <<"] Connecting.." << endl;
+  cout << "Hostname connect: " << hostname << endl;
+  cout << "Database connect: " << database << endl;
+  cout << "Modelname connect: " << modelName << endl;
+  cout << "Batchsize connect: " << batchsize << endl;
+  cout << "Password connect: " << password << endl;
   #endif
 
-  // #ifdef DEBUG
-  // cout << "Hostname connect: " << hostname << endl;
-  // cout << "Database connect: " << database << endl;
-  // cout << "Modelname connect: " << modelName << endl;
-  // cout << "Batchsize connect: " << batchsize << endl;
-  // cout << "Password connect: " << password << endl;
-  // #endif
-
   try {
-    // std::lock_guard<std::mutex> lock(mut);
-    driver = sql::mysql::get_driver_instance();
 
-    /* Using the Driver to create a connection */
-    con = driver->connect (hostname, username, password); // connect to mysql
+    mux->mutexLock();
+    driver = sql::mysql::get_driver_instance();
+    mux->mutexUnlock();
+    con = driver->connect (hostname, username, password);   /* Using the Driver to create a connection */
     con->setSchema(database);
 
-  } catch (sql::SQLException &e) {
+
     /*
     The MySQL Connector/C++ throws three different exceptions:
 
@@ -49,6 +60,7 @@ bool MySqlDBConnector::connect(){
     - sql::InvalidArgumentException (derived from sql::SQLException)
     - sql::SQLException (derived from std::runtime_error)#include <chrono>
     */
+  } catch (sql::SQLException &e) {
     cout << "# ERR: SQLException in " << __FILE__;
     cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
     /* Use what() (derived from std::runtime_error) to fetch the error message */
@@ -59,8 +71,8 @@ bool MySqlDBConnector::connect(){
     cout << "[MySqlDBConnector "<<  idConnector <<"] Connection FAILED!" << endl;
 
     return false;
-  } catch (std::runtime_error &e) {
 
+  } catch (std::runtime_error &e) {
     cout << "# ERR: runtime_error in " << __FILE__;
     cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
     cout << "# ERR: " << e.what() << endl;
@@ -85,11 +97,11 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
 
   insertDataCall ++;
 
-  // #ifdef DEBUG
+  #ifdef DEBUG
   cout << "[MySqlDBConnector "<<  idConnector <<"] Insert data()" << endl;
-  // cout << "Batchsize: " << batchsize << endl;
-  // cout << "Modelname: " << modelName << endl;
-  // #endif
+  cout << "Batchsize: " << batchsize << endl;
+  cout << "Modelname: " << modelName << endl;
+  #endif
 
   string query = buildQuery( modelName, batchsize, args);
 
@@ -98,7 +110,9 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
     inserted = streamingInsert( query);
 
     if(inserted==true) {
+      #ifdef DEBUG
       cout << "\n[MySqlDBConnector " <<idConnector << "] event iserted." << endl;
+      #endif
     } else {
       cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted." << endl;
     }
@@ -108,6 +122,14 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
     flagTransaction = 1;
 
     inserted = batchInsert( query, batchsize);
+
+    if(inserted==true) {
+      #ifdef DEBUG
+      cout << "\n[MySqlDBConnector " <<idConnector << "] event iserted." << endl;
+      #endif
+    } else {
+      cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted." << endl;
+    }
 
   }else{
     cout << "[MySqlConnector " <<idConnector << "] Error, self.conn is None" << endl;
@@ -219,12 +241,6 @@ bool MySqlDBConnector::batchInsert(string query, int batchsize) {
 
       stmt->executeUpdate("START TRANSACTION");
 
-      stmt->executeUpdate(query);
-
-      strTrCall++;
-
-      commandsSent++;
-
     }catch (sql::SQLException &e){
 
       cout << "Exeption START TRANSACTION" << endl;
@@ -233,14 +249,13 @@ bool MySqlDBConnector::batchInsert(string query, int batchsize) {
       return false;
 
     }
+  }
 
-  }else if(commandsSent < batchsize) {
 
     try {
 
       stmt->executeUpdate(query);
 
-      commandsSent++;
 
     }catch (sql::SQLException &e) {
         /*
@@ -281,17 +296,14 @@ bool MySqlDBConnector::batchInsert(string query, int batchsize) {
 
       }
 
-  }else if(commandsSent >= (batchsize)){
+      commandsSent++;
+
+  if(commandsSent >= batchsize){
 
     try{
 
-      stmt->execute("COMMIT");
+      stmt->executeUpdate("COMMIT");
 
-      commandsSent=0;
-
-      commitCall++;
-
-      batchInsert( query,batchsize);
 
     }catch(sql::SQLException &e){
 
@@ -301,6 +313,10 @@ bool MySqlDBConnector::batchInsert(string query, int batchsize) {
 
       return false;
     }
+
+    commandsSent = 0;
+
+    return true;
 
   }
 
@@ -350,14 +366,7 @@ bool MySqlDBConnector::disconnect(){
 
           stmt->execute("COMMIT");
 
-          commitCall++;
-
           commandsSent=0;
-
-          #ifdef DEBUG
-          cout << "[MySqlConnector  " <<idConnector << "] Start transaction called " << strTrCall << " times." << endl;
-          cout << "[MySqlConnector  " <<idConnector << "] Commit transaction called " << commitCall << " times." << endl;
-          #endif
 
         }
 

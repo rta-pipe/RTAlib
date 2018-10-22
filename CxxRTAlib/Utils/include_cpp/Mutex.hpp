@@ -15,27 +15,24 @@
  ==========================================================================
 */
 
-#ifndef UTILS_THREAD_H
-#define UTILS_THREAD_H
+#include <pthread.h>
+#include <iostream>
 
-#include <utility>      // std::pair
+using std::cout;
+using std::endl;
 
-class ThreadStatistic {
-
-  ThreadStatistic() : startTime(0), endTime(0), insertedEvents(0) {}
-  double startTime;
-  double endTime;
-  int insertedEvents;
-
-  // Total events , Execution time
-  pair<int,double>& getStatistics(){
-    std::pair <int,int> statistics;
-    statistics = std::make_pair (totalEvents,executionTime);
-    return statistics;
-  }
+class Mutex {
+public:
+  static Mutex* getIstance();
+  static void deleteInstance();
+  void mutexLock();
+  void mutexUnlock();
+  pthread_mutex_t mutex;
 
 
+
+private:
+  Mutex();
+  static Mutex * _instance;
 
 };
-
-#endif

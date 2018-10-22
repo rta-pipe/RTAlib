@@ -22,6 +22,7 @@
 #include "MySqlDBConnector.hpp"
 #include "RedisDBConnector.hpp"
 #include "RTAThread.hpp"
+// #include "Mutex.hpp"
 
 using std::cout;
 using std::endl;
@@ -35,18 +36,20 @@ public:
   DBConnector * dbConnector;
   Config * config;
   CTABuffer * eventBuffer;
+  bool pure_multithreading;
 
 
-  int numberofthreads = 0;
+  int numberofthreads;
   string modelname;
 
   std::vector<Thread*> thread_array;
-  std::vector<ThreadStatistic*> thread_statistics_array;
+  // std::vector<ThreadStatistic*> thread_statistics_array;
 
   void start();
   DBConnector * getConnector(int id,string databaseEngine, string configFilePath);
   int _insertEvent(EVTbase *event);
   bool waitAndClose();
+  int getNumberOfThreads();
 
 };
 

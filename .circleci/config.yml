@@ -80,31 +80,33 @@ defaults: &build
 jobs:
   PyRTAlibTest:
     <<: *build
-    - run:
-        name: Installing PyRTAlib dependencies
-        command: |
-          cd PyRTAlib/
-          sudo pip install pipenv
-          pipenv install -e .
-          pipenv graph
-    - run:
-        name: PyRTAlib testing
-        command: |
-          DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-          cd $DIR/PyRTAlib/TestEnvironment
-          pipenv run python unit_test.py > ~/rtalib-circleci/test_artifacts/python_test_result.txt
-    - store_test_results:
-        path: ~/rtalib-circleci/test_artifacts
-    - store_artifacts:
-        path: ~/rtalib-circleci/test_artifacts
-        destination: python_test_result
+    steps:
+      - run:
+          name: Installing PyRTAlib dependencies
+          command: |
+            cd PyRTAlib/
+            sudo pip install pipenv
+            pipenv install -e .
+            pipenv graph
+      - run:
+          name: PyRTAlib testing
+          command: |
+            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+            cd $DIR/PyRTAlib/TestEnvironment
+            pipenv run python unit_test.py > ~/rtalib-circleci/test_artifacts/python_test_result.txt
+      - store_test_results:
+          path: ~/rtalib-circleci/test_artifacts
+      - store_artifacts:
+          path: ~/rtalib-circleci/test_artifacts
+          destination: python_test_result
 
   CxxRTAlibTest:
     <<: *build
-    - run:
-        name: CxxRTAlib testing
-        command: |
-          echo CxxRTAlib test started!!
+    steps:
+      - run:
+          name: CxxRTAlib testing
+          command: |
+            echo CxxRTAlib test started!!
 
 
 workflows:

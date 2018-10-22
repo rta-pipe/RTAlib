@@ -1,36 +1,82 @@
 version: 2
 
-defaults: &images
-  working_directory: ~/rtalib-circleci
-  docker:
-    - image: circleci/python:3.6.6
-      environment:
-        DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
-    - image: circleci/mysql:5.7.23-ram
-      environment:
-        MYSQL_ALLOW_EMPTY_PASSWORD: true
-        MYSQL_DATABASE: rtalib_test_db
-        MYSQL_HOST: 127.0.0.1
-        MYSQL_USER: root
-    - image: circleci/redis:4.0.10-stretch
-
-
 jobs:
-  setup:
-    <<: *images
+  build:
+    working_directory: ~/rtalib-circleci
+    docker:
+      - image: circleci/python:3.6.6
+        environment:
+          DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
+      - image: circleci/mysql:5.7.23-ram
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_DATABASE: rtalib_test_db
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_USER: root
+      - image: circleci/redis:4.0.10-stretch
+      steps:
+        - checkout
+        - run:
+            name: Installing mysql-client
+            command: sudo apt install -y mysql-client
+        - run:
+            name: install dockerize
+            command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+            environment:
+              DOCKERIZE_VERSION: v0.3.0
+        - run:
+            name: Wait for db
+            command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+        - run:
+            name: Executing sql script to initialize db
+            command: |
+              DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+              sudo mysql -h 127.0.0.1 -u root  -v < $DIR/PyRTAlib/TestEnvironment/setup/setup_test_db_circleci.sql
+        - run:
+            name: Creating the rtalibconfig configuration file
+            command: |
+              DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+              echo "[General]
+              modelname=rtalib_dl_test_table
+              mjdref=50000
+              debug=no
+              batchsize=1
+              numberofthreads=1
+
+              [Dtr]
+              active=no
+              debug=yes
+              inputchannel=dtr.input
+              outputchannel=dtr.output
+
+              [MySql]
+              host=127.0.0.1
+              username=rtalib_test_user
+              password=x1x2x3
+              dbname=rtalib_test_db
+
+              [Redis]
+              host=127.0.0.1
+              password=
+              dbname=1
+              indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
+
+              [MySqlPipelineDatabase]
+              active=no
+              debug=no
+              host=
+              username=
+              password=
+              dbname=
+              " > $DIR/PyRTAlib/TestEnvironment/rtalibconfig
+        - run:
+            name: Creating folder for test results
+            command: |
+              mkdir ~/rtalib-circleci/test_artifacts
+              touch ~/rtalib-circleci/test_artifacts/python_test_result.txt
+
+  PyRTAlibTest:
     steps:
-      - checkout
-      - run:
-          name: Installing mysql-client
-          command: sudo apt install -y mysql-client
-      - run:
-          name: install dockerize
-          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-          environment:
-            DOCKERIZE_VERSION: v0.3.0
-      - run:
-          name: Wait for db
-          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
       - run:
           name: Installing PyRTAlib dependencies
           command: |
@@ -39,54 +85,7 @@ jobs:
             pipenv install -e .
             pipenv graph
       - run:
-          name: Executing sql script to initialize db
-          command: |
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-            sudo mysql -h 127.0.0.1 -u root  -v < $DIR/PyRTAlib/TestEnvironment/setup/setup_test_db_circleci.sql
-      - run:
-          name: Creating the rtalibconfig configuration file
-          command: |
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-            echo "[General]
-            modelname=rtalib_dl_test_table
-            mjdref=50000
-            debug=no
-            batchsize=1
-            numberofthreads=1
-
-            [Dtr]
-            active=no
-            debug=yes
-            inputchannel=dtr.input
-            outputchannel=dtr.output
-
-            [MySql]
-            host=127.0.0.1
-            username=rtalib_test_user
-            password=x1x2x3
-            dbname=rtalib_test_db
-
-            [Redis]
-            host=127.0.0.1
-            password=
-            dbname=1
-            indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
-
-            [MySqlPipelineDatabase]
-            active=no
-            debug=no
-            host=
-            username=
-            password=
-            dbname=
-            " > $DIR/PyRTAlib/TestEnvironment/rtalibconfig
-      - run:
-          name: Creating folder for test results
-          command: |
-            mkdir ~/rtalib-circleci/test_artifacts
-            touch ~/rtalib-circleci/test_artifacts/python_test_result.txt
-      - run:
-          name: Starting the tests
+          name: PyRTAlib testing
           command: |
             DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
             cd $DIR/PyRTAlib/TestEnvironment
@@ -97,9 +96,23 @@ jobs:
           path: ~/rtalib-circleci/test_artifacts
           destination: python_test_result
 
+  CxxRTAlibTest:
+    steps:
+      - run:
+          name: CxxRTAlib testing
+          command: |
+            echo CxxRTAlib test started!!
+
 
 workflows:
   version: 2
   pyrtalib_circleci_test:
     jobs:
-      - setup
+      - build
+      - CxxRTAlibTest:
+          requires:
+            - build
+      - PyRTAlibTest:
+          requires:
+            - build
+      

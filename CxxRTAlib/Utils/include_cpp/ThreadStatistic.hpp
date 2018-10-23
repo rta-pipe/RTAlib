@@ -14,36 +14,39 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-#ifndef DB_CONNECTOR_H
-#define DB_CONNECTOR_H
 
+#ifndef THREAD_STATISTICS_H
+#define THREAD_STATISTICS_H
 
-/* Standard C++ includes */
-#include <string>
-#include <vector>
+#include <utility>      // std::pair
+#include <cstdio>
+#include <ctime>
 #include <iostream>
-#include <sstream>
-#include <map>
 
-#include "Config.hpp"
-#include "Mutex.hpp"
 
-using std::string;
+
 using std::pair;
-using std::vector;
 using std::cout;
 using std::endl;
-using std::map;
 
-class DBConnector {
-public:
-  DBConnector(string filepath="");
-  virtual bool connect(Mutex* mux);
-  virtual bool disconnect();
-  virtual bool insertData(string modelName, map < string, string > args);
-  virtual bool executeQuery(string query);
+class ThreadStatistic {
+  public:
+    ThreadStatistic(int tid) : startTime(0), endTime(0), insertedEvents(0), thread_id(tid) {}
+    std::clock_t startTime;
+    std::clock_t endTime;
+    int insertedEvents;
+    int thread_id;
 
-  Config * config;
+    // Total events , Execution time
+    void printThreadId();
+    void start();
+    void finish();
+    void addEvent();
+
+    pair<int,double >& getStatistics();
+
 };
+
+
 
 #endif

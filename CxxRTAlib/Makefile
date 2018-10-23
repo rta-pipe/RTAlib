@@ -30,6 +30,12 @@ endif
 ifndef BOOST_PATH
 $(error BOOST_PATH is not set.)
 endif
+ifndef CTA_ALGORITHMS
+$(error CTA_ALGORITHMS is not set.)
+endif
+ifndef CTA_UTILS
+$(error CTA_UTILS is not set.)
+endif
 
 
 ####### 1) Project names and system
@@ -76,11 +82,23 @@ LIB_DESTDIR = lib
 
 CXX = g++
 
-CXXFLAGS = -O3 -funroll-loops -std=c++11 -I$(INCLUDE_DIR_CXX_DBC) -I$(INCLUDE_DIR_CXX_DM) -I$(INCLUDE_DIR_CXX_RTA) -I$(INCLUDE_DIR_CXX_U) -I$(INCLUDE_DIR_C_U) -I$(INCLUDE_DIR_C_DBC) -I$(REDIS)
+CXXFLAGS = -O3 -funroll-loops -std=c++11 -lpthread
 
 LIBS += -L$(MYSQL_CXX_CNT)/lib64 -lmysqlcppconn	#NEW ADDED
 
 LIBS += -L$(REDIS)/ -lhiredis	# NEW NEW NEW ADDED
+
+LIBS += -L$(CTA_ALGORITHMS)/lib -lCTAAlgorithms
+
+LIBS += -L$(CTA_UTILS)/lib -lCTAUtils
+
+CXXFLAGS += -I$(INCLUDE_DIR_CXX_DBC) -I$(INCLUDE_DIR_CXX_DM) -I$(INCLUDE_DIR_CXX_RTA) -I$(INCLUDE_DIR_CXX_U) -I$(INCLUDE_DIR_C_U) -I$(INCLUDE_DIR_C_DBC)
+
+CXXFLAGS += -I$(REDIS)
+
+CXXFLAGS += -I$(CTA_ALGORITHMS)/code
+
+CXXFLAGS += -I$(CTA_UTILS)/code
 
 CXXFLAGS += -I$(MYSQL_CXX_CNT)/include	#NEW ADDED
 
@@ -104,11 +122,9 @@ LIBS += -L$(REDIS) -lhiredis
 ifeq ($(DEBUG),1)
 	CXXFLAGS += -DDEBUG
 endif
-
-ifeq ($(MULTITHREAD),1)
-	CXXFLAGS += -DMULTITHREAD
+ifeq ($(VALGRIND),1)
+	CXXFLAGS += -g -O0
 endif
-
 
 
 AR       = ar cqs

@@ -17,8 +17,10 @@
 
 #include"EVTbase.hpp"
 
-EVTbase :: EVTbase() {
-
+EVTbase::EVTbase(bool _last) {
+  last = _last;
   // cout << "EVTbase class"  << endl;
 
 }
+
+map <string,string> &EVTbase::getData(){}

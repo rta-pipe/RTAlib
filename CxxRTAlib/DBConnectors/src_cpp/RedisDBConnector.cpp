@@ -17,14 +17,13 @@
 
 #include"RedisDBConnector.hpp"
 
-bool RedisDBConnector::connect(){
+bool RedisDBConnector::connect(Mutex* mux){
 
   #ifdef DEBUG
-  cout << "REDISDBCONNECTOR CONNECT" << endl;
+  cout << "[RedisDBConnectorC++ "<<  idConnector <<"] Connecting.." << endl;
   #endif
 
-  int dp = indexon.find(":");
-  indexon_clean = indexon.substr(dp+1,indexon.size());
+
 
   #ifdef DEBUG
   cout << "Hostname: " << hostname << endl;
@@ -33,12 +32,20 @@ bool RedisDBConnector::connect(){
   cout << "Indexon: " << indexon << endl;
   cout << "indexon_clean: " << indexon_clean << endl;
   #endif
+  c = connection(idConnector, hostname.c_str(),password.c_str(),database.c_str());
 
-  if( connection(hostname.c_str(),password.c_str(),database.c_str()) == 0 ) {
+  if( c != NULL ) {
+
+
+    #ifdef DEBUG
+    cout << "[RedisDBConnectorC++ "<<  idConnector <<"] Connected" << endl;
+    #endif
 
     return true;
 
   }else{
+
+    cout << "[RedisDBConnectorC++ "<<  idConnector <<"] Connection FAILED!" << endl;
 
     return false;
 
@@ -46,12 +53,12 @@ bool RedisDBConnector::connect(){
 
 }
 
-bool RedisDBConnector :: disconnect(){
+bool RedisDBConnector::disconnect(){
 
-  if (close_connection() == 0) {
+  if ( close_connection(c, flagTransaction, idConnector)) {
 
     #ifdef DEBUG
-    cout << "REDISDBCONNECTOR DISCONNECT" << endl;
+    cout << "[RedisDBConnectorC++ "<<  idConnector <<"] disconnected." << endl;
     #endif
 
     return true;
@@ -66,96 +73,108 @@ bool RedisDBConnector :: disconnect(){
 }
 
 
-bool RedisDBConnector :: insertData(string modelname, map < string, string > args){
+bool RedisDBConnector::insertData(string modelname, map < string, string > args){
 
   insertDataCall ++;
 
   #ifdef DEBUG
-  cout << "INSERT DATA FUNCTION" << endl;
+  cout << "[RedisDBConnectorC++ "<<  idConnector <<"] Insert data()" << endl;
   cout << "Batchsize: " << batchsize << endl;
   cout << "Modelname: " << modelName << endl;
+  cout << "idConnector: " << idConnector << endl;
   #endif
 
-  string query = buildQuery(modelName, batchsize, args);
+  string query = buildQuery( modelName, batchsize, args);
 
-  if( batchsize == 1){
+  if( batchsize == 1 ){
 
-    // commandsSent = streamingInsert(query);
     inserted = streamingInsert(query);
 
+    if(inserted ) {
+      #ifdef DEBUG
+      cout << "\n[RedisDBConnectorC++ " <<idConnector << "] event inserted." << endl;
+      #endif
+    } else {
+      cout << "\n[RedisDBConnectorC++ " <<idConnector << "] Error: event NOT inserted." << endl;
+    }
+
     #ifdef DEBUG
-    cout << "inserted value INSERT DATA FUNCTION: " << inserted << endl;
+    cout << "[RedisDBConnectorC++ "<<  idConnector <<"] inserted value INSERT DATA FUNCTION: " << inserted << endl;
     #endif
 
   }else if(batchsize > 1){
 
     flagTransaction = 1;
 
-    // commandsSent = batchInsert(query, batchsize);
-     inserted = batchInsert(query, batchsize);
+    inserted = batchInsert(query, batchsize);
+
+    if(inserted) {
+       #ifdef DEBUG
+       cout << "\n[RedisDBConnectorC++ " << idConnector << "] event inserted." << endl;
+       #endif
+    } else {
+       cout << "\n[RedisDBConnectorC++ " << idConnector << "] Error: event NOT inserted." << endl;
+    }
 
   }else{
-    cout << "[RedisConnector] Error, self.conn is None" << endl;
+    cout << "[RedisDBConnectorC++ "<<  idConnector <<"] Batchsize cannot be lower than 0!!" << endl;
     return EXIT_FAILURE;
   }
 
   #ifdef DEBUG
-  cout << "Command sent: " << commandsSent << " Insert data call: " << insertDataCall << endl;
+  cout << "[RedisDBConnectorC++ "<<  idConnector <<"] Command sent: " << commandsSent << " Insert data call: " << insertDataCall << endl;
   #endif
 
-  if(inserted== true) {
-
+  if(inserted)
     return true;
-
-  }else{
-
+  else
     return false;
+}
 
+
+bool RedisDBConnector::streamingInsert( string query){
+
+  #ifdef DEBUG
+  cout << "[RedisDBConnectorC++ "<<  idConnector <<"] streaming Insert() " << endl;
+  #endif
+
+  commandsSent = streamingInsert_c(c, idConnector, modelName.c_str(), score.c_str(), query.c_str());
+
+  #ifdef DEBUG
+  cout << "[RedisDBConnectorC++ "<<  idConnector <<"] CXX streaming commandsSent: " << commandsSent << endl;
+  #endif
+
+  return true;
+
+}
+
+
+bool RedisDBConnector::batchInsert(string query, int batchsize){
+
+
+  #ifdef DEBUG
+  cout << "[RedisDBConnectorC++ "<<  idConnector <<"] batchInsert()" << endl;
+  #endif
+
+  if( batchInsert_c(commandsSent, c, idConnector, modelName.c_str(), score.c_str(), query.c_str(), batchsize) ){
+    commandsSent++;
+    #ifdef DEBUG
+    cout << "[RedisDBConnectorC++ "<<  idConnector <<"] CXX batch commandsSent: " << commandsSent << endl;
+    #endif
+    return true;
   }
-  // return insertDataCall;
-
+  else{
+    // #ifdef DEBUG
+    cout << "[RedisDBConnectorC++ "<<  idConnector <<"] CXX batch command NO Sent: " << commandsSent << endl;
+    // #endif
+    return false;
+  }
 }
 
 
-int RedisDBConnector :: streamingInsert(string query){
-
-  #ifdef DEBUG
-  cout << "STREAMING" << endl;
-  #endif
-
-  commandsSent = streamingInsert_c(modelName.c_str(), score.c_str(), query.c_str());
-
-  #ifdef DEBUG
-  cout << "RedisDBConnector CXX streaming commandsSent: " << commandsSent << endl;
-  #endif
-
-  return commandsSent;
-
-}
+string RedisDBConnector :: buildQuery( string modelName, int batchsize, map <string,string> args){
 
 
-int RedisDBConnector :: batchInsert(string query, int batchsize){
-
-  #ifdef DEBUG
-  cout << "BATCHSIZE" << endl;
-  #endif
-
-  commandsSent = batchInsert_c(modelName.c_str(), score.c_str(),query.c_str(),batchsize);
-
-  #ifdef DEBUG
-  cout << "RedisDBConnector CXX batch commandsSent: " << commandsSent << endl;
-  #endif
-
-  return commandsSent;
-
-}
-
-
-string RedisDBConnector :: buildQuery(string modelName, int batchsize, map <string,string> args){
-
-  #ifdef DEBUG
-  cout <<"Tablename: " << modelName << endl;
-  #endif
 
   string query;
 
@@ -167,39 +186,10 @@ string RedisDBConnector :: buildQuery(string modelName, int batchsize, map <stri
 
   }
 
-  queryH = queryH.substr(0,queryH.size()-2);
-
-  int p = queryH.find(indexon_clean);
-
-  int q = queryH.find(":", p);
-
-  int e = queryH.find("}", q);
-
-  if ( e == -1) {
-
-    e = queryH.find(",", q);
-
-  }
-
-  score = queryH.substr(q+2, e-q-2);//queryH.size()-1
-
-  #ifdef DEBUG
-  cout << "p value: " << p << endl;
-  cout << "q value: " << q << endl;
-  cout << "e value: " << e << endl;
-  cout << "len: " << e-q << endl;
-  cout << "Score: " << score << endl;
-  #endif
-
   queryH += "}'";
 
-  #ifdef DEBUG
-  cout << queryH << endl;
-  #endif
+  score = args[indexon_clean];
 
-  #ifdef DEBUG
-  cout << "Querie construct!" << endl;
-  #endif
 
 
   return queryH;

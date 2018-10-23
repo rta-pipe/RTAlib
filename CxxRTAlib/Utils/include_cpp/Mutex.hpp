@@ -14,36 +14,25 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-#ifndef DB_CONNECTOR_H
-#define DB_CONNECTOR_H
 
-
-/* Standard C++ includes */
-#include <string>
-#include <vector>
+#include <pthread.h>
 #include <iostream>
-#include <sstream>
-#include <map>
 
-#include "Config.hpp"
-#include "Mutex.hpp"
-
-using std::string;
-using std::pair;
-using std::vector;
 using std::cout;
 using std::endl;
-using std::map;
 
-class DBConnector {
+class Mutex {
 public:
-  DBConnector(string filepath="");
-  virtual bool connect(Mutex* mux);
-  virtual bool disconnect();
-  virtual bool insertData(string modelName, map < string, string > args);
-  virtual bool executeQuery(string query);
+  static Mutex* getIstance();
+  static void deleteInstance();
+  void mutexLock();
+  void mutexUnlock();
+  pthread_mutex_t mutex;
 
-  Config * config;
+
+
+private:
+  Mutex();
+  static Mutex * _instance;
+
 };
-
-#endif

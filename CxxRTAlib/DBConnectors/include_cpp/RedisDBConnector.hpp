@@ -24,31 +24,48 @@
 
 class RedisDBConnector : public DBConnector {
 public:
-  RedisDBConnector(string filepath="") : DBConnector( filepath ){ //cout << "RedisDBConnector" << endl;
-                                                                  hostname = config->file["Redis"]["host"].getString();
-                                                                  username = config->file["Redis"]["username"].getString();
-                                                                  password = config->file["Redis"]["password"].getString();
-                                                                  database = config->file["Redis"]["dbname"].getString();
-                                                                  indexon = config->file["Redis"]["indexon"].getString();
-                                                                  modelName = config->file["General"]["modelname"].getString();
-                                                                  batchsize = config->file["General"]["batchsize"].getInt();
-                                                                 };
-  virtual bool connect();
-  virtual bool disconnect();
-  virtual bool insertData(string modelname, map < string, string > args);
+  RedisDBConnector(int id,string filepath="") : DBConnector(filepath ){ //cout << "RedisDBConnector" << endl;
+                                                                        // cout << "[RedisDBConnector] idConnector: " << id << endl;
+                                                                        idConnector = id;
+                                                                        c = 0;
+                                                                        commandsSent = 0;
+                                                                        insertDataCall = 0;
+                                                                        strTrCall = 0;
+                                                                        commitCall = 0;
+                                                                        flagTransaction = 0;
+                                                                        inserted = false;
+                                                                        batchsize = 0;
+
+                                                                        hostname = config->file["Redis"]["host"].getString();
+                                                                        username = config->file["Redis"]["username"].getString();
+                                                                        password = config->file["Redis"]["password"].getString();
+                                                                        database = config->file["Redis"]["dbname"].getString();
+                                                                        indexon = config->file["Redis"]["indexon"].getString();
+                                                                        modelName = config->file["General"]["modelname"].getString();
+                                                                        batchsize = config->file["General"]["batchsize"].getInt();
+
+                                                                        int dp = indexon.find(":");
+                                                                        indexon_clean = indexon.substr(dp+1,indexon.size());
+
+                                                                       };
+  bool connect(Mutex* mux);
+  bool disconnect();
+  bool insertData(string modelname, map < string, string > args);
 
   string buildQuery(string modelName, int batchsize, map <string,string> args);
-  int streamingInsert(string query);
-  int batchInsert(string query, int batchsize);
+  bool streamingInsert(string query);
+  bool batchInsert(string query, int batchsize);
 
+  redisContext *c;
 
-  int commandsSent = 0;
-  int insertDataCall = 0;
-  int strTrCall = 0;
-  int commitCall = 0;
-  int flagTransaction = 0;
-  bool inserted = false;
-  int batchsize = 0;
+  int idConnector;
+  int commandsSent;
+  int insertDataCall;
+  int strTrCall;
+  int commitCall;
+  int flagTransaction;
+  bool inserted;
+  int batchsize;
 
   string hostname;
   string username;

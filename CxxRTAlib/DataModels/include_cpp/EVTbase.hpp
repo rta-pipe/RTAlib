@@ -18,9 +18,11 @@
 #ifndef EVT_BASE_H
 #define EVT_BASE_H
 
-#include<iostream>
+#include <iostream>
 #include <map>
 #include <string>
+
+#include "CTAData.h"
 
 
 using std::map;
@@ -28,11 +30,19 @@ using std::string;
 using std::cout;
 using std::endl;
 
+using CTAAlgorithm::CTAData;
 
-class EVTbase {
+
+class EVTbase : public  CTAData{
 public:
 
-  EVTbase();
+  EVTbase(bool _last=false);
+
+  bool last;
+  virtual map <string,string> &getData();
+
+  // map <string,string> eventData;
+
 
 };
 

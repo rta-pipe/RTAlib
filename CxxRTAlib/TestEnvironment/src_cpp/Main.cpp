@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <vector>
+#include <memory>
 #include "gtest/gtest.h"
 
 #include "Config.hpp"
@@ -28,6 +29,8 @@
 using std::cout;
 using std::endl;
 using std::vector;
+using std::shared_ptr;
+using std::make_shared;
 
 const char* startString = {
 "################################################################\n"
@@ -51,9 +54,11 @@ void writeConfFile(Config * myConf, string modelname, string mjdref, string debu
 
 TEST(MySqlDBConnector, CorrectConnection) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -63,9 +68,9 @@ TEST(MySqlDBConnector, CorrectConnection) {
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  DBConnector * mySqlDBTest = new MySqlDBConnector(".");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,".");
 
-  EXPECT_TRUE( mySqlDBTest->connect() );
+  EXPECT_TRUE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
 
@@ -76,9 +81,11 @@ TEST(MySqlDBConnector, CorrectConnection) {
 
 TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string r_password = myConf->file["Redis"]["password"].getString();
 
@@ -86,9 +93,9 @@ TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","asdasd","rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  DBConnector * mySqlDBTest = new MySqlDBConnector(".");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,".");
 
-  EXPECT_FALSE( mySqlDBTest->connect() );
+  EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
 
@@ -98,9 +105,11 @@ TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
 
 TEST(MySqlDBConnector, FailedConnectionWrongUserName) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -110,9 +119,9 @@ TEST(MySqlDBConnector, FailedConnectionWrongUserName) {
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost", m_password,"fkajhuis","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  DBConnector * mySqlDBTest = new MySqlDBConnector(".");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
 
-  EXPECT_FALSE( mySqlDBTest->connect() );
+  EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
 
@@ -122,9 +131,11 @@ TEST(MySqlDBConnector, FailedConnectionWrongUserName) {
 
 TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -134,9 +145,9 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","qwerty","localhost",r_password,"1","evt3:timerealtt");
 
-  DBConnector * mySqlDBTest = new MySqlDBConnector(".");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
 
-  EXPECT_FALSE( mySqlDBTest->connect() );
+  EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
 
@@ -146,9 +157,11 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
 
 TEST(MySqlDBConnector, SelectRowsTestTable) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -158,9 +171,9 @@ TEST(MySqlDBConnector, SelectRowsTestTable) {
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  DBConnector * mySqlDBTest = new MySqlDBConnector(".");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
 
-  mySqlDBTest->connect();
+  mySqlDBTest->connect(mux);
 
   EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
 
@@ -172,9 +185,11 @@ TEST(MySqlDBConnector, SelectRowsTestTable) {
 
 TEST(MySqlDBConnector, WriteWrongTable) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -184,9 +199,9 @@ TEST(MySqlDBConnector, WriteWrongTable) {
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost", m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  DBConnector * mySqlDBTest = new MySqlDBConnector(".");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
 
-  mySqlDBTest->connect();
+  mySqlDBTest->connect(mux);
 
   map <string, string > args;
   args["a"] = "1";
@@ -204,9 +219,11 @@ TEST(MySqlDBConnector, WriteWrongTable) {
 
 TEST(MySqlDBConnector, InsertDataSuccefully) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -216,9 +233,9 @@ TEST(MySqlDBConnector, InsertDataSuccefully) {
 
   writeConfFile(myConf,"test_table","51544.5","yes","1","1","localhost", m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  DBConnector * mySqlDBTest = new MySqlDBConnector(".");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
 
-  mySqlDBTest->connect();
+  mySqlDBTest->connect(mux);
 
   map <string, string > args;
   args["a"] = "1";
@@ -246,9 +263,11 @@ TEST(MySqlDBConnector, InsertDataSuccefully) {
 
 TEST(RedisDBConnector, CorrectConnection) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["Redis"]["password"].getString();
 
@@ -258,43 +277,47 @@ TEST(RedisDBConnector, CorrectConnection) {
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  DBConnector * redisDBTest = new RedisDBConnector(".");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,"./");
 
-  EXPECT_TRUE(redisDBTest->connect());
-
-  myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
-}
-
-TEST(RedisDBConnector, FailedConnectionWrongPwd) {
-
-  Config * myConf;
-
-  myConf = Config::getIstance("../../PyRTAlib");
-
-  string r_password = myConf->file["Redis"]["password"].getString();
-
-  myConf->deleteInstance();
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","asdasd","rta_test","evt_test","localhost","asdasd","1","evt3:timerealtt");
-
-  DBConnector * redisDBTest = new RedisDBConnector(".");
-
-  EXPECT_FALSE( redisDBTest->connect() );
+  EXPECT_TRUE(redisDBTest->connect(mux));
 
   myConf->deleteInstance();
 
   myConf->clearConfFile("./rtalibconfig");
 
 }
+
+// TEST(RedisDBConnector, FailedConnectionWrongPwd) {
+//
+//   Mutex* mux = Mutex::getIstance();
+//
+//   Config * myConf;
+//
+//   myConf = Config::getIstance("../");
+//
+//   string r_password = myConf->file["Redis"]["password"].getString();
+//
+//   myConf->deleteInstance();
+//
+//   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","asdasd","rta_test","evt_test","localhost","asdasd","1","evt3:timerealtt");
+//
+//   auto redisDBTest = make_shared<RedisDBConnector>(0,".");
+//
+//   EXPECT_FALSE( redisDBTest->connect(mux) );
+//
+//   myConf->deleteInstance();
+//
+//   myConf->clearConfFile("../rtalibconfig");
+//
+// }
 
 TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -304,9 +327,9 @@ TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
 
   writeConfFile(myConf,"testmodel","51544.5","yes","1","1","localhost", m_password,"rta_test","evt_test","localhost",r_password,"1","testmodel:a");
 
-  DBConnector * redisDBTest = new RedisDBConnector(".");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,"./");
 
-  redisDBTest->connect();
+  redisDBTest->connect(mux);
 
   map <string, string > args;
   args["a"] = "1";
@@ -325,9 +348,11 @@ TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
 
 TEST(RedisDBConnector, InsertDataSuccIndexonMiddle) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -337,9 +362,9 @@ TEST(RedisDBConnector, InsertDataSuccIndexonMiddle) {
 
   writeConfFile(myConf,"testmodel","51544.5","yes","1","1","localhost", m_password,"rta_test","evt_test","localhost",r_password,"1","testmodel:c");
 
-  DBConnector * redisDBTest = new RedisDBConnector(".");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,"./");
 
-  redisDBTest->connect();
+  redisDBTest->connect(mux);
 
   map <string, string > args;
   args["a"] = "5";
@@ -357,9 +382,11 @@ TEST(RedisDBConnector, InsertDataSuccIndexonMiddle) {
 
 TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
 
+  Mutex* mux = Mutex::getIstance();
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -369,9 +396,9 @@ TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
 
   writeConfFile(myConf,"testmodel","51544.5","yes","1","1","localhost", m_password,"rta_test","evt_test","localhost",r_password,"1","testmodel:d");
 
-  DBConnector * redisDBTest = new RedisDBConnector(".");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,"./");
 
-  redisDBTest->connect();
+  redisDBTest->connect(mux);
 
   map <string, string > args;
   args["a"] = "9";
@@ -399,7 +426,7 @@ TEST(RTA_DL_DB, waitAndCloseMysqlTest) {
 
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -409,7 +436,7 @@ TEST(RTA_DL_DB, waitAndCloseMysqlTest) {
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB("mysql", ".");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", "./");
 
   EXPECT_TRUE( rtaTestDb->waitAndClose() );
 
@@ -423,7 +450,7 @@ TEST(RTA_DL_DB, waitAndCloseRedisTest) {
 
   Config * myConf;
 
-  myConf = Config::getIstance("../../PyRTAlib");
+  myConf = Config::getIstance("./");
 
   string m_password = myConf->file["MySql"]["password"].getString();
 
@@ -433,7 +460,7 @@ TEST(RTA_DL_DB, waitAndCloseRedisTest) {
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB("redis-basic", ".");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./");
 
   EXPECT_TRUE( rtaTestDb->waitAndClose() );
 

@@ -19,6 +19,7 @@
 #define RTA_THREAD_H
 
 #include <iostream>
+#include <memory>
 
 #include "EVTbase.hpp"
 #include "DBConnector.hpp"
@@ -33,10 +34,11 @@ using CTAAlgorithm::CTABuffer;
 
 using std::cout;
 using std::endl;
+using std::shared_ptr;
 
 class RTAThread : public Thread{
 public:
-	RTAThread(int idThread, Mutex* mutex, string _modelname, DBConnector *_dbConnector, CTABuffer *buff) : Thread(){ //, ThreadStatistic * threadStatistic
+	RTAThread(int idThread, Mutex* mutex, string _modelname, shared_ptr<DBConnector> _dbConnector, CTABuffer *buff) : Thread(){ //, ThreadStatistic * threadStatistic
 		#ifdef DEBUG
 		cout << "RTAThread Constructor" << endl;
 		// cout << "[RTAThread] threadStatistic for thread id: " << threadStatistic->thread_id << endl;
@@ -55,7 +57,7 @@ public:
 	int totalEvents;
 	string modelname;
 
-	DBConnector * dbConnector;
+	shared_ptr<DBConnector> dbConnector;
 	CTABuffer * eventBuffer;
 	// ThreadStatistic * threadStatistic;
 

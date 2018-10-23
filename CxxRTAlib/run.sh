@@ -7,4 +7,4 @@ if [ $# -eq 0 ]
     return
 fi
 
-./bin/testRTAlib  $1 ../PyRTAlib  10
+.CxxRTAlib/bin/testRTAlib  $1 ./  10

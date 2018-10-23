@@ -24,7 +24,9 @@
 #include <time.h>
 
 
+
 #include "RTA_DLTEST_DB.hpp"
+
 
 const char* startString = {
 "################################################################\n"
@@ -104,7 +106,7 @@ int main(int argc, char *argv[]) {
   }
 
 
-  RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>(database, configFilePath);
 
   sleep(1);
 

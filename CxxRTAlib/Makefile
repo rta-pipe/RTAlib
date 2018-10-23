@@ -48,35 +48,35 @@ EXE = testRTAlib
 ####### 2) Directories for the compiler
 
 ### Object directories
-OBJECTS_DIR = obj_cpp
-OBJECTS_DIR_C = obj_c
+OBJECTS_DIR = CxxRTAlib/obj_cpp
+OBJECTS_DIR_C = CxxRTAlib/obj_c
 
 #### Source Cxx directories
-SOURCE_DIR_CXX_DBC = DBConnectors/src_cpp
-SOURCE_DIR_CXX_DM = DataModels/src_cpp
-SOURCE_DIR_CXX_RTA = RTAInterface/src_cpp
-SOURCE_DIR_CXX_U = Utils/src_cpp
+SOURCE_DIR_CXX_DBC = CxxRTAlib/DBConnectors/src_cpp
+SOURCE_DIR_CXX_DM = CxxRTAlib/DataModels/src_cpp
+SOURCE_DIR_CXX_RTA = CxxRTAlib/RTAInterface/src_cpp
+SOURCE_DIR_CXX_U = CxxRTAlib/Utils/src_cpp
 
 ### Include Cxx directories
-INCLUDE_DIR_CXX_DBC = DBConnectors/include_cpp
-INCLUDE_DIR_CXX_DM = DataModels/include_cpp
-INCLUDE_DIR_CXX_RTA = RTAInterface/include_cpp
-INCLUDE_DIR_CXX_U = Utils/include_cpp
+INCLUDE_DIR_CXX_DBC = CxxRTAlib/DBConnectors/include_cpp
+INCLUDE_DIR_CXX_DM = CxxRTAlib/DataModels/include_cpp
+INCLUDE_DIR_CXX_RTA = CxxRTAlib/RTAInterface/include_cpp
+INCLUDE_DIR_CXX_U = CxxRTAlib/Utils/include_cpp
 
 
 #### Source C directories
-SOURCE_DIR_C_DBC = DBConnectors/src_c
-SOURCE_DIR_C_U = Utils/src_c
+SOURCE_DIR_C_DBC = CxxRTAlib/DBConnectors/src_c
+SOURCE_DIR_C_U = CxxRTAlib/Utils/src_c
 
 ### Include C directories
-INCLUDE_DIR_C_DBC = DBConnectors/include_c
-INCLUDE_DIR_C_U = Utils/include_c
+INCLUDE_DIR_C_DBC = CxxRTAlib/DBConnectors/include_c
+INCLUDE_DIR_C_U = CxxRTAlib/Utils/include_c
 
 
 
-PROJECTS_DIR = projects
-EXE_DESTDIR  = bin
-LIB_DESTDIR = lib
+PROJECTS_DIR = CxxRTAlib/projects
+EXE_DESTDIR  = CxxRTAlib/bin
+LIB_DESTDIR = CxxRTAlib/lib
 
 ####### 3) Compiler, tools and options
 
@@ -84,9 +84,9 @@ CXX = g++
 
 CXXFLAGS = -O3 -funroll-loops -std=c++11 -lpthread
 
-LIBS += -L$(MYSQL_CXX_CNT)/lib64 -lmysqlcppconn	#NEW ADDED
+LIBS += -L$(MYSQL_CXX_CNT)/lib64 -lmysqlcppconn
 
-LIBS += -L$(REDIS)/ -lhiredis	# NEW NEW NEW ADDED
+LIBS += -L$(REDIS)/ -lhiredis
 
 LIBS += -L$(CTA_ALGORITHMS)/lib -lCTAAlgorithms
 
@@ -100,13 +100,13 @@ CXXFLAGS += -I$(CTA_ALGORITHMS)/code
 
 CXXFLAGS += -I$(CTA_UTILS)/code
 
-CXXFLAGS += -I$(MYSQL_CXX_CNT)/include	#NEW ADDED
+CXXFLAGS += -I$(MYSQL_CXX_CNT)/include
 
-CXXFLAGS += -I$(BOOST_PATH)	#NEW ADDED
+CXXFLAGS += -I$(BOOST_PATH)
 
-CXXFLAGS += -Wl,-Bdynamic	#NEW ADDED
+CXXFLAGS += -Wl,-Bdynamic
 
-CXXFLAGS += -I/usr/local/include/cppconn	#NEW ADDED
+CXXFLAGS += -I/usr/local/include/cppconn	
 
 
 ######### C COMPILING

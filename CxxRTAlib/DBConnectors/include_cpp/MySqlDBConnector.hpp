@@ -40,6 +40,7 @@ public:
   MySqlDBConnector(int id,string filepath="") : DBConnector(filepath){  //cout << "MySqlDBConnector" << endl;
                                                                         // cout << "[MySqlDBConnector] idConnector: " << id << endl;
                                                                         idConnector = id;
+                                                                        driver = 0;
                                                                         commandsSent = 0;
                                                                         inserted = false;
                                                                         insertDataCall = 0;

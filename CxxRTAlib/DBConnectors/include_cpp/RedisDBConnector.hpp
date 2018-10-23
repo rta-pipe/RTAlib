@@ -27,7 +27,7 @@ public:
   RedisDBConnector(int id,string filepath="") : DBConnector(filepath ){ //cout << "RedisDBConnector" << endl;
                                                                         // cout << "[RedisDBConnector] idConnector: " << id << endl;
                                                                         idConnector = id;
-
+                                                                        c = 0;
                                                                         commandsSent = 0;
                                                                         insertDataCall = 0;
                                                                         strTrCall = 0;

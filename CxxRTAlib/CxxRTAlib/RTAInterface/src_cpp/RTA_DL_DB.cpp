@@ -68,7 +68,7 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
       // ThreadStatistic * ts = thread_statistics_array[i];
       // ts->printThreadId();
 
-      Thread * t = new RTAThread(i, mux, modelname, dbConnector, eventBuffer); //, ts
+      auto t = make_shared<RTAThread>(i, mux, modelname, dbConnector, eventBuffer);
       thread_array.push_back(t);
 
     }
@@ -93,17 +93,18 @@ void RTA_DL_DB::start() {
   }
 }
 
-DBConnector * RTA_DL_DB::getConnector(int id, string databaseEngine, string configFilePath) {
+
+shared_ptr<DBConnector> RTA_DL_DB::getConnector(int id,string databaseEngine, string configFilePath) {
 
   if(databaseEngine == "mysql"){
 
-    DBConnector * mySqlDBConnector = new MySqlDBConnector(id,configFilePath);
+    auto mySqlDBConnector = make_shared<MySqlDBConnector>(id,configFilePath);
 
     return mySqlDBConnector;
 
   } else if(databaseEngine == "redis-basic"){
 
-    DBConnector * redisDBConnector = new RedisDBConnector( id,configFilePath);
+    auto redisDBConnector = make_shared<RedisDBConnector>(id,configFilePath);
 
     return redisDBConnector;
 

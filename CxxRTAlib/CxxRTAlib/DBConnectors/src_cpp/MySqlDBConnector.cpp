@@ -162,7 +162,6 @@ bool MySqlDBConnector::streamingInsert(string query) {
   cout << query << endl;
   #endif
 
-  int num_rows = 0;
   stringstream msg;
 
   try {
@@ -170,7 +169,7 @@ bool MySqlDBConnector::streamingInsert(string query) {
       boost::scoped_ptr< sql::Statement > stmt(con->createStatement());
 
       /* executeUpdate() returns the number of affected = inserted rows */
-      num_rows += stmt->executeUpdate(query);
+      int num_rows = stmt->executeUpdate(query);
       if (ONE_ROW != num_rows) {
         msg.str("");
         msg << "Expecting " << ONE_ROW << "rows, reported " << num_rows;
@@ -399,73 +398,73 @@ bool MySqlDBConnector::disconnect(){
   instead:
     boost::scoped_ptr< sql::ResultSet > res(stmt->executeQuery(query));
 */
-bool MySqlDBConnector::executeQuery(string query) {
-
-  int num_rows = 0;
-  stringstream msg;
-
-  try {
-
-      boost::scoped_ptr< sql::Statement > stmt(con->createStatement());
-
-      boost::scoped_ptr< sql::ResultSet > res(stmt->executeQuery(query));
-
-      size_t row = 0;
-      while (res->next()) {
-
-        /// TODO handle query result
-        // cout << "observationid = " << res->getString("observationid") << endl;
-        // cout << "a = " << res->getInt(1) << endl;
-
-        row++;
-      }
-
-      return true;
-
-    } catch (sql::SQLException &e) {
-      /*
-      The MySQL Connector/C++ throws three different exceptions:
-
-      - sql::MethodNotImplementedException (derived from sql::SQLException)
-      - sql::InvalidArgumentException (derived from sql::SQLException)
-      - sql::SQLException (derived from std::runtime_error)
-      */
-      cout << endl;
-      cout << "# ERR: DbcException in " << __FILE__;
-      cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
-      /* Use what(), getErrorCode() and getSQLState() */
-      cout << "# ERR: " << e.what();
-      cout << " (MySQL error code: " << e.getErrorCode();
-      cout << ", SQLState: " << e.getSQLState() << " )" << endl;
-
-      if (e.getErrorCode() == 1047) {
-        /*
-        Error: 1047 SQLSTATE: 08S01 (ER_UNKNOWN_COM_ERROR)
-        Message: Unknown command
-        */
-        cout << "# ERR: Your server seems not to support PS at all because its MYSQL <4.1" << endl;
-      }
-      cout << "not ok 1 - MySqlDBConnector.cpp" << endl;
-
-      commandsSent = 0;
-
-      // return commandsSent;
-      return false;
-    } catch (std::runtime_error &e) {
-
-      cout << endl;
-      cout << "# ERR: runtime_error in " << __FILE__;
-      cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
-      cout << "# ERR: " << e.what() << endl;
-      cout << "not ok 1 - MySqlDBConnector.cpp" << endl;
-
-      commandsSent = 0;
-
-      // return commandsSent;
-      return false;
-    }
-
-    // return commandsSent;
-    return true;
-
-}
+// bool MySqlDBConnector::executeQuery(string query) {
+//
+//   // int num_rows = 0;
+//   stringstream msg;
+//
+//   try {
+//
+//       boost::scoped_ptr< sql::Statement > stmt(con->createStatement());
+//
+//       boost::scoped_ptr< sql::ResultSet > res(stmt->executeQuery(query));
+//
+//       size_t row = 0;
+//       while (res->next()) {
+//
+//         /// TODO handle query result
+//         // cout << "observationid = " << res->getString("observationid") << endl;
+//         // cout << "a = " << res->getInt(1) << endl;
+//
+//         // row++;
+//       }
+//
+//       return true;
+//
+//     } catch (sql::SQLException &e) {
+//       /*
+//       The MySQL Connector/C++ throws three different exceptions:
+//
+//       - sql::MethodNotImplementedException (derived from sql::SQLException)
+//       - sql::InvalidArgumentException (derived from sql::SQLException)
+//       - sql::SQLException (derived from std::runtime_error)
+//       */
+//       cout << endl;
+//       cout << "# ERR: DbcException in " << __FILE__;
+//       cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
+//       /* Use what(), getErrorCode() and getSQLState() */
+//       cout << "# ERR: " << e.what();
+//       cout << " (MySQL error code: " << e.getErrorCode();
+//       cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+//
+//       if (e.getErrorCode() == 1047) {
+//         /*
+//         Error: 1047 SQLSTATE: 08S01 (ER_UNKNOWN_COM_ERROR)
+//         Message: Unknown command
+//         */
+//         cout << "# ERR: Your server seems not to support PS at all because its MYSQL <4.1" << endl;
+//       }
+//       cout << "not ok 1 - MySqlDBConnector.cpp" << endl;
+//
+//       commandsSent = 0;
+//
+//       // return commandsSent;
+//       return false;
+//     } catch (std::runtime_error &e) {
+//
+//       cout << endl;
+//       cout << "# ERR: runtime_error in " << __FILE__;
+//       cout << "(" << EXAMPLE_FUNCTION << ") on line " << __LINE__ << endl;
+//       cout << "# ERR: " << e.what() << endl;
+//       cout << "not ok 1 - MySqlDBConnector.cpp" << endl;
+//
+//       commandsSent = 0;
+//
+//       // return commandsSent;
+//       return false;
+//     }
+//
+//     // return commandsSent;
+//     return true;
+//
+// }

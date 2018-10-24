@@ -61,10 +61,8 @@ redisContext * connection(int idConnector, const char *hostname, const char * pa
 
 bool close_connection(redisContext *c, bool flagTransaction,int idConnector) {
 
-  redisReply * reply;
-
   if (flagTransaction) {
-    reply = redisCommand(c, "EXEC");
+    redisReply * reply = redisCommand(c, "EXEC");
     bool checkCommit = checkRedisReply(c, reply, idConnector, "EXEC - close_connection()");
     if(! checkCommit){
       return false;
@@ -82,8 +80,6 @@ bool close_connection(redisContext *c, bool flagTransaction,int idConnector) {
 }
 
 bool checkRedisReply(redisContext *c,redisReply * reply, int idConnector, char* functionCalling){
-
-  // redisReply * reply;
 
   if(reply){
     #ifdef DEBUG
@@ -184,7 +180,6 @@ bool batchInsert_c(int rc_commandsSent, redisContext *c, int idConnector,const c
 
     if(checkRedisReply(c,reply,idConnector,"EXEC batchinsert-c()")) {
 
-      rc_commandsSent = 0;
       return true;
 
     }

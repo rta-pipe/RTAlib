@@ -59,8 +59,8 @@ public:
 
   string buildQuery(string modelName, int batchsize, map <string,string> args);
   bool streamingInsert(string query);
-  bool executeQuery(string query);
   bool batchInsert(string query, int batchsize);
+  // bool executeQuery(string query);
 
 
   sql::Driver *driver;

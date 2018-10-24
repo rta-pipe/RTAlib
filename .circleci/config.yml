@@ -101,65 +101,65 @@ jobs:
     <<: *build
     working_directory: ~/cxx-rtalib-circleci
     steps:
-            - checkout
-            - run:
-                name: Installing mysql-client
-                command: sudo apt install -y mysql-client
-            - run:
-                name: install dockerize
-                command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-                environment:
-                  DOCKERIZE_VERSION: v0.3.0
-            - run:
-                name: Wait for db
-                command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
-            - run:
-                name: Executing sql script to initialize db
-                command: |
-                  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-                  sudo mysql -h 127.0.0.1 -u root  -v < $DIR/PyRTAlib/TestEnvironment/setup/setup_test_db_circleci.sql
-            - run:
-                name: Creating the rtalibconfig configuration file
-                command: |
-                  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-                  echo "[General]
-                  modelname=rtalib_dl_test_table
-                  mjdref=50000
-                  debug=no
-                  batchsize=1
-                  numberofthreads=1
+      - checkout
+      - run:
+          name: Installing mysql-client
+          command: sudo apt install -y mysql-client
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+      - run:
+          name: Executing sql script to initialize db
+          command: |
+            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+            sudo mysql -h 127.0.0.1 -u root  -v < $DIR/PyRTAlib/TestEnvironment/setup/setup_test_db_circleci.sql
+      - run:
+          name: Creating the rtalibconfig configuration file
+          command: |
+            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+            echo "[General]
+            modelname=rtalib_dl_test_table
+            mjdref=50000
+            debug=no
+            batchsize=1
+            numberofthreads=1
 
-                  [Dtr]
-                  active=no
-                  debug=yes
-                  inputchannel=dtr.input
-                  outputchannel=dtr.output
+            [Dtr]
+            active=no
+            debug=yes
+            inputchannel=dtr.input
+            outputchannel=dtr.output
 
-                  [MySql]
-                  host=127.0.0.1
-                  username=rtalib_test_user
-                  password=x1x2x3
-                  dbname=rtalib_test_db
+            [MySql]
+            host=127.0.0.1
+            username=rtalib_test_user
+            password=x1x2x3
+            dbname=rtalib_test_db
 
-                  [Redis]
-                  host=127.0.0.1
-                  password=
-                  dbname=1
-                  indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
+            [Redis]
+            host=127.0.0.1
+            password=
+            dbname=1
+            indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
 
-                  [MySqlPipelineDatabase]
-                  active=no
-                  debug=no
-                  host=
-                  username=
-                  password=
-                  dbname=
-                  " > $DIR/CxxRTAlib/TestEnvironment/rtalibconfig
-            - run:
-                name: Creating folder for test results
-                command: |
-                  mkdir ~/cxx-rtalib-circleci/test_artifacts
-                  touch ~/cxx-rtalib-circleci/test_artifacts/python_test_result.txt
+            [MySqlPipelineDatabase]
+            active=no
+            debug=no
+            host=
+            username=
+            password=
+            dbname=
+            " > $DIR/CxxRTAlib/TestEnvironment/rtalibconfig
+      - run:
+          name: Creating folder for test results
+          command: |
+            mkdir ~/cxx-rtalib-circleci/test_artifacts
+            touch ~/cxx-rtalib-circleci/test_artifacts/python_test_result.txt
       - run:
           name: CxxRTAlib testing
           command: |

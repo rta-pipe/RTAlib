@@ -37,10 +37,6 @@ const char* startString = {
 "###               - RTAlib/CXXRTAlib/UnitTest -              ###"
 };
 
-const char* endString = {
-"### test RTAlib/CXXRTAlib exiting .......................... ###\n"
-"################################################################"
-};
 
 void writeConfFile(Config * myConf, string modelname, string mjdref, string debug, string batchsize, string numberofthread,string mhost, string mpwd, string musr, string mdb, string rhost, string rpwd, string rdb, string indexon );
 
@@ -556,6 +552,5 @@ int main(int argc, char **argv) {
 
   return RUN_ALL_TESTS();
 
-  cout << endString<< endl;
 
 }

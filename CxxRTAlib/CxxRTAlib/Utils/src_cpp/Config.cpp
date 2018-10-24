@@ -47,7 +47,7 @@ Config::Config(string filepath){
 
     file = IniParser::load(filepath);
 
-  } catch (IniParser::ParserException e) {
+  } catch (IniParser::ParserException &e) {
 
     std::cerr << "Error while loading file!\n";
 
@@ -97,7 +97,7 @@ int Config::setSection(string filepath, string sectionName, vector < map <string
 
           IniEntry entry(key, value);
           section.insert(entry);
-              
+
         }
 
           inifile.insert(section);
@@ -112,7 +112,7 @@ int Config :: setConfFile(string filepath) {
 
   IniParser::store(inifile, filepath, INI_UTF8_MODE_ALLOW, '=', ';');
 
-  }catch(IniParser::ParserException e) {
+  }catch(IniParser::ParserException &e) {
 
     std::cerr << "Error while loading file!\n";
 

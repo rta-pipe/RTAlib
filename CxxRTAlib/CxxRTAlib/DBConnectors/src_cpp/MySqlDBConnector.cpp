@@ -162,7 +162,6 @@ bool MySqlDBConnector::streamingInsert(string query) {
   cout << query << endl;
   #endif
 
-  int num_rows = 0;
   stringstream msg;
 
   try {
@@ -170,7 +169,7 @@ bool MySqlDBConnector::streamingInsert(string query) {
       boost::scoped_ptr< sql::Statement > stmt(con->createStatement());
 
       /* executeUpdate() returns the number of affected = inserted rows */
-      num_rows += stmt->executeUpdate(query);
+      int num_rows = stmt->executeUpdate(query);
       if (ONE_ROW != num_rows) {
         msg.str("");
         msg << "Expecting " << ONE_ROW << "rows, reported " << num_rows;

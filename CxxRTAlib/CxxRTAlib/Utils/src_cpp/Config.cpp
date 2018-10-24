@@ -74,7 +74,7 @@ Config* Config::getIstance(string filepath){
 }
 
 
-int Config :: setSection(string filepath, string sectionName, vector < map <string, string > > values){
+int Config::setSection(string filepath, string sectionName, vector < map <string, string > > values){
 
 
   #ifdef DEBUG
@@ -96,9 +96,8 @@ int Config :: setSection(string filepath, string sectionName, vector < map <stri
           string value = map_it->second;
 
           IniEntry entry(key, value);
-
           section.insert(entry);
-
+              
         }
 
           inifile.insert(section);

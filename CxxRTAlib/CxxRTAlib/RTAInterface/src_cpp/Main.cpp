@@ -162,4 +162,6 @@ int main(int argc, char *argv[]) {
 
   cout << endString << endl;
 
+  return 0;
+
 }

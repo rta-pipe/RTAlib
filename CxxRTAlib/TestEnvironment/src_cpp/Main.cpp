@@ -68,13 +68,16 @@ TEST(MySqlDBConnector, CorrectConnection) {
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,".");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
 
   EXPECT_TRUE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
 
   myConf->clearConfFile("./rtalibconfig");
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
 
 }
 
@@ -89,17 +92,23 @@ TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
 
   string r_password = myConf->file["Redis"]["password"].getString();
 
+  string m_password = myConf->file["MySql"]["password"].getString();
+
   myConf->deleteInstance();
 
   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","asdasd","rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,".");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
 
   EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
 
   myConf->clearConfFile("./rtalibconfig");
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
+
 
 }
 
@@ -127,6 +136,8 @@ TEST(MySqlDBConnector, FailedConnectionWrongUserName) {
 
   myConf->clearConfFile("./rtalibconfig");
 
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
 }
 
 TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
@@ -153,6 +164,8 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
 
   myConf->clearConfFile("./rtalibconfig");
 
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
 }
 
 TEST(MySqlDBConnector, SelectRowsTestTable) {
@@ -175,7 +188,7 @@ TEST(MySqlDBConnector, SelectRowsTestTable) {
 
   mySqlDBTest->connect(mux);
 
-  EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
+  // EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
 
   myConf->deleteInstance();
 
@@ -215,6 +228,8 @@ TEST(MySqlDBConnector, WriteWrongTable) {
 
   myConf->clearConfFile("./rtalibconfig");
 
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
 }
 
 TEST(MySqlDBConnector, InsertDataSuccefully) {
@@ -249,6 +264,8 @@ TEST(MySqlDBConnector, InsertDataSuccefully) {
 
   myConf->clearConfFile("./rtalibconfig");
 
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
 }
 
 
@@ -269,7 +286,7 @@ TEST(RedisDBConnector, CorrectConnection) {
 
   myConf = Config::getIstance("./");
 
-  string m_password = myConf->file["Redis"]["password"].getString();
+  string m_password = myConf->file["MySql"]["password"].getString();
 
   string r_password = myConf->file["Redis"]["password"].getString();
 
@@ -285,31 +302,10 @@ TEST(RedisDBConnector, CorrectConnection) {
 
   myConf->clearConfFile("./rtalibconfig");
 
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
 }
 
-// TEST(RedisDBConnector, FailedConnectionWrongPwd) {
-//
-//   Mutex* mux = Mutex::getIstance();
-//
-//   Config * myConf;
-//
-//   myConf = Config::getIstance("../");
-//
-//   string r_password = myConf->file["Redis"]["password"].getString();
-//
-//   myConf->deleteInstance();
-//
-//   writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","asdasd","rta_test","evt_test","localhost","asdasd","1","evt3:timerealtt");
-//
-//   auto redisDBTest = make_shared<RedisDBConnector>(0,".");
-//
-//   EXPECT_FALSE( redisDBTest->connect(mux) );
-//
-//   myConf->deleteInstance();
-//
-//   myConf->clearConfFile("../rtalibconfig");
-//
-// }
 
 TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
 
@@ -338,6 +334,8 @@ TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
   args["d"] = "4";
 
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
   myConf->deleteInstance();
 
@@ -374,6 +372,8 @@ TEST(RedisDBConnector, InsertDataSuccIndexonMiddle) {
 
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
 
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
   myConf->deleteInstance();
 
   myConf->clearConfFile("./rtalibconfig");
@@ -407,6 +407,8 @@ TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
   args["d"] = "12";
 
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
   myConf->deleteInstance();
 
@@ -444,6 +446,8 @@ TEST(RTA_DL_DB, waitAndCloseMysqlTest) {
 
   myConf->clearConfFile("./rtalibconfig");
 
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+
 }
 
 TEST(RTA_DL_DB, waitAndCloseRedisTest) {
@@ -463,6 +467,8 @@ TEST(RTA_DL_DB, waitAndCloseRedisTest) {
   auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./");
 
   EXPECT_TRUE( rtaTestDb->waitAndClose() );
+
+  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
 
   myConf->deleteInstance();
 
@@ -506,7 +512,7 @@ void writeConfFile( Config * myConf,
   Gentries["mjdref"]= mjdref;
   Gentries["debug"]= debug;
   Gentries["batchsize"]= batchsize;
-  Gentries["numberofthread"]= numberofthread;
+  Gentries["numberofthreads"]= numberofthread;
 
   GSection.push_back(Gentries);
 

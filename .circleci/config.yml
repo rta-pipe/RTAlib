@@ -39,24 +39,39 @@ jobs:
             fi
 
       - run:
-          name: Installng CxxRTAlib dependencies
+          name: Installng cmake dependencies
           command: |
             cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
-            if [ ! -f ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0 ]; then
+            if [ ! -f ~/cxx-rtalib-circleci/External_Libraries_Building_Area/cmake-3.13.0 ]; then
             echo Bootstrap installing ...
             wget https://cmake.org/files/v3.13/cmake-3.13.0-rc1.tar.gz
             tar -zxvf cmake-3.13.0-rc1.tar.gz
             cd cmake-3.13.0-rc1
-            ./bootstrap --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0
+            ./bootstrap
             make
             make install
             echo Bootstrap installed.
             fi
+
+      - run:
+          name: Installng Boost dependencies
+          command: |
+            cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+            if [ ! -f ~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0 ]; then
+            echo Boost installing ...
+            wget https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2
+            tar --bzip2 -xf boost_1_67_0.tar.bz2
+            cd boost_1_67_0/tools/build
+            ./bootstrap.sh
+            echo Boost installed.
+            fi
+
       - save_cache:
               key: pippo
               paths:
                 - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
-                - ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0
+                - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/cmake-3.13.0
+                - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
       - run:
           name: Installing mysql-client
           command: sudo apt install -y mysql-client

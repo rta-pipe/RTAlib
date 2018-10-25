@@ -3,11 +3,20 @@ version: 2
 defaults: &build
   docker:
     - image: circleci/python:3.6.6
+      environment:
+        DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
+    - image: circleci/mysql:5.7.23-ram
+      environment:
+        MYSQL_ALLOW_EMPTY_PASSWORD: true
+        MYSQL_DATABASE: rtalib_test_db
+        MYSQL_HOST: 127.0.0.1
+        MYSQL_USER: root
+    - image: circleci/redis:4.0.10-stretch
+
   steps:
-    - checkout
     - restore_cache:
         keys:
-          - hiredis-deps-
+          - hiredis-deps--{{ .Revision }}
 
     - run:
         name: Installng hiredis dependencies
@@ -24,59 +33,6 @@ defaults: &build
             key: hiredis-deps
             paths:
               - External_Libraries_Building_Area/hiredis
-      environment:
-        DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
-    - image: circleci/mysql:5.7.23-ram
-      environment:
-        MYSQL_ALLOW_EMPTY_PASSWORD: true
-        MYSQL_DATABASE: rtalib_test_db
-        MYSQL_HOST: 127.0.0.1
-        MYSQL_USER: root
-    - image: circleci/redis:4.0.10-stretch
-
-
-    - restore_cache:
-        keys:
-          - cmake-deps-
-
-    - run:
-        name: Installng cmkae dependencies
-        command: |
-          cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
-          echo Bootstrap installing ...
-          wget https://cmake.org/files/v3.13/cmake-3.13.0-rc1.tar.gz
-          tar -zxvf cmake-3.13.0-rc1.tar.gz
-          cd cmake-3.13.0-rc1
-          ./bootstrap --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0
-          make
-          make install
-          echo Bootstrap installed.
-
-    - save_cache:
-            key: cmake-deps-
-            paths:
-              - External_Libraries_Building_Area/cmake-3.13.0
-
-
-    - restore_cache:
-        keys:
-          - boost-deps-
-
-    - run:
-        name: Installing boost dependencies
-        command: |
-          cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
-          echo Boost installing ...
-          wget https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2
-          tar --bzip2 -xf boost_1_67_0.tar.bz2
-          cd boost_1_67_0/tools/build
-          ./bootstrap.sh --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
-          echo Boost installed.
-
-    - save_cache:
-            key: boost-deps-
-            paths:
-              - External_Libraries_Building_Area/
 
 
 jobs:

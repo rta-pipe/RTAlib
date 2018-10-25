@@ -26,7 +26,7 @@ jobs:
             mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed
       - restore_cache:
           keys:
-            - pippo
+            - cxxrtalic-hiredis-cache
       - run:
           name: Installng hiredis dependencies
           command: |
@@ -37,7 +37,14 @@ jobs:
             make
             echo Hiredis installed!
             fi
+      - save_cache:
+              key: cxxrtalic-hiredis-cache
+              paths:
+                - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
 
+      - restore_cache:
+          keys:
+            - cxxrtalic-cmake-cache
       - run:
           name: Installng cmake dependencies
           command: |
@@ -47,12 +54,19 @@ jobs:
             wget https://cmake.org/files/v3.13/cmake-3.13.0-rc1.tar.gz
             tar -zxvf cmake-3.13.0-rc1.tar.gz
             cd cmake-3.13.0-rc1
-            ./bootstrap
+            ./bootstrap --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0
             make
             make install
             echo Bootstrap installed.
             fi
+      - save_cache:
+              key: cxxrtalic-cmake-cache
+              paths:
+                - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/cmake-3.13.0
 
+      - restore_cache:
+          keys:
+            - cxxrtalic-boost-cache
       - run:
           name: Installng Boost dependencies
           command: |
@@ -65,13 +79,11 @@ jobs:
             ./bootstrap.sh
             echo Boost installed.
             fi
-
       - save_cache:
-              key: pippo
+              key: cxxrtalic-boost-cache
               paths:
-                - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
-                - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/cmake-3.13.0
                 - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
+
       - run:
           name: Installing mysql-client
           command: sudo apt install -y mysql-client

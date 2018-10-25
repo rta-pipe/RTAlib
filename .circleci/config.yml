@@ -17,14 +17,36 @@ defaults: &build
     - checkout
     - restore_cache:
         keys:
+            - cmake-3.13.0-deps-
+
+    - run:
+          name: Installng cmkae dependencies
+          command: |
+            cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+            echo Bootstrap installing ...
+            wget https://cmake.org/files/v3.13/cmake-3.13.0-rc1.tar.gz
+            tar -zxvf cmake-3.13.0-rc1.tar.gz
+            cd cmake-3.13.0-rc1
+            ./bootstrap --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0
+            make
+            make install
+            echo Bootstrap installed.
+
+    - save_cache:
+            key: - cmake-3.13.0-deps-
+            paths:
+              - External_Libraries_Building_Area/cmake-3.13.0
+
+
+  steps:
+    - checkout
+    - restore_cache:
+        keys:
           - hiredis-deps-
 
     - run:
-        name: Installng CxxRTAlib dependencies
+        name: Installng hiredis dependencies
         command: |
-          mkdir ~/cxx-rtalib-circleci/External_Libraries_Building_Area
-          mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed
-
           cd External_Libraries_Building_Area
           echo Hiredis installing ...
           git clone https://github.com/redis/hiredis.git
@@ -34,7 +56,7 @@ defaults: &build
           echo Hiredis installed.
 
     - save_cache:
-            key: hiredis-deps-{{ checksum "CHANGELOG.md" }}
+            key: hiredis-deps
             paths:
               - External_Libraries_Building_Area/hiredis
 jobs:
@@ -101,6 +123,12 @@ jobs:
           command: |
             mkdir ~/cxx-rtalib-circleci/test_artifacts
             touch ~/cxx-rtalib-circleci/test_artifacts/cxx_test_result.txt
+
+      - run:
+          name: Creating folder for externale libreries
+          command: |
+            mkdir ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+            mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed
 
 
       - run:

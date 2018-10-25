@@ -26,7 +26,7 @@ jobs:
             mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed
       - restore_cache:
           keys:
-            - cxxrtalib-cache
+            - pippo
       - run:
           name: Installng hiredis dependencies
           command: |
@@ -36,7 +36,7 @@ jobs:
             make
             echo Hiredis installed!
       - save_cache:
-              key: cxxrtalib-cache
+              key: pippo
               paths:
                 - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
       - run:

@@ -76,20 +76,23 @@ jobs:
             mkdir ~/rtalib-circleci/test_artifacts;
             touch ~/rtalib-circleci/test_artifacts/python_unittest_results.txt;
             touch ~/rtalib-circleci/test_artifacts/python_codecoverage_results.txt;
-      #- restore_cache:
-      #    keys:
-      #      - pyrtalib-cachekey-{{ checksum "setup.py" }}
+      - run:
+          name: Installing Pipenv
+          command: |
+            sudo pip install pipenv;
+      - restore_cache:
+          keys:
+            - pyrtalib-cachekey-{{ checksum "~/rtalib-circleci/PyRTAlib/setup.py" }}
       - run:
           name: Installing PyRTAlib dependencies
           command: |
             cd PyRTAlib/;
-            sudo pip install pipenv;
             pipenv install -e . ;
             pipenv graph;
-      #- save_cache:
-      #        key: pyrtalib-cachekey-{{ checksum "setup.py" }}
-      #        paths:
-      #          - /home/circleci/.local/share/virtualenvs/PyRTAlib-OIpGoUu8
+      - save_cache:
+          key: pyrtalib-cachekey-{{ checksum "~/rtalib-circleci/PyRTAlib/setup.py" }}
+          paths:
+            - /home/circleci/.local/share/virtualenvs/PyRTAlib-OIpGoUu8
       - run:
           name: Downloading Code Climate test-reporter
           command: |

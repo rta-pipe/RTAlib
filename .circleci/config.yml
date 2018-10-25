@@ -38,7 +38,7 @@ defaults: &build
             key: hiredis-deps-{{ checksum "CHANGELOG.md" }}
             paths:
               - External_Libraries_Building_Area/hiredis
-
+jobs:
   CxxRTAlibTest:
     <<: *build
     working_directory: ~/cxx-rtalib-circleci

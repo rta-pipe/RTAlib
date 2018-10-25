@@ -1,6 +1,6 @@
 version: 2
 
-defaults: &images
+defaults: &build
   working_directory: ~/rtalib-circleci
   docker:
     - image: circleci/python:3.6.6
@@ -14,10 +14,9 @@ defaults: &images
         MYSQL_USER: root
     - image: circleci/redis:4.0.10-stretch
 
-
 jobs:
-  setup:
-    <<: *images
+  PyRTAlibTest:
+    <<: *build
     steps:
       - checkout
       - run:
@@ -32,21 +31,12 @@ jobs:
           name: Wait for db
           command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
       - run:
-          name: Installing PyRTAlib dependencies
-          command: |
-            cd PyRTAlib/
-            sudo pip install pipenv
-            pipenv install -e .
-            pipenv graph
-      - run:
           name: Executing sql script to initialize db
           command: |
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-            sudo mysql -h 127.0.0.1 -u root  -v < $DIR/PyRTAlib/TestEnvironment/setup/setup_test_db_circleci.sql
+            sudo mysql -h 127.0.0.1 -u root  -v < ~/rtalib-circleci/PyRTAlib/TestEnvironment/setup/setup_test_db_circleci.sql
       - run:
           name: Creating the rtalibconfig configuration file
           command: |
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
             echo "[General]
             modelname=rtalib_dl_test_table
             mjdref=50000
@@ -79,27 +69,60 @@ jobs:
             username=
             password=
             dbname=
-            " > $DIR/PyRTAlib/TestEnvironment/rtalibconfig
+            " > ~/rtalib-circleci/PyRTAlib/TestEnvironment/rtalibconfig
       - run:
           name: Creating folder for test results
           command: |
-            mkdir ~/rtalib-circleci/test_artifacts
-            touch ~/rtalib-circleci/test_artifacts/python_test_result.txt
+            mkdir ~/rtalib-circleci/test_artifacts;
+            touch ~/rtalib-circleci/test_artifacts/python_unittest_results.txt;
+            touch ~/rtalib-circleci/test_artifacts/python_codecoverage_results.txt;
       - run:
-          name: Starting the tests
+          name: Installing Pipenv
           command: |
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-            cd $DIR/PyRTAlib/TestEnvironment
-            pipenv run python unit_test.py > ~/rtalib-circleci/test_artifacts/python_test_result.txt
-      - store_test_results:
-          path: ~/rtalib-circleci/test_artifacts
+            sudo pip install pipenv;
+      - restore_cache:
+          keys:
+            - pyrtalib-cachekey-{{ checksum "~/rtalib-circleci/PyRTAlib/Pipfile.lock" }}
+      - run:
+          name: Installing PyRTAlib dependencies
+          command: |
+            cd PyRTAlib/;
+            pipenv install -e . ;
+            pipenv graph;
+      - save_cache:
+          key: pyrtalib-cachekey-{{ checksum "~/rtalib-circleci/PyRTAlib/Pipfile.lock" }}
+          paths:
+            - /home/circleci/.local/share/virtualenvs/PyRTAlib-OIpGoUu8
+      - run:
+          name: Downloading Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter;
+            chmod +x ./cc-test-reporter;
+      - run:
+          name: PyRTAlib unit testing
+          command: |
+            cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/unit_tests;
+            for f in *.py; do
+              printf "\n\n * Testing ->  $f \n" >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;
+              pipenv run python "$f" >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;
+            done;
+      - run:
+          name: PyRTAlib test coverage
+          command:
+            cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/code_coverage;
+            ~/rtalib-circleci/cc-test-reporter before-build;
+            . run_coverage_test_circleci.sh;
+            ~/rtalib-circleci/cc-test-reporter after-build --coverage-input-type coverage.py --prefix ./ --exit-code $EXIT_CODE -r 13c050dace472310ac61ddf3c894a7bcaf46aa836f65ba80b7cf1561bf91fef3;
+            pipenv run python -m coverage report >> ~/rtalib-circleci/test_artifacts/python_codecoverage_results.txt
       - store_artifacts:
-          path: ~/rtalib-circleci/test_artifacts
-          destination: python_test_result
-
+          path: ~/rtalib-circleci/test_artifacts/python_unittest_results.txt
+          destination: python_unittest_results
+      - store_artifacts:
+          path: ~/rtalib-circleci/test_artifacts/python_codecoverage_results.txt
+          destination: python_codecoverage_results
 
 workflows:
   version: 2
   pyrtalib_circleci_test:
     jobs:
-      - setup
+      - PyRTAlibTest

@@ -59,7 +59,11 @@ class RedisDBConnectorBASIC(DBConnector):
         if(password):
             connConfig['password'] = self.config.get('Redis','password')
 
-        self.conn = redis.Redis( **connConfig )
+        try:
+            self.conn = redis.Redis( **connConfig )
+        except redis.exceptions.ResponseError as err:
+            print('[RedisConnector] Connection error: {}'.format(err))
+            return False
 
         if self.testConnection():
             #self.cacheAllKeyIndexes()
@@ -93,7 +97,7 @@ class RedisDBConnectorBASIC(DBConnector):
                 self.conn.ping()
                 return True
             except redis.exceptions.ResponseError as err:
-                print('[RedisConnector] Error: {}'.format(err))
+                print('[RedisConnector] Test connection error: {}'.format(err))
                 return False
         return False
 
@@ -216,10 +220,11 @@ class RedisDBConnectorBASIC(DBConnector):
                 print("[RedisConnectorBASIC] Error: {}".format(e))
                 return False
 
-
-        if modelName is not self.indexOn:
-            print("[RedisConnectorBASIC] Error: No index exists for model '{}'.\nPlease, add the name of the index in the rtalibconfig configuration file in the following format: modelName:indexName".format(modelName))
+        if modelName not in self.indexOn:
+            print("[RedisConnectorBASIC] Error: No index exists for model '{}'.\nPlease, add the name of the index in the rtalibconfig configuration file in the following format: modelName:indexName\nIndexes supported: {}.".format(modelName,self.indexOn))
             return False
+
+
         index = self.indexOn[modelName]
         self.pipe.zadd(modelName, json.dumps(dataDict), dataDict[index])
         # self.cachedUniqueIds['uniqueId:'+modelName] += 1
@@ -243,11 +248,11 @@ class RedisDBConnectorBASIC(DBConnector):
 
 
     def close(self):
-        if self.conn and self.config.get('General','debug') == 'yes':
+        if self.conn and self.config.get('General','debug', 'bool'):
             print("[RedisConnectorBASIC] Command sent: {}.  Closing connection..".format(self.commandsSent))
 
         if self.commandsSent > 0:
-            if self.conn and self.config.get('General','debug') == 'yes':
+            if self.conn and self.config.get('General','debug', 'bool'):
                 print("[RedisConnectorBASIC] Closing transaction..")
             try:
                 self.commandsSent = 0

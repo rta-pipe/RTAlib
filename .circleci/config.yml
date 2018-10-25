@@ -39,6 +39,7 @@ jobs:
       - run:
           name: Creating the rtalibconfig configuration file
           command: |
+            echo $DIR
             DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
             echo "[General]
             modelname=rtalib_dl_test_table
@@ -78,6 +79,9 @@ jobs:
           command: |
             mkdir ~/rtalib-circleci/test_artifacts
             touch ~/rtalib-circleci/test_artifacts/python_test_result.txt
+      #- restore_cache:
+      #    keys:
+      #      - pyrtalib-cachekey-{{ checksum "setup.py" }}
       - run:
           name: Installing PyRTAlib dependencies
           command: |
@@ -85,6 +89,11 @@ jobs:
             sudo pip install pipenv
             pipenv install -e .
             pipenv graph
+      #- save_cache:
+      #        key: pyrtalib-cachekey-{{ checksum "setup.py" }}
+      #        paths:
+      #          - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
+      #          - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/cmake
       - run:
           name: Downloading Code Climate test-reporter
           command: |
@@ -93,6 +102,7 @@ jobs:
       - run:
           name: PyRTAlib unit testing
           command: |
+            echo $DIR
             DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
             cd $DIR/PyRTAlib/TestEnvironment/unit_tests
             for f in *.py; do
@@ -101,6 +111,7 @@ jobs:
       - run:
           name: PyRTAlib test coverage
           command:
+            echo $DIR
             DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
             cd $DIR/PyRTAlib/TestEnvironment/code_coverage
             ./cc-test-reporter before-build

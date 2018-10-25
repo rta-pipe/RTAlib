@@ -127,7 +127,7 @@ the waitAndClose() method is implicitally called as the execution flow exits fro
 
 ## Testing
 
-### unit test
+### Unit testing
 The classes under unit testing are:
 * Config.py
 * MySqlDBConnector.py

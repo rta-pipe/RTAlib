@@ -14,10 +14,12 @@ defaults: &build
     - image: circleci/redis:4.0.10-stretch
 
   steps:
+    - checkout
     - restore_cache:
         keys:
           - hiredis-deps-{{ checksum "CHANGELOG.md" }}
           - hiredis-deps-
+
     - run:
         name: Installng CxxRTAlib dependencies
         command: |

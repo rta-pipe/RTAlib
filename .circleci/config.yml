@@ -1,46 +1,45 @@
 version: 2
 
-defaults: &build
-  docker:
-    - image: circleci/python:3.6.6
-      environment:
-        DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
-    - image: circleci/mysql:5.7.23-ram
-      environment:
-        MYSQL_ALLOW_EMPTY_PASSWORD: true
-        MYSQL_DATABASE: rtalib_test_db
-        MYSQL_HOST: 127.0.0.1
-        MYSQL_USER: root
-    - image: circleci/redis:4.0.10-stretch
-
-  steps:
-    - restore_cache:
-        keys:
-          - hiredis-deps--{{ .Revision }}
-
-    - run:
-        name: Installng hiredis dependencies
-        command: |
-          cd External_Libraries_Building_Area
-          echo Hiredis installing ...
-          git clone https://github.com/redis/hiredis.git
-          cd hiredis
-          export PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
-          make
-          echo Hiredis installed.
-
-    - save_cache:
-            key: hiredis-deps
-            paths:
-              - External_Libraries_Building_Area/hiredis
-
-
 jobs:
   CxxRTAlibTest:
-    <<: *build
+
     working_directory: ~/cxx-rtalib-circleci
+
+    docker:
+      - image: circleci/python:3.6.6
+        environment:
+          DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
+      - image: circleci/mysql:5.7.23-ram
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_DATABASE: rtalib_test_db
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_USER: root
+      - image: circleci/redis:4.0.10-stretch
+
     steps:
       - checkout
+      - run:
+          name: Creating folder for external libreries
+          command: |
+            mkdir ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+            mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed
+      - restore_cache:
+          keys:
+            - cxxrtalib-cachekey
+      - run:
+          name: Installng hiredis dependencies
+          command: |
+            cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+            echo Installing Hiredis ...
+            git clone https://github.com/redis/hiredis.git && cd hiredis
+            export PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
+            make
+            echo Hiredis installed!
+      - save_cache:
+              key: cxxrtalib-cachekey
+              paths:
+                - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
       - run:
           name: Installing mysql-client
           command: sudo apt install -y mysql-client
@@ -99,13 +98,6 @@ jobs:
           command: |
             mkdir ~/cxx-rtalib-circleci/test_artifacts
             touch ~/cxx-rtalib-circleci/test_artifacts/cxx_test_result.txt
-
-      - run:
-          name: Creating folder for externale libreries
-          command: |
-            mkdir ~/cxx-rtalib-circleci/External_Libraries_Building_Area
-            mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed
-
 
       - run:
           name: CxxRTAlib testing

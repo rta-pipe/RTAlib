@@ -31,10 +31,12 @@ jobs:
           name: Installng hiredis dependencies
           command: |
             cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+            if [ ! -f ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis/libhiredis.a ]; then
             echo Installing Hiredis ...
             git clone https://github.com/redis/hiredis.git && cd hiredis
             make
             echo Hiredis installed!
+            fi
       - save_cache:
               key: pippo
               paths:

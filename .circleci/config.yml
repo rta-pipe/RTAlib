@@ -53,11 +53,11 @@ defaults: &build
           echo Bootstrap installed.
 
     - save_cache:
-            key: - cmake-deps-
+            key: cmake-deps-
             paths:
               - External_Libraries_Building_Area/cmake-3.13.0
 
-    
+
 jobs:
   CxxRTAlibTest:
     <<: *build

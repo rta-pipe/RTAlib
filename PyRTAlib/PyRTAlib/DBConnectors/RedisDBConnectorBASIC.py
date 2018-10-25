@@ -59,7 +59,11 @@ class RedisDBConnectorBASIC(DBConnector):
         if(password):
             connConfig['password'] = self.config.get('Redis','password')
 
-        self.conn = redis.Redis( **connConfig )
+        try:
+            self.conn = redis.Redis( **connConfig )
+        except redis.exceptions.ResponseError as err:
+            print('[RedisConnector] Connection error: {}'.format(err))
+            return False
 
         if self.testConnection():
             #self.cacheAllKeyIndexes()
@@ -93,7 +97,7 @@ class RedisDBConnectorBASIC(DBConnector):
                 self.conn.ping()
                 return True
             except redis.exceptions.ResponseError as err:
-                print('[RedisConnector] Error: {}'.format(err))
+                print('[RedisConnector] Test connection error: {}'.format(err))
                 return False
         return False
 
@@ -244,11 +248,11 @@ class RedisDBConnectorBASIC(DBConnector):
 
 
     def close(self):
-        if self.conn and self.config.get('General','debug') == 'yes':
+        if self.conn and self.config.get('General','debug', 'bool'):
             print("[RedisConnectorBASIC] Command sent: {}.  Closing connection..".format(self.commandsSent))
 
         if self.commandsSent > 0:
-            if self.conn and self.config.get('General','debug') == 'yes':
+            if self.conn and self.config.get('General','debug', 'bool'):
                 print("[RedisConnectorBASIC] Closing transaction..")
             try:
                 self.commandsSent = 0

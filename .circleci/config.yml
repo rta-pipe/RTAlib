@@ -34,13 +34,10 @@ jobs:
       - run:
           name: Executing sql script to initialize db
           command: |
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-            sudo mysql -h 127.0.0.1 -u root  -v < $DIR/PyRTAlib/TestEnvironment/setup/setup_test_db_circleci.sql
+            sudo mysql -h 127.0.0.1 -u root  -v < ~/rtalib-circleci/PyRTAlib/TestEnvironment/setup/setup_test_db_circleci.sql
       - run:
           name: Creating the rtalibconfig configuration file
           command: |
-            echo $DIR
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
             echo "[General]
             modelname=rtalib_dl_test_table
             mjdref=50000
@@ -73,7 +70,7 @@ jobs:
             username=
             password=
             dbname=
-            " > $DIR/PyRTAlib/TestEnvironment/rtalibconfig
+            " > ~/rtalib-circleci/PyRTAlib/TestEnvironment/rtalibconfig
       - run:
           name: Creating folder for test results
           command: |
@@ -92,8 +89,7 @@ jobs:
       #- save_cache:
       #        key: pyrtalib-cachekey-{{ checksum "setup.py" }}
       #        paths:
-      #          - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
-      #          - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/cmake
+      #          - /home/circleci/.local/share/virtualenvs/PyRTAlib-OIpGoUu8
       - run:
           name: Downloading Code Climate test-reporter
           command: |
@@ -102,18 +98,14 @@ jobs:
       - run:
           name: PyRTAlib unit testing
           command: |
-            echo $DIR
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-            cd $DIR/PyRTAlib/TestEnvironment/unit_tests
+            cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/unit_tests
             for f in *.py; do
               pipenv run python "$f" >> ~/rtalib-circleci/test_artifacts/python_test_result.txt 2>&1
             done
       - run:
           name: PyRTAlib test coverage
           command:
-            echo $DIR
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-            cd $DIR/PyRTAlib/TestEnvironment/code_coverage
+            cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/code_coverage
             ./cc-test-reporter before-build
             . run_coverage_test.sh
             ./cc-test-reporter after-build --coverage-input-type coverage.py --prefix ./ --exit-code $EXIT_CODE

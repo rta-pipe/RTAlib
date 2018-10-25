@@ -14,16 +14,17 @@ branch = True
 
 # The files matching those patterns will not be measured.
 omit =
-    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/DBConnectors/RedisDBConnector.py
-    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/DataModels/EVT3_ASTRI.py
-    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/DataModels/EVT3_TEST.py
-    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/DataModels/EVTbase.py
-    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/RTAInterface/RTA_DL3ASTRI_DB.py
-    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/RTAInterface/RTA_DLTEST_DB.py
-    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/RTAInterface/RTA_DL_DB.py
-    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/Utils/Fits.py
-    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/Utils/Generic.py
-    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/Utils/RedisPublisher.py
+    /home/circleci/.local*
+    *RedisDBConnector.py
+    *EVT3_ASTRI.py
+    *EVT3_TEST.py
+    *EVTbase.py
+    *RTA_DL3ASTRI_DB.py
+    *RTA_DLTEST_DB.py
+    *RTA_DL_DB.py
+    *Fits.py
+    *Generic.py
+    *RedisPublisher.py
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -63,7 +64,6 @@ omit =
   *_unittest.py
   # omit any __init__.py
   *_init__.py
-
 
 [html]
 directory = coverage_html_report

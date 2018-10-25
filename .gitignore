@@ -31,6 +31,8 @@ PyRTAlib/dump.rdb
 
 coverage_html_report/
 coverage_annotated_sources/
+coverage.xml
+.coverage.combined
 cov_results/
 
 # Compiled Object files

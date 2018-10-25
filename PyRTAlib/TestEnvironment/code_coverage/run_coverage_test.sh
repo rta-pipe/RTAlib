@@ -52,7 +52,7 @@ fi
 
 
 
-
+export EXIT_CODE=0
 
 printf "\n\nTEST COVERAGE RESULTS\n $exit_code_config $exit_code_mysql $exit_code_redis"
 

@@ -33,7 +33,6 @@ jobs:
             cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
             echo Installing Hiredis ...
             git clone https://github.com/redis/hiredis.git && cd hiredis
-            export PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
             make
             echo Hiredis installed!
       - save_cache:

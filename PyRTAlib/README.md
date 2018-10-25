@@ -128,14 +128,15 @@ the waitAndClose() method is implicitally called as the execution flow exits fro
 ## Testing
 
 ### unit test
-Script:
-* unit_test.py
+The classes under unit testing are:
+* Config.py
+* MySqlDBConnector.py
+* RedisDBConnector.py
 
-Arguments:
-* -v for verbose mode
-
+In order to run the unit tests you can use the following script:
 ```bash
-  python unit_test.py -v
+  cd TestEnvironment/unit_tests
+  run_unit_tests.sh
 ```
 
 ### performance test (single and multithreading)
@@ -149,10 +150,11 @@ Scripts:
 Arguments:
 * database
 * number of events
+* path to the configuration file
 
 ```python
-python performance_test.py redis-basic 5000
-python performance_test_multithreading.py mysql 5000
+python performance_test.py redis-basic 5000 ../
+python performance_test_multithreading.py mysql 5000 ../
 
 ```
 

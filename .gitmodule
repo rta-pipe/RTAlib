@@ -1,0 +1,3 @@
+[submodule "CxxRTAlib/extsrc/gtest-1.8.1"]
+	path = CxxRTAlib/extsrc/gtest-1.8.1
+	url = git@github.com:google/googletest.git

@@ -53,7 +53,7 @@ public:
    * @throws std::bad_alloc or other (see std::string (constructor))
    */
   IniEntry(std::string key, long double value, std::string comment = "")
-      : key(key), value(std::to_string(value)), comment(comment) {} //
+      : key(key), value(std::to_string(value)), comment(comment) {}
 
   /**
    * Constructor for the entry.

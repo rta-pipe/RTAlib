@@ -15,44 +15,35 @@
  ==========================================================================
 */
 
-#ifndef RTA_DL_DB_H
-#define RTA_DL_DB_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
+#include <string>
+#include <iostream>
+#include <map>
+#include <vector>
+#include "IniParser.hpp"
+#include <stdlib.h>     /* getenv */
 
-#include "MySqlDBConnector.hpp"
-#include "RedisDBConnector.hpp"
-#include "RTAThread.hpp"
-#include <memory>
-
+using std::string;
 using std::cout;
 using std::endl;
-using std::string;
-using std::make_shared;
-using std::shared_ptr;
+using std::vector;
+using std::map;
 
-class RTA_DL_DB {
+class Config{
 public:
+  static Config* getIstance(string filepath="");
+  static void deleteInstance(); 
+  int setSection(string filepath, string sectionName, vector < map <string, string > > values);
+  int setConfFile(string filepath);
+  void clearConfFile(string filepath);
+  IniFile file;
 
-  RTA_DL_DB(string database, string configFilePath = "");
 
-  shared_ptr<DBConnector> dbConnector;
-  Config * config;
-  CTABuffer * eventBuffer;
-  bool pure_multithreading;
-
-
-  int numberofthreads;
-  string modelname;
-
-  std::vector< shared_ptr < Thread > > thread_array;
-  // std::vector<ThreadStatistic*> thread_statistics_array;
-
-  void start();
-  shared_ptr<DBConnector> getConnector(int id,string databaseEngine, string configFilePath);
-  int _insertEvent(EVTbase *event);
-  bool waitAndClose();
-  int getNumberOfThreads();
-
+private:
+  Config(string filepath="");
+  static Config * _instance;
 };
 
 #endif

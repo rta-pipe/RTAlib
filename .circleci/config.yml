@@ -58,6 +58,27 @@ defaults: &build
               - External_Libraries_Building_Area/cmake-3.13.0
 
 
+    - restore_cache:
+        keys:
+          - boost-deps-
+
+    - run:
+        name: Installing boost dependencies
+        command: |
+          cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+          echo Boost installing ...
+          wget https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2
+          tar --bzip2 -xf boost_1_67_0.tar.bz2
+          cd boost_1_67_0/tools/build
+          ./bootstrap.sh --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
+          echo Boost installed.
+
+    - save_cache:
+            key: boost-deps-
+            paths:
+              - External_Libraries_Building_Area/
+
+
 jobs:
   CxxRTAlibTest:
     <<: *build

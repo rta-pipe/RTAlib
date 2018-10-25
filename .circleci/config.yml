@@ -3,16 +3,6 @@ version: 2
 defaults: &build
   docker:
     - image: circleci/python:3.6.6
-      environment:
-        DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
-    - image: circleci/mysql:5.7.23-ram
-      environment:
-        MYSQL_ALLOW_EMPTY_PASSWORD: true
-        MYSQL_DATABASE: rtalib_test_db
-        MYSQL_HOST: 127.0.0.1
-        MYSQL_USER: root
-    - image: circleci/redis:4.0.10-stretch
-
   steps:
     - checkout
     - restore_cache:
@@ -34,6 +24,16 @@ defaults: &build
             key: hiredis-deps
             paths:
               - External_Libraries_Building_Area/hiredis
+      environment:
+        DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
+    - image: circleci/mysql:5.7.23-ram
+      environment:
+        MYSQL_ALLOW_EMPTY_PASSWORD: true
+        MYSQL_DATABASE: rtalib_test_db
+        MYSQL_HOST: 127.0.0.1
+        MYSQL_USER: root
+    - image: circleci/redis:4.0.10-stretch
+
 
     - restore_cache:
         keys:

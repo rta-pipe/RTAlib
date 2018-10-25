@@ -73,18 +73,18 @@ jobs:
       - run:
           name: Creating folder for test results
           command: |
-            mkdir ~/rtalib-circleci/test_artifacts
-            touch ~/rtalib-circleci/test_artifacts/python_test_result.txt
+            mkdir ~/rtalib-circleci/test_artifacts;
+            touch ~/rtalib-circleci/test_artifacts/python_test_result.txt;
       #- restore_cache:
       #    keys:
       #      - pyrtalib-cachekey-{{ checksum "setup.py" }}
       - run:
           name: Installing PyRTAlib dependencies
           command: |
-            cd PyRTAlib/
-            sudo pip install pipenv
-            pipenv install -e .
-            pipenv graph
+            cd PyRTAlib/;
+            sudo pip install pipenv;
+            pipenv install -e . ;
+            pipenv graph;
       #- save_cache:
       #        key: pyrtalib-cachekey-{{ checksum "setup.py" }}
       #        paths:
@@ -92,24 +92,24 @@ jobs:
       - run:
           name: Downloading Code Climate test-reporter
           command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter;
+            chmod +x ./cc-test-reporter;
           environment:
             CC_TEST_REPORTER_ID: 13c050dace472310ac61ddf3c894a7bcaf46aa836f65ba80b7cf1561bf91fef3
       - run:
           name: PyRTAlib unit testing
           command: |
-            cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/unit_tests
+            cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/unit_tests;
             for f in *.py; do
-              pipenv run python "$f" >> ~/rtalib-circleci/test_artifacts/python_test_result.txt 2>&1
-            done
+              pipenv run python "$f" >> ~/rtalib-circleci/test_artifacts/python_test_result.txt 2>&1;
+            done;
       - run:
           name: PyRTAlib test coverage
           command:
             cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/code_coverage;
-            ~/rtalib-circleci/cc-test-reporter before-build
-            . run_coverage_test_test_circleci.sh
-            ~/rtalib-circleci/cc-test-reporter after-build --coverage-input-type coverage.py --prefix ./ --exit-code $EXIT_CODE
+            ~/rtalib-circleci/cc-test-reporter before-build;
+            . run_coverage_test_test_circleci.sh;
+            ~/rtalib-circleci/cc-test-reporter after-build --coverage-input-type coverage.py --prefix ./ --exit-code $EXIT_CODE;
       - store_test_results:
           path: ~/rtalib-circleci/test_artifacts
       - store_artifacts:

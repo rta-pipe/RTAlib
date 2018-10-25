@@ -108,7 +108,7 @@ jobs:
           command:
             cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/code_coverage;
             ~/rtalib-circleci/cc-test-reporter before-build;
-            . run_coverage_test_test_circleci.sh;
+            . run_coverage_test_circleci.sh;
             ~/rtalib-circleci/cc-test-reporter after-build --coverage-input-type coverage.py --prefix ./ --exit-code $EXIT_CODE;
       - store_test_results:
           path: ~/rtalib-circleci/test_artifacts

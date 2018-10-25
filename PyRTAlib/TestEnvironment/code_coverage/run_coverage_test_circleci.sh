@@ -59,5 +59,3 @@ pipenv run python -m coverage combine $COV_RESULTS/.coverage.results_Config $COV
 pipenv run python -m coverage report
 
 pipenv run python -m coverage xml
-pipenv run python -m coverage html
-pipenv run python -m coverage annotate -d coverage_annotated_sources

@@ -74,7 +74,8 @@ jobs:
           name: Creating folder for test results
           command: |
             mkdir ~/rtalib-circleci/test_artifacts;
-            touch ~/rtalib-circleci/test_artifacts/python_test_result.txt;
+            touch ~/rtalib-circleci/test_artifacts/python_unittest_results.txt;
+            touch ~/rtalib-circleci/test_artifacts/python_codecoverage_results.txt;
       #- restore_cache:
       #    keys:
       #      - pyrtalib-cachekey-{{ checksum "setup.py" }}
@@ -99,8 +100,8 @@ jobs:
           command: |
             cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/unit_tests;
             for f in *.py; do
-              printf " Testing ->  $f \n" >> ~/rtalib-circleci/test_artifacts/python_test_result.txt 2>&1;
-              pipenv run python "$f" >> ~/rtalib-circleci/test_artifacts/python_test_result.txt 2>&1;
+              printf "\n\n * Testing ->  $f \n" >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;
+              pipenv run python "$f" >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;
             done;
       - run:
           name: PyRTAlib test coverage
@@ -109,12 +110,14 @@ jobs:
             ~/rtalib-circleci/cc-test-reporter before-build;
             . run_coverage_test_circleci.sh;
             ~/rtalib-circleci/cc-test-reporter after-build --coverage-input-type coverage.py --prefix ./ --exit-code $EXIT_CODE -r 13c050dace472310ac61ddf3c894a7bcaf46aa836f65ba80b7cf1561bf91fef3;
+            pipenv run python -m coverage report >> ~/rtalib-circleci/test_artifacts/python_codecoverage_results.txt
       - store_test_results:
           path: ~/rtalib-circleci/test_artifacts
       - store_artifacts:
           path: ~/rtalib-circleci/test_artifacts
-          destination: python_test_result
-
+          destination:
+            - python_unittest_results
+            - python_codecoverage_results
 
 workflows:
   version: 2

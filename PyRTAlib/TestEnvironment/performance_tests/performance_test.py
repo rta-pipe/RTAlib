@@ -28,14 +28,12 @@ from random import randint, uniform
 #import matplotlib
 #import matplotlib.pyplot as plt
 #import numpy as np
-
-rootFolder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+rootFolder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 sys.path.append(rootFolder+'/PyRTAlib/')
-
 
 from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
 from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
-from PyRTAlib.Utils         import read_data_from_fits
+#from PyRTAlib.Utils         import read_data_from_fits
 from PyRTAlib.Utils         import Config
 
 
@@ -63,7 +61,6 @@ def deleteData(database):
         exit()
 
 
-
 def test(batchsize, numberofthreads):
 
     config = Config('./')
@@ -80,35 +77,40 @@ def test(batchsize, numberofthreads):
     for jj in range(5):
 
         obsId = getUniqueObservationId()
-        RTA_DLTEST = RTA_DLTEST_DB(database, '', True) # pure_multithreading mode on
+        RTA_DLTEST = RTA_DLTEST_DB(database)
 
+        start_perf = time.perf_counter()
         for i in range(int(numberOfEvents)):
-            RTA_DLTEST.insertEvent(  evt3data[i][0],
-                                       evt3data[i][1],
-                                       evt3data[i][2],
-                                       evt3data[i][3],
-                                       evt3data[i][4],
-                                       evt3data[i][5],
-                                       evt3data[i][6],
-                                       evt3data[i][7],
-                                       obsId
+            RTA_DLTEST.insertEvent(
+                                       eventidfits = evt3data[i][0],
+                                       time = evt3data[i][1],
+                                       ra_deg = evt3data[i][2],
+                                       dec_deg = evt3data[i][3],
+                                       energy = evt3data[i][4],
+                                       detx = evt3data[i][5],
+                                       dety = evt3data[i][6],
+                                       mcid = evt3data[i][7],
+                                       observationid = obsId
                                      )
 
-        stats = RTA_DLTEST.waitAndClose()
+        RTA_DLTEST.waitAndClose()
+        end_perf = time.perf_counter()
 
-        eventSecList.append(stats[2])
-        executionTimeList.append(stats[1])
+        executionTime = end_perf - start_perf
+        eventSec = int(numberOfEvents)/executionTime
+        eventSecList.append(eventSec)
+        executionTimeList.append(executionTime)
 
 
     Perf = collections.namedtuple('res', ['avg', 'stddev'])
 
     avgES = statistics.mean(eventSecList)
     stddevES = statistics.stdev(eventSecList)
-    ES = Perf(avgES, round(stddevES,2))
+    ES = Perf(avgES, stddevES)
 
     avgET = statistics.mean(executionTimeList)
     stddevET = statistics.stdev(executionTimeList)
-    ET = Perf(avgET, round(stddevET,2))
+    ET = Perf(avgET, stddevET)
 
     print("{} +- {}\n{} +- {}".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
     return ES
@@ -140,16 +142,21 @@ def simulate_evt3_data(numberOfEvents):
 
 
 
+
 if __name__ == '__main__':
 
     OBSID = 0
 
-    os.environ['RTACONFIGFILE'] = './'
+
+    if len(sys.argv) < 4:
+        print("Please enter: \n - the database to be used (mysql or redis-basic) \n - the number of events to be inserted \n - the path to the configuration file")
+        exit()
 
     database = sys.argv[1]
-    #fitspath = sys.argv[2]
     numberOfEvents = sys.argv[2]
+    configurationFilePath = sys.argv[3]
 
+    os.environ['RTACONFIGFILE'] = configurationFilePath
 
     """
         Reading FITS data
@@ -158,6 +165,11 @@ if __name__ == '__main__':
     evt3data = read_data_from_fits(fitspath)
     print(evt3data[0])
     """
+
+    """
+        Simulating data
+    """
+    evt3data = simulate_evt3_data(numberOfEvents)
 
 
 
@@ -168,36 +180,29 @@ if __name__ == '__main__':
 
 
 
+
     """
         Test configuration
     """
-    threads = [1, 2, 4, 8]
+    threads = [1]
     batchsizes = [1, 10, 50, 100, 200, 400, 800, 1600, 3200]
 
     insertionsNumber = len(threads)*len(batchsizes)*int(numberOfEvents)
-
-    """
-        Reading FITS data
-    """
-    evt3data = simulate_evt3_data(insertionsNumber)
-
     availableData = len(evt3data)
-
 
     print("Number of insertions: {}".format(insertionsNumber))
     print("Available data: {}".format(len(evt3data)))
 
     if insertionsNumber > availableData:
         print("NOT ENOUGH DATA!!")
-        exit()
 
     """
         Plot
     """
-    w, h = len(batchsizes), len(threads);
+    #w, h = len(batchsizes), len(threads);
     x  = []
-    y = [[] for y in range(h)]
-    erry = [[] for y in range(h)]
+    y = []
+    erry = []
 
 
     """
@@ -210,14 +215,14 @@ if __name__ == '__main__':
 
     for idx_t, t in enumerate(threads):
         for idx_b, b in enumerate(batchsizes):
-
             print("\n--> Number of threads: {}, Batch size: {}".format(t, b))
             p = test(b,t)
             x.append(b)
-            y[idx_t].append(p[0])
-            erry[idx_t].append(p[1])
+            y.append(p[0])
+            erry.append(p[1])
 
             deleteData(database)
+
 
     print(x)
     print(y)

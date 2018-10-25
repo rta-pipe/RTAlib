@@ -1,0 +1,72 @@
+# .coveragerc to control coverage.py
+[run]
+branch = True
+
+# data_file = .coverage_test_result
+# concurrency = Thread
+# parallel = False -> append the machine name, process id and random number to the data file name to simplify collecting data from many processes.
+
+# List of directories or package names. Only source inside these directories or packages will be measured.
+# source =
+
+# Only files matching those patterns will be measured.
+# include =
+
+# The files matching those patterns will not be measured.
+omit =
+    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/DBConnectors/RedisDBConnector.py
+    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/DataModels/EVT3_ASTRI.py
+    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/DataModels/EVT3_TEST.py
+    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/DataModels/EVTbase.py
+    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/RTAInterface/RTA_DL3ASTRI_DB.py
+    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/RTAInterface/RTA_DLTEST_DB.py
+    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/RTAInterface/RTA_DL_DB.py
+    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/Utils/Fits.py
+    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/Utils/Generic.py
+    /home/cta/Baroncelli_development/RTAlib/PyRTAlib/PyRTAlib/Utils/RedisPublisher.py
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug-only code:
+    if self.config.get('General','debug', 'bool'):
+    if self.DEBUG:
+
+    # Don't complain if tests don't hit defensive assertion code:
+    # raise AssertionError
+    # raise NotImplementedError
+
+    # Don't complain if non-runnable code isn't run:
+    if 0:
+    if __name__ == .__main__.:
+
+fail_under = 30
+
+#partial_branches (multi-string): a list of regular expressions. Any line of code that matches one of these regexes is excused from being reported as a partial branch.
+
+#ignore_errors = True
+
+#show_missing = True
+
+#skip_covered = True
+
+# The modules arguments specify particular modules to report on.
+# modules =
+
+# include =
+
+omit =
+  # omit any unittest
+  *_unittest.py
+  # omit any __init__.py
+  *_init__.py
+
+
+[html]
+directory = coverage_html_report
+
+[annotate]
+directory = coverage_annotated_sources

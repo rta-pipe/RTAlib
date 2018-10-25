@@ -216,10 +216,11 @@ class RedisDBConnectorBASIC(DBConnector):
                 print("[RedisConnectorBASIC] Error: {}".format(e))
                 return False
 
-
-        if modelName is not self.indexOn:
-            print("[RedisConnectorBASIC] Error: No index exists for model '{}'.\nPlease, add the name of the index in the rtalibconfig configuration file in the following format: modelName:indexName".format(modelName))
+        if modelName not in self.indexOn:
+            print("[RedisConnectorBASIC] Error: No index exists for model '{}'.\nPlease, add the name of the index in the rtalibconfig configuration file in the following format: modelName:indexName\nIndexes supported: {}.".format(modelName,self.indexOn))
             return False
+
+
         index = self.indexOn[modelName]
         self.pipe.zadd(modelName, json.dumps(dataDict), dataDict[index])
         # self.cachedUniqueIds['uniqueId:'+modelName] += 1

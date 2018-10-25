@@ -29,7 +29,9 @@ PyRTAlib/PyRTAlib/Utils/__pycache__
 
 PyRTAlib/dump.rdb
 
-
+coverage_html_report/
+coverage_annotated_sources/
+cov_results/
 
 # Compiled Object files
 *.slo

@@ -399,7 +399,7 @@ def checkNumberOfRows(config):
 
 
 
-class DL3ASTRIDB_interface(unittest.TestCase):
+class RTA_DL_DB_interface(unittest.TestCase):
 
     os.environ['RTACONFIGFILE'] = './'
 

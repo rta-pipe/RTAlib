@@ -82,7 +82,7 @@ jobs:
             sudo pip install pipenv;
       - restore_cache:
           keys:
-            - pyrtalib-cachekey-{{ checksum "~/rtalib-circleci/PyRTAlib/setup.py" }}
+            - pyrtalib-cachekey-{{ checksum "~/rtalib-circleci/PyRTAlib/Pipfile.lock" }}
       - run:
           name: Installing PyRTAlib dependencies
           command: |
@@ -90,7 +90,7 @@ jobs:
             pipenv install -e . ;
             pipenv graph;
       - save_cache:
-          key: pyrtalib-cachekey-{{ checksum "~/rtalib-circleci/PyRTAlib/setup.py" }}
+          key: pyrtalib-cachekey-{{ checksum "~/rtalib-circleci/PyRTAlib/Pipfile.lock" }}
           paths:
             - /home/circleci/.local/share/virtualenvs/PyRTAlib-OIpGoUu8
       - run:

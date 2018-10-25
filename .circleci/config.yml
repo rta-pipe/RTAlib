@@ -84,6 +84,30 @@ jobs:
               paths:
                 - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
 
+      - restore_cache:
+          keys:
+            - cxxrtalic-mysqlcppconnector-cache
+      - run:
+          name: Installng mysqlcppconnector dependencies
+          command: |
+            cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+            if [ ! -d ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install ]; then
+            echo MySql connector cpp installing ...
+            git clone https://github.com/mysql/mysql-connector-cpp.git
+            mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
+            cd mysql-connector-cpp
+            git checkout 1.1
+            cmake -DCMAKE_INSTALL_PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install -DBOOST_ROOT=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/boost_1_67_0
+            make
+            make install
+            echo MySql connector cpp installed.
+            fi
+      - save_cache:
+              key: cxxrtalic-mysqlcppconnector-cache
+              paths:
+                - ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
+
+
       - run:
           name: Installing mysql-client
           command: sudo apt install -y mysql-client

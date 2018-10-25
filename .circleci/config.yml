@@ -112,12 +112,12 @@ jobs:
             ~/rtalib-circleci/cc-test-reporter after-build --coverage-input-type coverage.py --prefix ./ --exit-code $EXIT_CODE -r 13c050dace472310ac61ddf3c894a7bcaf46aa836f65ba80b7cf1561bf91fef3;
             pipenv run python -m coverage report >> ~/rtalib-circleci/test_artifacts/python_codecoverage_results.txt
       - store_artifacts:
-          path: ~/rtalib-circleci/test_artifacts
+          path: ~/rtalib-circleci/test_artifacts/python_unittest_results.txt
           destination: python_unittest_results
       - store_artifacts:
-          path: ~/rtalib-circleci/test_artifacts
+          path: ~/rtalib-circleci/test_artifacts/python_codecoverage_results.txt
           destination: python_codecoverage_results
-          
+
 workflows:
   version: 2
   pyrtalib_circleci_test:

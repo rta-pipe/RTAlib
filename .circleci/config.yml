@@ -17,7 +17,6 @@ defaults: &build
     - checkout
     - restore_cache:
         keys:
-          - hiredis-deps-{{ checksum "CHANGELOG.md" }}
           - hiredis-deps-
 
     - run:

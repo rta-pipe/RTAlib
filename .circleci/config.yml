@@ -13,89 +13,29 @@ defaults: &build
         MYSQL_USER: root
     - image: circleci/redis:4.0.10-stretch
 
-jobs:
-  PyRTAlibTest:
-    <<: *build
-    working_directory: ~/py-rtalib-circleci
-    steps:
-      - checkout
-      - run:
-          name: Installing mysql-client
-          command: sudo apt install -y mysql-client
-      - run:
-          name: install dockerize
-          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-          environment:
-            DOCKERIZE_VERSION: v0.3.0
-      - run:
-          name: Wait for db
-          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
-      - run:
-          name: Executing sql script to initialize db
-          command: |
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-            sudo mysql -h 127.0.0.1 -u root  -v < $DIR/PyRTAlib/TestEnvironment/setup/setup_test_db_circleci.sql
-      - run:
-          name: Creating the rtalibconfig configuration file
-          command: |
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-            echo "[General]
-            modelname=rtalib_dl_test_table
-            mjdref=50000
-            debug=no
-            batchsize=1
-            numberofthreads=1
+  steps:
+    - restore_cache:
+        keys:
+          - hiredis-deps-{{ checksum "CHANGELOG.md" }}
+          - hiredis-deps-
+    - run:
+        name: Installng CxxRTAlib dependencies
+        command: |
+          mkdir ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+          mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed
 
-            [Dtr]
-            active=no
-            debug=yes
-            inputchannel=dtr.input
-            outputchannel=dtr.output
+          cd External_Libraries_Building_Area
+          echo Hiredis installing ...
+          git clone https://github.com/redis/hiredis.git
+          cd hiredis
+          export PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
+          make
+          echo Hiredis installed.
 
-            [MySql]
-            host=127.0.0.1
-            username=rtalib_test_user
-            password=x1x2x3
-            dbname=rtalib_test_db
-
-            [Redis]
-            host=127.0.0.1
-            password=
-            dbname=1
-            indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
-
-            [MySqlPipelineDatabase]
-            active=no
-            debug=no
-            host=
-            username=
-            password=
-            dbname=
-            " > $DIR/PyRTAlib/TestEnvironment/rtalibconfig
-      - run:
-          name: Creating folder for test results
-          command: |
-            mkdir ~/py-rtalib-circleci/test_artifacts
-            touch ~/py-rtalib-circleci/test_artifacts/python_test_result.txt
-
-      - run:
-          name: Installing PyRTAlib dependencies
-          command: |
-            cd PyRTAlib/
-            sudo pip install pipenv
-            pipenv install -e .
-            pipenv graph
-      - run:
-          name: PyRTAlib testing
-          command: |
-            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-            cd $DIR/PyRTAlib/TestEnvironment
-            pipenv run python unit_test.py > ~/py-rtalib-circleci/test_artifacts/python_test_result.txt
-      - store_test_results:
-          path: ~/py-rtalib-circleci/test_artifacts
-      - store_artifacts:
-          path: ~/rtalib-circleci/test_artifacts
-          destination: python_test_result
+    - save_cache:
+            key: hiredis-deps-{{ checksum "CHANGELOG.md" }}
+            paths:
+              - External_Libraries_Building_Area/hiredis
 
   CxxRTAlibTest:
     <<: *build
@@ -160,48 +100,7 @@ jobs:
           command: |
             mkdir ~/cxx-rtalib-circleci/test_artifacts
             touch ~/cxx-rtalib-circleci/test_artifacts/cxx_test_result.txt
-      - run:
-          name: Installng CxxRTAlib dependencies
-          command: |
-            mkdir ~/cxx-rtalib-circleci/External_Libraries_Building_Area
-            mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed
 
-            cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
-            echo Bootstrap installing ...
-            wget https://cmake.org/files/v3.13/cmake-3.13.0-rc1.tar.gz
-            tar -zxvf cmake-3.13.0-rc1.tar.gz
-            cd cmake-3.13.0-rc1
-            ./bootstrap --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
-            make
-            make install
-            echo Bootstrap installed.
-
-            cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
-            echo Boost installing ...
-            wget https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2
-            tar --bzip2 -xf boost_1_67_0.tar.bz2
-            cd boost_1_67_0/tools/build
-            ./bootstrap.sh --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
-            echo Boost installed.
-
-            cd External_Libraries_Building_Area
-            echo MySql connector cpp installing ...
-            git clone https://github.com/mysql/mysql-connector-cpp.git
-            mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
-            cd mysql-connector-cpp
-            git checkout 1.1
-            cmake -DCMAKE_INSTALL_PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install -DBOOST_ROOT=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/boost_1_67_0
-            make
-            make install
-            echo MySql connector cpp installed.
-
-            cd External_Libraries_Building_Area
-            echo Hiredis installing ...
-            git clone https://github.com/redis/hiredis.git
-            cd hiredis
-            export PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
-            make
-            echo Hiredis installed.
 
       - run:
           name: CxxRTAlib testing
@@ -214,4 +113,3 @@ workflows:
   pyrtalib_circleci_test:
     jobs:
       - CxxRTAlibTest
-      # - PyRTAlibTest

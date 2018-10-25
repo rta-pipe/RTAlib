@@ -17,23 +17,23 @@ defaults: &build
     - checkout
     - restore_cache:
         keys:
-            - cmake-3.13.0-deps-
+          - cmake-deps-
 
     - run:
-          name: Installng cmkae dependencies
-          command: |
-            cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
-            echo Bootstrap installing ...
-            wget https://cmake.org/files/v3.13/cmake-3.13.0-rc1.tar.gz
-            tar -zxvf cmake-3.13.0-rc1.tar.gz
-            cd cmake-3.13.0-rc1
-            ./bootstrap --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0
-            make
-            make install
-            echo Bootstrap installed.
+        name: Installng cmkae dependencies
+        command: |
+          cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+          echo Bootstrap installing ...
+          wget https://cmake.org/files/v3.13/cmake-3.13.0-rc1.tar.gz
+          tar -zxvf cmake-3.13.0-rc1.tar.gz
+          cd cmake-3.13.0-rc1
+          ./bootstrap --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0
+          make
+          make install
+          echo Bootstrap installed.
 
     - save_cache:
-            key: - cmake-3.13.0-deps-
+            key: - cmake-deps-
             paths:
               - External_Libraries_Building_Area/cmake-3.13.0
 

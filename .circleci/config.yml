@@ -17,6 +17,26 @@ defaults: &build
     - checkout
     - restore_cache:
         keys:
+          - hiredis-deps-
+
+    - run:
+        name: Installng hiredis dependencies
+        command: |
+          cd External_Libraries_Building_Area
+          echo Hiredis installing ...
+          git clone https://github.com/redis/hiredis.git
+          cd hiredis
+          export PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
+          make
+          echo Hiredis installed.
+
+    - save_cache:
+            key: hiredis-deps
+            paths:
+              - External_Libraries_Building_Area/hiredis
+
+    - restore_cache:
+        keys:
           - cmake-deps-
 
     - run:
@@ -37,28 +57,7 @@ defaults: &build
             paths:
               - External_Libraries_Building_Area/cmake-3.13.0
 
-
-  steps:
-    - checkout
-    - restore_cache:
-        keys:
-          - hiredis-deps-
-
-    - run:
-        name: Installng hiredis dependencies
-        command: |
-          cd External_Libraries_Building_Area
-          echo Hiredis installing ...
-          git clone https://github.com/redis/hiredis.git
-          cd hiredis
-          export PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/
-          make
-          echo Hiredis installed.
-
-    - save_cache:
-            key: hiredis-deps
-            paths:
-              - External_Libraries_Building_Area/hiredis
+    
 jobs:
   CxxRTAlibTest:
     <<: *build

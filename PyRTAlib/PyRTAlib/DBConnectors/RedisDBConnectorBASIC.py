@@ -84,7 +84,7 @@ class RedisDBConnectorBASIC(DBConnector):
         try:
             self.conn.ping()
             return True
-        except redis.exceptions.RedisError as err: # pragma: no cover
+        except redis.exceptions.RedisError as err:
             print('[RedisConnector] testConnection() -> Test connection error: {}'.format(err))
 
         return False
@@ -122,7 +122,7 @@ class RedisDBConnectorBASIC(DBConnector):
         try:
             self.conn.zadd(modelName, *element)
             return True
-        except redis.exceptions.RedisError as e: # pragma: no cover
+        except redis.exceptions.RedisError as e:
             print("[RedisConnectorBASIC] Error: streamingInsert() -> {}".format(e))
             return False
 
@@ -139,7 +139,7 @@ class RedisDBConnectorBASIC(DBConnector):
                 if self.debug:
                     print("[RedisConnectorBASIC] batchInsert() -> Transaction started!")
 
-            except redis.exceptions.RedisError as e: # pragma: no cover
+            except redis.exceptions.RedisError as e:
                 print("[RedisConnectorBASIC] Error: batchInsert() -> {}".format(e))
                 return False
 
@@ -147,7 +147,7 @@ class RedisDBConnectorBASIC(DBConnector):
         element = [float(dataDict[index]), json.dumps(dataDict)]
         try:
             self.pipe.zadd(modelName, *element)
-        except redis.exceptions.RedisError as e: # pragma: no cover
+        except redis.exceptions.RedisError as e:
             print("[RedisConnectorBASIC] Error: batchInsert() -> {}".format(e))
             return False
 
@@ -160,7 +160,7 @@ class RedisDBConnectorBASIC(DBConnector):
                 self.pipe.execute()
                 if self.debug:
                     print("[RedisConnectorBASIC] batchInsert() -> commandsSent: {} batchsize: {} -> Commit executed!". format(self.commandsSent, self.batchsize))
-            except redis.exceptions.RedisError as e: # pragma: no cover
+            except redis.exceptions.RedisError as e:
                 print("[RedisConnectorBASIC] Error: batchInsert() -> {}".format(e))
                 return False
 
@@ -185,7 +185,7 @@ class RedisDBConnectorBASIC(DBConnector):
 
                 try:
                     self.pipe.execute()
-                except redis.exceptions.RedisError as e: # pragma: no cover
+                except redis.exceptions.RedisError as e:
                     print("[RedisConnectorBASIC] Error! close() -> Can't commit transaction. Error: {}".format(e))
                     return False
 

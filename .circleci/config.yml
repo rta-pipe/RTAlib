@@ -175,12 +175,14 @@ jobs:
           name: Installing CxxRTAlib
           command: |
             cd ~/cxx-rtalib-circleci/CxxRTAlib
-            echo 'export MYSQL_CXX_CNT="~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install/"' >> $BASH_ENV
-            echo 'export BOOST_PATH="~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0"' >> $BASH_ENV
-            echo 'export REDIS="~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis/"' >> $BASH_ENV
-            echo 'export LD_LIBRARY_PATH="~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install:$LD_LIBRARY_PATH"' >> $BASH_ENV
-            echo 'export LD_LIBRARY_PATH="~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis:$LD_LIBRARY_PATH"' >> $BASH_ENV
             make
+          environment:
+            MYSQL_CXX_CNT: ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install/
+            BOOST_PATH: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
+            REDIS: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis/
+            LD_LIBRARY_PATH: ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install:$LD_LIBRARY_PATH
+            LD_LIBRARY_PATH: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis:$LD_LIBRARY_PATH
+
 
 
 workflows:

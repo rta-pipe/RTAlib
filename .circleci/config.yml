@@ -9,6 +9,9 @@ jobs:
       - image: circleci/python:3.6.6
         environment:
           DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
+          MYSQL_CXX_CNT: ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
+          BOOST_PATH: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
+          REDIS: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
       - image: circleci/mysql:5.7.23-ram
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
@@ -176,13 +179,6 @@ jobs:
           command: |
             cd ~/cxx-rtalib-circleci/CxxRTAlib
             make
-          environment:
-            MYSQL_CXX_CNT: ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install/
-            BOOST_PATH: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
-            REDIS: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis/
-            LD_LIBRARY_PATH: ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install:$LD_LIBRARY_PATH
-            LD_LIBRARY_PATH: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis:$LD_LIBRARY_PATH
-
 
 
 workflows:

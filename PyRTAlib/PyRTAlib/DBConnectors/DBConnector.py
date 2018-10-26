@@ -35,32 +35,30 @@ class DBConnector(ABC):
         self.batchsize = self.config.get('General', 'batchsize', 'int')
 
         self.debug = False
-        if self.config.get('General','debug') == 'yes':
+        if self.config.get('General','debug', 'bool'): # pragma: no cover
             self.debug = True
 
-        # if self.config.get('General','debug') == 'yes':
-        #    print("[DBConnector] Config: {}".format(self.config.get()))
 
         self.commandsSent = 0
         self.conn = None;
 
 
     @abstractmethod
-    def connect(self, db):
+    def connect(self, db): # pragma: no cover
         pass
 
     @abstractmethod
-    def disconnect(self):
+    def disconnect(self): # pragma: no cover
         pass
 
     @abstractmethod
-    def testConnection(self):
+    def testConnection(self): # pragma: no cover
         pass
 
     @abstractmethod
-    def insertData(self, modelName, *args):
+    def insertData(self, modelName, *args): # pragma: no cover
         pass
 
     @abstractmethod
-    def close(self):
+    def close(self): # pragma: no cover
         pass

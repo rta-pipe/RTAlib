@@ -6,11 +6,8 @@ from .Generic import Singleton
 
 class Config(metaclass=Singleton):
 
-    def __init__(self, filepath='', load=True):
-        if load:
-            self.configs = self.parseConfigFile(filepath)
-        else:
-            self.configs = {}
+    def __init__(self, filepath=''):
+        self.configs = self.parseConfigFile(filepath)
 
     def get(self, sectionName = '', attributeName = '', cast=''):
 
@@ -31,12 +28,12 @@ class Config(metaclass=Singleton):
 
             if sectionName in self.configs:
 
-                val = self.configs[sectionName]
+                return self.configs[sectionName]
 
             else:
                 return False
         else:
-            val = self.configs
+            return self.configs
 
 
         if cast=='int':
@@ -62,7 +59,7 @@ class Config(metaclass=Singleton):
                 key = kv[0]
                 value = kv[1]
                 data[key]=value
-                
+
             return data
         else:
             return val

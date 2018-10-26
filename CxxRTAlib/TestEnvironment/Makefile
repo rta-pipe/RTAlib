@@ -24,6 +24,9 @@ SHELL = /bin/sh
 ifndef REDIS
 $(error REDIS is not set.)
 endif
+ifndef GTEST_DIR
+$(error GTEST_DIR is not set.)
+endif
 ifndef MYSQL_CXX_CNT
 $(error MYSQL_CXX_CNT is not set.)
 endif
@@ -37,52 +40,70 @@ ifndef CTA_UTILS
 $(error CTA_UTILS is not set.)
 endif
 
+# Flags passed to the preprocessor.
+# Set Google Test's header directory as a system directory, such that
+# the compiler doesn't generate warnings in Google Test headers.
+CPPFLAGS += -isystem $(GTEST_DIR)/include
+
+
+# All Google Test headers.  Usually you shouldn't change this
+# definition.
+GTEST_HEADERS = $(GTEST_DIR)/include/ \
+                -I$(GTEST_DIR)/include/gtest/internal/*.h
+
+
 
 ####### 1) Project names and system
 SYSTEM= $(shell gcc -dumpmachine)
 
 # Applications
-EXE = testRTAlib
+EXE = unitTest
 
 
 ####### 2) Directories for the compiler
 
 ### Object directories
-OBJECTS_DIR = CxxRTAlib/obj_cpp
-OBJECTS_DIR_C = CxxRTAlib/obj_c
+OBJECTS_DIR = obj_cpp
+OBJECTS_DIR_C = obj_c
+
+### Source test directories
+SOURCE_DIR = src_cpp
+
+### Include test directories
+INCLUDE_DIR = include_cpp
 
 #### Source Cxx directories
-SOURCE_DIR_CXX_DBC = CxxRTAlib/DBConnectors/src_cpp
-SOURCE_DIR_CXX_DM = CxxRTAlib/DataModels/src_cpp
-SOURCE_DIR_CXX_RTA = CxxRTAlib/RTAInterface/src_cpp
-SOURCE_DIR_CXX_U = CxxRTAlib/Utils/src_cpp
+SOURCE_DIR_CXX_DBC = ../CxxRTAlib/DBConnectors/src_cpp
+SOURCE_DIR_CXX_DM = ../CxxRTAlib/DataModels/src_cpp
+SOURCE_DIR_CXX_RTA = ../CxxRTAlib/RTAInterface/src_cpp
+SOURCE_DIR_CXX_U = ../CxxRTAlib/Utils/src_cpp
 
 ### Include Cxx directories
-INCLUDE_DIR_CXX_DBC = CxxRTAlib/DBConnectors/include_cpp
-INCLUDE_DIR_CXX_DM = CxxRTAlib/DataModels/include_cpp
-INCLUDE_DIR_CXX_RTA = CxxRTAlib/RTAInterface/include_cpp
-INCLUDE_DIR_CXX_U = CxxRTAlib/Utils/include_cpp
-
+INCLUDE_DIR_CXX_DBC = ../CxxRTAlib/DBConnectors/include_cpp
+INCLUDE_DIR_CXX_DM = ../CxxRTAlib/DataModels/include_cpp
+INCLUDE_DIR_CXX_RTA = ../CxxRTAlib/RTAInterface/include_cpp
+INCLUDE_DIR_CXX_U = ../CxxRTAlib/Utils/include_cpp
 
 #### Source C directories
-SOURCE_DIR_C_DBC = CxxRTAlib/DBConnectors/src_c
-SOURCE_DIR_C_U = CxxRTAlib/Utils/src_c
+SOURCE_DIR_C_DBC = ../CxxRTAlib/DBConnectors/src_c
+SOURCE_DIR_C_U = ../CxxRTAlib/Utils/src_c
 
 ### Include C directories
-INCLUDE_DIR_C_DBC = CxxRTAlib/DBConnectors/include_c
-INCLUDE_DIR_C_U = CxxRTAlib/Utils/include_c
+INCLUDE_DIR_C_DBC = ../CxxRTAlib/DBConnectors/include_c
+INCLUDE_DIR_C_U = ../CxxRTAlib/Utils/include_c
 
 
-
-PROJECTS_DIR = CxxRTAlib/projects
-EXE_DESTDIR  = CxxRTAlib/bin
-LIB_DESTDIR = CxxRTAlib/lib
+PROJECTS_DIR = projects
+EXE_DESTDIR  = bin
+LIB_DESTDIR = lib
 
 ####### 3) Compiler, tools and options
-
+#
 CXX = g++
 
-CXXFLAGS = -O3 -funroll-loops -std=c++11 -lpthread
+CXXFLAGS = -O3 -funroll-loops -pthread -std=c++11 -I$(INCLUDE_DIR) -I$(GTEST_HEADERS) -I $(INCLUDE_DIR_CXX_DBC) -I$(INCLUDE_DIR_CXX_DM) -I$(INCLUDE_DIR_CXX_RTA) -I$(INCLUDE_DIR_CXX_U) -I$(INCLUDE_DIR_C_U) -I$(INCLUDE_DIR_C_DBC) -I$(REDIS)
+
+LIBS += -L$(GTEST_DIR)/build/lib -lgtest
 
 LIBS += -L$(MYSQL_CXX_CNT)/lib64 -lmysqlcppconn
 
@@ -92,21 +113,17 @@ LIBS += -L$(CTA_ALGORITHMS)/lib -lCTAAlgorithms
 
 LIBS += -L$(CTA_UTILS)/lib -lCTAUtils
 
-CXXFLAGS += -I$(INCLUDE_DIR_CXX_DBC) -I$(INCLUDE_DIR_CXX_DM) -I$(INCLUDE_DIR_CXX_RTA) -I$(INCLUDE_DIR_CXX_U) -I$(INCLUDE_DIR_C_U) -I$(INCLUDE_DIR_C_DBC)
+CXXFLAGS += -I$(MYSQL_CXX_CNT)/include
 
-CXXFLAGS += -I$(REDIS)
+CXXFLAGS += -I$(BOOST_PATH)
 
 CXXFLAGS += -I$(CTA_ALGORITHMS)/code
 
 CXXFLAGS += -I$(CTA_UTILS)/code
 
-CXXFLAGS += -I$(MYSQL_CXX_CNT)/include
-
-CXXFLAGS += -I$(BOOST_PATH)
-
 CXXFLAGS += -Wl,-Bdynamic
 
-CXXFLAGS += -I/usr/local/include/cppconn	
+CXXFLAGS += -I/usr/local/include/cppconn
 
 
 ######### C COMPILING
@@ -122,9 +139,8 @@ LIBS += -L$(REDIS) -lhiredis
 ifeq ($(DEBUG),1)
 	CXXFLAGS += -DDEBUG
 endif
-ifeq ($(VALGRIND),1)
-	CXXFLAGS += -g -O0
-endif
+
+
 
 
 AR       = ar cqs
@@ -138,11 +154,11 @@ SYMLINK  = ln -sf
 DEL_DIR  = rm -rf
 MOVE     = mv -f
 CHK_DIR_EXISTS= test -d
-MKDIR    = mkdir -p	# -p
+MKDIR    = mkdir -p
 
 
 #######  4) VPATH
-VPATH=$(SOURCE_DIR_CXX_DBC):$(INCLUDE_DIR_CXX_DBC):$(SOURCE_DIR_CXX_DM):$(INCLUDE_DIR_CXX_DM):$(SOURCE_DIR_CXX_RTA):$(INCLUDE_DIR_CXX_RTA):$(SOURCE_DIR_CXX_U):$(INCLUDE_DIR_CXX_U):$(SOURCE_DIR_C_DBC):$(INCLUDE_DIR_C_DBC):$(SOURCE_DIR_C_U):$(INCLUDE_DIR_C_U)
+VPATH=$(SOURCE_DIR):$(INCLUDE_DIR):$(SOURCE_DIR_CXX_DBC):$(INCLUDE_DIR_CXX_DBC):$(SOURCE_DIR_CXX_DM):$(INCLUDE_DIR_CXX_DM):$(SOURCE_DIR_CXX_RTA):$(INCLUDE_DIR_CXX_RTA):$(SOURCE_DIR_CXX_U):$(INCLUDE_DIR_CXX_U):$(SOURCE_DIR_C_DBC):$(INCLUDE_DIR_C_DBC):$(SOURCE_DIR_C_U):$(INCLUDE_DIR_C_U)
 vpath %.o $(OBJECTS_DIR)
 
 INCLUDE_CXX=$(foreach dir,$(INCLUDE_DIR_CXX_DBC), $(wildcard $(dir)/*))
@@ -155,7 +171,11 @@ SOURCE_CXX+=$(foreach dir,$(SOURCE_DIR_CXX_DM), $(wildcard $(dir)/*.cpp))
 SOURCE_CXX+=$(foreach dir,$(SOURCE_DIR_CXX_RTA), $(wildcard $(dir)/*.cpp))
 SOURCE_CXX+=$(foreach dir,$(SOURCE_DIR_CXX_U), $(wildcard $(dir)/*.cpp))
 
-OBJECTS=$(addsuffix .o, $(basename $(notdir $(SOURCE_CXX))))
+
+INCLUDE=$(foreach dir,$(INCLUDE_DIR), $(wildcard $(dir)/*))
+SOURCE=$(foreach dir,$(SOURCE_DIR), $(wildcard $(dir)/*.cpp))
+OBJECTS=$(addsuffix .o, $(basename $(notdir $(SOURCE))))
+OBJECTS+=$(addsuffix .o, $(basename $(notdir $(SOURCE_CXX))))
 
 
 # INI PARSER
@@ -167,6 +187,10 @@ SOURCE_C+=$(foreach dir,$(SOURCE_DIR_C_U), $(wildcard $(dir)/*.c))
 
 OBJECTS_C=$(addsuffix .o, $(basename $(notdir $(SOURCE_C))))
 
+$(info $$INCLUDE is [${INCLUDE}])
+$(info $$SOURCE is [${SOURCE}])
+$(info $$OBJECTS is [${OBJECTS}])
+
 $(info $$INCLUDE_CXX is [${INCLUDE_CXX}])
 $(info $$SOURCE_CXX is [${SOURCE_CXX}])
 $(info $$OBJECTS is [${OBJECTS}])
@@ -177,6 +201,7 @@ $(info $$OBJECTS_C is [${OBJECTS_C}])
 
 # Pattern rule
 %.o : %.cpp
+	$(info Patttern rule)
 	$(CXX) $(CXXFLAGS) -c $< -o $(OBJECTS_DIR)/$@
 
 %.o : %.c
@@ -189,16 +214,16 @@ all: exe	#staticlib
 
 exe: makeobjdir $(OBJECTS_C) $(OBJECTS)
 	test -d $(EXE_DESTDIR) || mkdir -p $(EXE_DESTDIR)
-	$(CXX) $(CXXFLAGS) -o $(EXE_DESTDIR)/$(EXE) $(OBJECTS_DIR)/*.o $(LIBS) $(OBJECTS_DIR_C)/*.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(EXE_DESTDIR)/$(EXE) $(OBJECTS_DIR)/*.o $(LIBS) $(OBJECTS_DIR_C)/*.o
 	# $(C) $(CFLAGS) -o $(EXE_DESTDIR)/$(EXE) $(LIBS) $(OBJECTS_DIR_C)/*.o
 
 makeobjdir:
 	test -d $(OBJECTS_DIR) || mkdir -p $(OBJECTS_DIR)
 	test -d $(OBJECTS_DIR_C) || mkdir -p $(OBJECTS_DIR_C)
 
-staticlib: makelibdir makeobjdir $(OBJECTS_DIR) $(OBJECTS_DIR_C)
-		test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
-		$(AR) $(LIB_DESTDIR)/$(LIB_NAME) $(OBJECTS_DIR)/*.o $(OBJECTS_DIR_C)/*.o
+# staticlib: makelibdir makeobjdir $(OBJECTS_DIR_CPP) #$(OBJECTS_DIR_C)
+# 		test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
+# 		$(AR) $(LIB_DESTDIR)/$(LIB_NAME) $(OBJECTS_DIR)/*.o $(OBJECTS_DIR_C)/*.o
 
 makelibdir:
 	test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
@@ -208,6 +233,5 @@ makelibdir:
 #clean: delete all files from the current directory that are normally created by building the program.
 clean:
 	$(DEL_FILE) $(OBJECTS_DIR)/*.o
-	# $(DEL_FILE) $(OBJECTS_DIR_C)/*.o
 	$(DEL_FILE) $(LIB_DESTDIR)/$(LIB_NAME)
 	$(DEL_FILE) $(EXE_DESTDIR)/*

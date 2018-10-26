@@ -1,0 +1,20 @@
+engines:
+  cppcheck:
+    enabled: true
+    exclude_patterns:
+      - "CxxRTAlib/CxxRTAlib/Utils/include_c/ini_config.h"
+      - "CxxRTAlib/CxxRTAlib/Utils/include_c/ini_helper.h"
+      - "CxxRTAlib/CxxRTAlib/Utils/include_c/ini_parser.h"
+      - "CxxRTAlib/CxxRTAlib/Utils/src_c/ini_helper.c"
+      - "CxxRTAlib/CxxRTAlib/Utils/src_c/ini_reader.c"
+      - "CxxRTAlib/CxxRTAlib/Utils/src_c/ini_writer.c"
+
+      - "CxxRTAlib/CxxRTAlib/Utils/include_cpp/IniEntry.hpp"
+      - "CxxRTAlib/CxxRTAlib/Utils/include_cpp/IniFile.hpp"
+      - "CxxRTAlib/CxxRTAlib/Utils/include_cpp/IniParser.hpp"
+      - "CxxRTAlib/CxxRTAlib/Utils/include_cpp/IniSection.hpp"
+      - "CxxRTAlib/CxxRTAlib/Utils/src_cpp/IniParser.cpp"
+
+    checks:
+      postfixOperator:
+        enabled: false

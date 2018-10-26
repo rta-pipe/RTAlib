@@ -38,7 +38,7 @@ class DTR_CTA_DetectionsDataTransformer(DTR_Transformer):
         #return ['instrument_id', 'observation_id', 'analysis_session_type_id', 'sqrtts', 'x', 'y']
 
     def getOutputChannel(self, eventData):
-        return self.config.get('Dtr','outputchannel')+'.'+eventData['instrument_id']+'.'+eventData['observation_id']+'.'+eventData['analysis_session_type_id']
+        return 'gui_data.'+self.config.get('Dtr','guiname')+'.'+eventData['instrument_id']+'.'+eventData['observation_id']+'.'+eventData['analysis_session_type_id']
 
     def getStoreLocationKey(self, eventData):
         return 'gui_data.'+self.config.get('Dtr','guiname')+'.'+eventData['instrument_id']+'.'+eventData['observation_id']+'.'+eventData['analysis_session_type_id']+'.detection'
@@ -50,7 +50,7 @@ class DTR_CTA_DetectionsDataTransformer(DTR_Transformer):
         # Converting TTs to MJDs
         eventData["tstart_mjd"] = str((float(eventData["tstart"]) / 86400.0) + 53005.0)
         eventData["tstop_mjd"]  = str((float(eventData["tstop"]) / 86400.0) + 53005.0)
-        
+
         # Compute x in TT
         x_tt = float(eventData["tstart"]) + (float(eventData["tstop"])-float(eventData["tstart"]))/2
 

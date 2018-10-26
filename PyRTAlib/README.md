@@ -13,7 +13,7 @@ The following features are supported:
 - [B] possibility to update other tables at the end of each transaction.
 - [C] using the Redis Pub/Sub mechanism to send messages and data into Redis channels to enable asynchronous communication between the RTAlib and other systems.
 - [D] specifying the type of data with the implementation of the data model classes.
-- [E] a stand alone deamon that uses Redis Pub/Sub mechanism, listens for the RTAlib data messages and forward those data messages to a [https://github.com/IftachSadeh/ctaOperatorGUI] (Graphic User Interface) displaying Data Quality components.
+- [E] a stand alone deamon that uses Redis Pub/Sub mechanism, listens for the RTAlib data messages and forward those data messages to a [GUI] (https://github.com/IftachSadeh/ctaOperatorGUI) displaying Data Quality components.
 
 ## Who implements the features
 - DBConnectors
@@ -154,15 +154,26 @@ Arguments:
 ```python
 python performance_test.py redis-basic 5000 ../
 python performance_test_multithreading.py mysql 5000 ../
-
 ```
 
 ## Test code coverage
-The code coverage is measured with a synchronous single-thread execution.
+The code coverage is measured with a synchronous single-thread execution with the Coverage.py ([docs](https://coverage.readthedocs.io/en/v4.5.x/index.html)) library.
 
-Coverage.py ([docs](https://coverage.readthedocs.io/en/v4.5.x/index.html)) collects execution data in a file called “.coverage”. If need be, you can set a new file name (.coverage.xyz
+Configuration file options: https://coverage.readthedocs.io/en/v4.5.x/config.html
+In order to run the coverage test, activate the virtualenv and execute the following command:
+```bash
+cd TestEnvironment/code_coverage
+. run_coverage_test.sh
+```
 
-If you need to collect coverage data from different machines or processes, coverage.py can combine multiple files into one for reporting. Once you have created a number of these files
+### Check installation of Coverage library
+The following command:
+```python
+coverage --version
+```
+Coverage.py ([docs](https://coverage.readthedocs.io/en/v4.5.x/index.html)) collects execution data in a file called “.coverage”. If need be, you can set a new file name (.coverage.xyz) with the COVERAGE_FILE environment variable. This can include a path to another directory.
+
+If you need to collect coverage data from different machines or processes, coverage.py can combine multiple files into one for reporting. Once you have created a number of these files, you can copy them all to a single directory, and use the combine command to combine them into one .coverage data file
 ```bash
 coverage combine
 coverage combine results_folder/
@@ -174,10 +185,10 @@ coverage erase
 
 Reporting:
 * Coverage.py provides a few styles of reporting, with the report, html, annotate, and xml commands.
-* If you provide a --fail-under value, the total percentage covered will be compared to that value. If it is less, the command will exit with a status code of 2, indicating that the t
+* If you provide a --fail-under value, the total percentage covered will be compared to that value. If it is less, the command will exit with a status code of 2, indicating that the total coverage was less than your target. This can be used as part of a pass/fail condition, for example in a continuous integration server.
 * The -m flag also shows the line numbers of missing statements.
 * The --skip-covered switch will leave out any file with 100% coverage, letting you focus on the files that still need attention.
-* The html command creates an HTML report similar to the report summary, but as an HTML file. Each module name links to the source file decorated to show the status of each line. [htm
+* The html command creates an HTML report similar to the report summary, but as an HTML file. Each module name links to the source file decorated to show the status of each line. [html report sample](https://nedbatchelder.com/files/sample_coverage_html/index.html). The -d argument specifies an output directory, defaulting to “htmlcov”: coverage html -d coverage_html
 
 Configuration file options: https://coverage.readthedocs.io/en/v4.5.x/config.html
 
@@ -200,20 +211,6 @@ or
 ```bash
 sudo yum install python3-devel gcc
 ```
-### Statement coverage
-
-```bash
-coverage run my_program.py arg1 arg2
-```
-If your coverage results seem to be overlooking code that you know has been executed, try running coverage.py again with the --timid flag.
-
-### Branch coverage
-```bash
-coverage run --branch my_program.py arg1 arg2
-```
-
-* Exluding [debug branches](https://coverage.readthedocs.io/en/v4.5.x/excluding.html#excluding-code-from-coverage-py)
-* Exluding [structurally partial branches](https://coverage.readthedocs.io/en/v4.5.x/branch.html#structurally-partial-branches)
 
 ## DTR
 ### Starting the DTR deamon

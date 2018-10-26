@@ -132,7 +132,7 @@ class DTR():
 
                     if self.DEBUG:
                         print("-->[DTR thread] Data transformer ",transformerName,"\n" \
-                                            "Saving transformed data to Redis at ",storeLocationKey,"\n" \
+                                            "Saving transformed data to Redis at ",storeLocationKey," in database nr: ",self.config.get('Redis','dbname'),"\n" \
                                             "Data type: ", dataType, "\n" \
                                             "Output channel: ", outputChannel, "\n" \
                                             "storeLocationKey: ", storeLocationKey)

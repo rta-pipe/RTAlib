@@ -49,25 +49,21 @@ jobs:
             debug=no
             batchsize=1
             numberofthreads=1
-
             [Dtr]
             active=no
             debug=yes
             inputchannel=dtr.input
             outputchannel=dtr.output
-
             [MySql]
             host=127.0.0.1
             username=rtalib_test_user
             password=x1x2x3
             dbname=rtalib_test_db
-
             [Redis]
             host=127.0.0.1
             password=
             dbname=1
             indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
-
             [MySqlPipelineDatabase]
             active=no
             debug=no
@@ -114,7 +110,6 @@ jobs:
             ./bootstrap --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.12.3
             make
             make install
-
             echo Bootstrap installed.
             fi
       - save_cache:
@@ -173,14 +168,11 @@ jobs:
           command: |
             mkdir ~/cxx-rtalib-circleci/test_artifacts
             touch ~/cxx-rtalib-circleci/test_artifacts/cxx_test_result.txt
-
       - run:
           name: Installing CxxRTAlib
           command: |
             cd ~/cxx-rtalib-circleci/CxxRTAlib
             make
-
-
 workflows:
   version: 2
   pyrtalib_circleci_test:

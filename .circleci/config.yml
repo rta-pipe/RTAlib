@@ -151,9 +151,11 @@ jobs:
             echo MySql connector cpp installing ...
             git clone https://github.com/mysql/mysql-connector-cpp.git
             mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
+            mkdir ~/cxx-rtalib-circleci/External_Libraries_Building_Area/mysql-connector-cpp-build
             cd mysql-connector-cpp
-            git checkout 1.1
-            /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.12.3/bin/cmake -DCMAKE_POLICY_DEFAULT_CMP0022=NEW -DCMAKE_INSTALL_PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install -DBOOST_ROOT=~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
+            git checkout 8.0
+            cd ../mysql-connector-cpp-build
+            /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.12.3/bin/cmake -DCMAKE_POLICY_DEFAULT_CMP0022=NEW -DCMAKE_INSTALL_PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install -DBOOST_ROOT=~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0 ~/cxx-rtalib-circleci/External_Libraries_Building_Area/mysql-connector-cpp
             make
             make install
             echo MySql connector cpp installed.

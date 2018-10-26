@@ -9,7 +9,7 @@ jobs:
       - image: circleci/python:3.6.6
         environment:
           DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
-      - image: circleci/mysql:5.7.23-ram
+      - image: circleci/mysql:5.7.17
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_DATABASE: rtalib_test_db
@@ -44,29 +44,30 @@ jobs:
 
       - restore_cache:
           keys:
-            - cxxrtalic-cmake-3.13.0-rc1-cache
+            - cxxrtalic-cmake-3.12.3-cache
       - run:
           name: Installng cmake dependencies
           command: |
             cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
-            if [ ! -d ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0-rc1 ]; then
+            if [ ! -d ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.12.3 ]; then
             echo Bootstrap installing ...
-            wget https://cmake.org/files/v3.13/cmake-3.13.0-rc1.tar.gz
-            tar -zxvf cmake-3.13.0-rc1.tar.gz
-            cd cmake-3.13.0-rc1
-            ./bootstrap --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0-rc1
+            wget https://cmake.org/files/v3.12/cmake-3.12.3.tar.gz
+            tar -zxvf cmake-3.12.3.tar.gz
+            cd cmake-3.12.3
+            ./bootstrap --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.12.3
             make
             make install
+
             echo Bootstrap installed.
             fi
       - save_cache:
-              key: cxxrtalic-cmake-3.13.0-rc1-cache
+              key: cxxrtalic-cmake-3.12.3-cache
               paths:
-                - ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0-rc1
+                - ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.12.3
 
       - restore_cache:
           keys:
-            - cxxrtalic-boost-cache
+            - cxxrtalic-boost-1-67-0-cache
       - run:
           name: Installng Boost dependencies
           command: |
@@ -77,10 +78,11 @@ jobs:
             tar --bzip2 -xf boost_1_67_0.tar.bz2
             cd boost_1_67_0/tools/build
             ./bootstrap.sh
+            ./b2 install --prefix=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/boost_1_67_0
             echo Boost installed.
             fi
       - save_cache:
-              key: cxxrtalic-boost-cache
+              key: cxxrtalic-boost-1-67-0-cache
               paths:
                 - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
 
@@ -97,7 +99,7 @@ jobs:
             mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
             cd mysql-connector-cpp
             git checkout 1.1
-            /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0-rc1/bin/cmake -DCMAKE_INSTALL_PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install -DBOOST_ROOT=~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
+            /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.12.3/bin/cmake -DCMAKE_POLICY_DEFAULT_CMP0022=NEW -DCMAKE_INSTALL_PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install -DBOOST_ROOT=~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
             make
             make install
             echo MySql connector cpp installed.

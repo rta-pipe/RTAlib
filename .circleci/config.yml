@@ -174,7 +174,7 @@ jobs:
       - run:
           name: Installing CxxRTAlib
           command: |
-            cd ~/circleci/cxx-rtalib-circleci/CxxRTAlib
+            cd ~/cxx-rtalib-circleci/CxxRTAlib
             echo 'export MYSQL_CXX_CNT="~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install/"' >> $BASH_ENV
             echo 'export BOOST_PATH="~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0"' >> $BASH_ENV
             echo 'export REDIS="~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis/"' >> $BASH_ENV

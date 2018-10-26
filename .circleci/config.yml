@@ -44,7 +44,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - cxxrtalic-cmake-cache
+            - cxxrtalic-cmake-3.13.0-rc1-cache
       - run:
           name: Installng cmake dependencies
           command: |
@@ -60,7 +60,7 @@ jobs:
             echo Bootstrap installed.
             fi
       - save_cache:
-              key: cxxrtalic-cmake-cache
+              key: cxxrtalic-cmake-3.13.0-rc1-cache
               paths:
                 - ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0-rc1
 
@@ -86,7 +86,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - cxxrtalic-mysqlcppconnector-cache
+            - cxxrtalic-mysql-cxx-connector-cache
       - run:
           name: Installng mysqlcppconnector dependencies
           command: |
@@ -97,13 +97,13 @@ jobs:
             mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
             cd mysql-connector-cpp
             git checkout 1.1
-            cmake -DCMAKE_INSTALL_PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install -DBOOST_ROOT=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0
+            /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.13.0-rc1/bin/cmake -DCMAKE_INSTALL_PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install -DBOOST_ROOT=~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
             make
             make install
             echo MySql connector cpp installed.
             fi
       - save_cache:
-              key: cxxrtalic-mysqlcppconnector-cache
+              key: cxxrtalic-mysql-cxx-connector-cache
               paths:
                 - ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
 

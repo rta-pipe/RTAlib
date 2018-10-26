@@ -104,7 +104,7 @@ jobs:
             cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/unit_tests;
             for f in *.py; do
               printf "\n\n * Testing ->  $f \n" >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;
-              pipenv run python "$f" >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;
+              pipenv run python "$f" -v >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;
             done;
       - run:
           name: PyRTAlib test coverage

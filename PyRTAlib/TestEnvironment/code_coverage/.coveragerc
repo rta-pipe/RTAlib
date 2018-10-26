@@ -25,6 +25,7 @@ omit =
     *Fits.py
     *Generic.py
     *RedisPublisher.py
+    *UtilsUT.py
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -33,8 +34,9 @@ exclude_lines =
     pragma: no cover
 
     # Don't complain about missing debug-only code:
-    if self.config.get('General','debug', 'bool'):
+    if self.config.get('General','debug', 'bool')
     if self.DEBUG:
+    if self.debug:
 
     # Don't complain if tests don't hit defensive assertion code:
     # raise AssertionError
@@ -47,6 +49,12 @@ exclude_lines =
 fail_under = 30
 
 #partial_branches (multi-string): a list of regular expressions. Any line of code that matches one of these regexes is excused from being reported as a partial branch.
+#partial_branches =
+  # Have to re-enable the standard pragma
+  # pragma: no branch
+  # if self.config.get('General','debug', 'bool'):
+
+
 
 #ignore_errors = True
 
@@ -64,6 +72,7 @@ omit =
   *_unittest.py
   # omit any __init__.py
   *_init__.py
+  *UtilsUT.py
 
 [html]
 directory = coverage_html_report

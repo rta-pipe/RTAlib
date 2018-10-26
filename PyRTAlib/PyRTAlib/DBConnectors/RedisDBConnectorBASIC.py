@@ -26,8 +26,6 @@ import json
 Redis wrapper that exposes a connect/disconnet/insert API.
 """
 
-
-
 class RedisDBConnectorBASIC(DBConnector):
 
 
@@ -42,14 +40,12 @@ class RedisDBConnectorBASIC(DBConnector):
         """Connects to Redis.
 
         Keyword arguments:
-        db -- the database name (default 0)
+        --
 
         Return value:
         True  -- if connection is established
         False -- otherwise
         """
-
-
         connConfig = {}
         connConfig['host']       = self.config.get('Redis','host')
         connConfig['db']         = self.config.get('Redis','dbname')
@@ -59,27 +55,17 @@ class RedisDBConnectorBASIC(DBConnector):
         if(password):
             connConfig['password'] = self.config.get('Redis','password')
 
-        try:
-            self.conn = redis.Redis( **connConfig )
-        except redis.exceptions.ResponseError as err:
-            print('[RedisConnector] Connection error: {}'.format(err))
-            return False
+        self.conn = redis.StrictRedis( **connConfig )
 
         if self.testConnection():
-            #self.cacheAllKeyIndexes()
-            #self.cacheUniqueIds()
             self.pipe = self.conn.pipeline()
-            #print(self.cachedIndexes)
-            #print(self.cachedUniqueIds)
             return True
         else:
             return False
 
 
     def disconnect(self):
-        """No need to disconnect from Redis. It uses a connection pool :)
-        """
-        pass
+        self.conn = None
 
 
     def testConnection(self):
@@ -92,172 +78,123 @@ class RedisDBConnectorBASIC(DBConnector):
         True  -- if connection is alive
         False -- otherwise
         """
-        if self.conn:
-            try:
-                self.conn.ping()
-                return True
-            except redis.exceptions.ResponseError as err:
-                print('[RedisConnector] Test connection error: {}'.format(err))
-                return False
+        if not self.conn:
+            return False
+
+        try:
+            self.conn.ping()
+            return True
+        except redis.exceptions.RedisError as err: # pragma: no cover
+            print('[RedisConnector] testConnection() -> Test connection error: {}'.format(err))
+
         return False
 
-    def decodeResponse(self, response):
-        """By default, all Redis responses are returned as bytes in Python 3. This
-        function converts the bytecode back to utf-8
-
-        Keyword arguments:
-        response -- Redis bytecode response (required)
-
-        Return value:
-        The utf-8 decoding of the response
-        """
-        return response.decode('utf-8')
-
-    def decodeResponseList(self, responseListBytecode):
-        """
-        Keyword arguments:
-        Return value:
-        """
-        responseList = []
-        for lb in responseListBytecode:
-            responseList.append(lb.decode('utf-8'))
-        return responseList
-
-
-
-
-    def getSetElements(self, setname):
-        return self.decodeResponseList(self.conn.smembers(setname))
-
-    def getListElements(self, listname):
-        listlength = self.conn.llen(listname)
-        return self.decodeResponseList(self.conn.lrange(listname, 0, listlength))
-
-    def getKeys(self, pattern):
-        return self.decodeResponseList(self.conn.keys(pattern))
-
-    """
-    def cacheUniqueIds(self):
-        keys = self.getKeys('uniqueId:*')
-        for key in keys:
-            id = self.decodeResponse(self.conn.get(key))
-            self.cachedUniqueIds[key] = int(id)
-    """
-
-    """
-    def cacheAllKeyIndexes(self):
-        keys = self.getKeys('indexstring:*')
-        for key in keys:
-            indexedKey = self.decodeResponse(self.conn.get(key))
-            self.cachedIndexes[key] = indexedKey
-        print(self.cachedIndexes)
-    """
-
-    """ let's try to avoid too many Redis calls
-    def getUniqueId(self, modelname):
-        self.conn.incr('uniqueId:'+modelname) # if key doesnt exist it will be created with value 0
-        uniqueId = self.decodeResponse(self.conn.get('uniqueId:'+modelname))
-        return int(uniqueId)-1
-
-    def getUniqueIds(self, modelname, howMany):
-        self.conn.incrby('uniqueId:'+modelname, howMany) # if key doesnt exist it will be created with value howMany
-        uniqueId = self.decodeResponse(self.conn.get('uniqueId:'+modelname))
-        return list(range(int(uniqueId)-howMany, howMany))
-    """
 
     def insertData(self, modelName, dataDict):
         """
         Keyword arguments:
-        --
+        -- modelName: the key name
+        -- dataDict: the key's value
+
         Return value:
         True  -- if no error occurs
         False -- otherwise
         """
+        if modelName not in self.indexOn:
+            print("[RedisConnectorBASIC] Error: insertData() -> No index exists for model '{}'. Indexes supported: {}.".format(modelName,self.indexOn))
+            return False
 
-        #try:
-            # index = self.cachedIndexes['indexstring:'+modelName]
-            # currentUniqueId = self.cachedUniqueIds['uniqueId:'+modelName]
-
-        #except KeyError as e:
-            #print('[RedisConnectorBASIC] Error: {}\nPlease, insert in Redis a String with key: "indexstring:{}" and value equal to the query filter attribute for that model'.format(e, modelName))
-            # self.conn.delete(modelName) -> the unique key should be deleted
-            #return False
-
-        if self.conn and self.batchsize == 1:
+        if self.batchsize == 1:
             return self.streamingInsert(modelName, dataDict)
-        elif self.conn and self.batchsize > 1:
+        elif self.batchsize > 1:
             return self.batchInsert(modelName, dataDict)
         else:
-            print("[RedisConnector] Error, self.conn is None")
+            print("[RedisConnector] Error! insertData() -> batchsize cannot be lesser than 1!")
             return False
 
 
 
     def streamingInsert(self, modelName, dataDict):
-        try:
 
-            if modelName not in self.indexOn:
-                print("[RedisConnectorBASIC] Error: No index exists for model '{}'. Indexes supported: {}.".format(modelName,self.indexOn))
-                return False
-            index = self.indexOn[modelName]
-            self.pipe.zadd(modelName, json.dumps(dataDict), dataDict[index])
-            # self.pipe.incr('uniqueId:'+modelName)
-            # self.cachedUniqueIds['uniqueId:'+modelName] += 1
-            self.pipe.execute()
+        index = self.indexOn[modelName]
+        element = [float(dataDict[index]), json.dumps(dataDict)]
+
+        try:
+            self.conn.zadd(modelName, *element)
             return True
-        except redis.ConnectionError as e:
-            print("[RedisConnectorBASIC] Error: {}".format(e))
+        except redis.exceptions.RedisError as e: # pragma: no cover
+            print("[RedisConnectorBASIC] Error: streamingInsert() -> {}".format(e))
             return False
 
 
 
     def batchInsert(self, modelName, dataDict):
+
+        index = self.indexOn[modelName]
+
+        ## Start transaction
         if self.commandsSent == 0:
             try:
                 self.pipe = self.conn.pipeline()
+                if self.debug:
+                    print("[RedisConnectorBASIC] batchInsert() -> Transaction started!")
 
-            except redis.ConnectionError as e:
-                print("[RedisConnectorBASIC] Error: {}".format(e))
+            except redis.exceptions.RedisError as e: # pragma: no cover
+                print("[RedisConnectorBASIC] Error: batchInsert() -> {}".format(e))
                 return False
 
-        if modelName not in self.indexOn:
-            print("[RedisConnectorBASIC] Error: No index exists for model '{}'.\nPlease, add the name of the index in the rtalibconfig configuration file in the following format: modelName:indexName\nIndexes supported: {}.".format(modelName,self.indexOn))
+        ## Inserting element
+        element = [float(dataDict[index]), json.dumps(dataDict)]
+        try:
+            self.pipe.zadd(modelName, *element)
+        except redis.exceptions.RedisError as e: # pragma: no cover
+            print("[RedisConnectorBASIC] Error: batchInsert() -> {}".format(e))
             return False
-
-
-        index = self.indexOn[modelName]
-        self.pipe.zadd(modelName, json.dumps(dataDict), dataDict[index])
-        # self.cachedUniqueIds['uniqueId:'+modelName] += 1
 
         self.commandsSent += 1
 
+
+        ## Handle commit
         if self.commandsSent >= self.batchsize:
             try:
-                self.commandsSent = 0
-                # self.pipe.incrby('uniqueId:'+modelName, self.batchsize)
                 self.pipe.execute()
-                return True
-
-            except redis.ConnectionError as e:
-                print("[RedisConnectorBASIC] Error: {}".format(e))
+                if self.debug:
+                    print("[RedisConnectorBASIC] batchInsert() -> commandsSent: {} batchsize: {} -> Commit executed!". format(self.commandsSent, self.batchsize))
+            except redis.exceptions.RedisError as e: # pragma: no cover
+                print("[RedisConnectorBASIC] Error: batchInsert() -> {}".format(e))
                 return False
 
-        else:
-                return True
+            self.commandsSent = 0
+
+
+
+        return True
 
 
 
     def close(self):
-        if self.conn and self.config.get('General','debug', 'bool'):
-            print("[RedisConnectorBASIC] Command sent: {}.  Closing connection..".format(self.commandsSent))
 
-        if self.commandsSent > 0:
-            if self.conn and self.config.get('General','debug', 'bool'):
-                print("[RedisConnectorBASIC] Closing transaction..")
-            try:
+        if self.testConnection():
+
+            if self.debug:
+                print("[RedisConnectorBASIC] close() -> Command sent: {}.  Closing connection..".format(self.commandsSent))
+
+            if self.commandsSent > 0:
+                if self.debug:
+                    print("[RedisConnectorBASIC] close() -> Closing transaction..")
+
+                try:
+                    self.pipe.execute()
+                except redis.exceptions.RedisError as e: # pragma: no cover
+                    print("[RedisConnectorBASIC] Error! close() -> Can't commit transaction. Error: {}".format(e))
+                    return False
+
                 self.commandsSent = 0
-                self.pipe.execute()
-                return True
-            except redis.ConnectionError as e:
-                print("[RedisConnectorBASIC] Error: {}".format(e))
-                return False
+
+
+            self.disconnect()
+            return True
+        else:
+            print("[RedisConnectorBASIC] Error! Connection is already closed")
+            self.conn = None
+            return False

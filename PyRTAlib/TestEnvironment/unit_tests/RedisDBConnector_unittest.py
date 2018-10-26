@@ -22,19 +22,21 @@ import unittest
 import sys
 import os
 from os.path import dirname, abspath, join
-import time
-from random import randint, uniform
 
 rootFolder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 sys.path.append(rootFolder+'/PyRTAlib/')
 
 from PyRTAlib.Utils         import Config
 from PyRTAlib.DBConnectors  import RedisDBConnectorBASIC
-
+from UtilsUT import UtilsRedis
+from UtilsUT import getConfig
 
 
 DEBUG = False
 config_file_path = '../'
+utils = UtilsRedis(config_file_path)
+tableName = 'rtalib_test_table'
+
 
 """
  (            (       (      (                   )       )      )                             )    (
@@ -48,62 +50,124 @@ config_file_path = '../'
 
 """
 
+
 class RedisConnectorBASIC(unittest.TestCase):
 
+
     def test_redis_password_set(self):
-        config = Config(config_file_path)
-        config.set('General', 'debug', DEBUG)
-        redisConn = RedisDBConnectorBASIC(config_file_path)
-        redisConn.connect()
-        self.assertEqual(True, redisConn.testConnection())
-        config.reload(config_file_path)
+        getConfig(config_file_path, DEBUG, reload=True)
 
-    def test_testConnection_wrong_password_basic(self):
-        config = Config(config_file_path)
-        config.set('General', 'debug', DEBUG)
-        config.set('Redis', 'password', 'asdasd')
         redisConn = RedisDBConnectorBASIC(config_file_path)
-        redisConn.connect()
+        self.assertEqual(True, redisConn.connect())
+        self.assertEqual(True, redisConn.testConnection())
+        self.assertEqual(True, redisConn.close())
+
+
+    def test_connection_with_wrong_password(self):
+        getConfig(config_file_path, DEBUG, reload=True)
+        getConfig(config_file_path, DEBUG).set('Redis', 'password', 'asdasd')
+
+        redisConn = RedisDBConnectorBASIC(config_file_path)
+        self.assertEqual(False, redisConn.connect())
         self.assertEqual(False, redisConn.testConnection())
-        config.reload(config_file_path)
+        self.assertEqual(False, redisConn.close())
 
 
-    def test_testConnection_success_basic(self):
+    def test_connection_success(self):
+        getConfig(config_file_path, DEBUG, reload=True)
+
         redisConn = RedisDBConnectorBASIC(config_file_path)
-        redisConn.connect()
+        self.assertEqual(True, redisConn.connect())
         self.assertEqual(True, redisConn.testConnection())
+        self.assertEqual(True, redisConn.close())
 
 
-    def test_unknown_key_basic(self):
+    def test_close_not_opened_connection(self):
+        getConfig(config_file_path, DEBUG, reload=True)
         redisConn = RedisDBConnectorBASIC(config_file_path)
-        redisConn.connect()
-        val = redisConn.conn.get('h243hihbj23b4j23hb4j2h3')
-        self.assertEqual(None, val)
+        self.assertEqual(False, redisConn.close())
 
-    def test_insert_data_basic(self):
+
+    def test_modelname_does_not_exist(self):
+        getConfig(config_file_path, DEBUG, reload=True)
+
         redisConn = RedisDBConnectorBASIC(config_file_path)
-        redisConn.connect()
-        dict1 = {'a': 4, 'b': 2, 'c': 3}
-        dict2 = {'a': 2, 'b': 2, 'c': 3}
-        dict3 = {'a': 9, 'b': 2, 'c': 3}
+        self.assertEqual(True, redisConn.connect())
+        self.assertEqual(False, redisConn.insertData('idontexist', {'a': 4, 'b': 2, 'c': 3}))
+        self.assertEqual(True, redisConn.close())
 
-        self.assertEqual(True, redisConn.insertData('rtalib_test_table',dict1))
-        self.assertEqual(True, redisConn.insertData('rtalib_test_table',dict2))
-        self.assertEqual(True, redisConn.insertData('rtalib_test_table',dict3))
 
-    def test_insert_model_doesnt_exist(self):
+    def test_negative_batchsize(self):
+        getConfig(config_file_path, DEBUG, reload=True)
+        getConfig(config_file_path, DEBUG).set('General', 'batchsize', -1)
+
         redisConn = RedisDBConnectorBASIC(config_file_path)
-        redisConn.connect()
-        dict = {'a': 4, 'b': 2, 'c': 3}
-        self.assertEqual(False, redisConn.insertData('idontexist',dict))
+        self.assertEqual(True, redisConn.connect())
+        self.assertEqual(False, redisConn.insertData(tableName, {'a': 4, 'b': 2, 'c': 3}))
+        self.assertEqual(True, redisConn.close())
+
 
     def test_insert_duplicate_data(self):
+        getConfig(config_file_path, DEBUG, reload=True)
         redisConn = RedisDBConnectorBASIC(config_file_path)
-        redisConn.connect()
-        dict1 = {'a': 5, 'b': 2, 'c': 3}
-        dict2 = {'a': 5, 'b': 2, 'c': 3}
-        self.assertEqual(True, redisConn.insertData('rtalib_test_table',dict1))
-        self.assertEqual(True, redisConn.insertData('rtalib_test_table',dict2))
+
+        self.assertEqual(True, redisConn.connect())
+        self.assertEqual(True, redisConn.insertData(tableName, {'a': 5, 'b': 2, 'c': 3}))
+        self.assertEqual(True, redisConn.insertData(tableName, {'a': 5, 'b': 2, 'c': 3}))
+        self.assertEqual(True, redisConn.close())
+
+
+    def test_streaming_insert(self):
+        utils.deleteKey(tableName)
+
+        getConfig(config_file_path, DEBUG, reload=True)
+        redisConn = RedisDBConnectorBASIC(config_file_path)
+
+        self.assertEqual(True, redisConn.connect())
+        self.assertEqual(True, redisConn.insertData(tableName, {'a': 4, 'b': 2, 'c': 3}))
+        self.assertEqual(True, redisConn.insertData(tableName, {'a': 2, 'b': 2, 'c': 3}))
+        self.assertEqual(True, redisConn.insertData(tableName, {'a': 9, 'b': 2, 'c': 3}))
+        self.assertEqual(True, redisConn.close())
+
+        self.assertEqual(3, utils.countSortedSetMembers(tableName))
+
+
+
+    def test_batch_insert(self):
+        utils.deleteKey(tableName)
+
+        getConfig(config_file_path, DEBUG, reload=True)
+        getConfig(config_file_path, DEBUG).set('General', 'batchsize', 2)
+
+        redisConn = RedisDBConnectorBASIC(config_file_path)
+
+        self.assertEqual(True, redisConn.connect())
+        self.assertEqual(True, redisConn.insertData(tableName, {'a': 4, 'b': 2, 'c': 3}))
+        self.assertEqual(0, utils.countSortedSetMembers(tableName))
+
+        self.assertEqual(True, redisConn.insertData(tableName, {'a': 2, 'b': 2, 'c': 3}))
+        self.assertEqual(2, utils.countSortedSetMembers(tableName))
+
+        self.assertEqual(True, redisConn.close())
+
+
+    def test_batch_insert_closing_connection_before_finish(self):
+        utils.deleteKey(tableName)
+
+        getConfig(config_file_path, DEBUG, reload=True)
+        getConfig(config_file_path, DEBUG).set('General', 'batchsize', 2)
+
+        redisConn = RedisDBConnectorBASIC(config_file_path)
+
+        self.assertEqual(True, redisConn.connect())
+        self.assertEqual(True, redisConn.insertData(tableName, {'a': 4, 'b': 2, 'c': 3}))
+        self.assertEqual(0, utils.countSortedSetMembers(tableName))
+
+        self.assertEqual(True, redisConn.close())
+
+        self.assertEqual(1, utils.countSortedSetMembers(tableName))
+
+
 
 if __name__ == '__main__':
 

@@ -11,7 +11,7 @@ UNIT_TEST_DIR=$DIR/../unit_tests
 
 # ==========> Config.py <==============
 export COVERAGE_FILE=$COV_RESULTS/.coverage.results_Config
-coverage run $UNIT_TEST_DIR/Config_unittest.py
+coverage run $UNIT_TEST_DIR/Config_unittest.py -v
 ret=$?
 if [ $ret -ne 0 ]; then
      echo '==> Error on Config_unittest $ret='$ret
@@ -23,7 +23,7 @@ fi
 
 # ==========> MySqlDBConnector.py <==============
 export COVERAGE_FILE=$COV_RESULTS/.coverage.results_MySqlDBConnector
-coverage run $UNIT_TEST_DIR/MySqlDBConnector_unittest.py
+coverage run $UNIT_TEST_DIR/MySqlDBConnector_unittest.py -v
 ret=$?
 if [ $ret -ne 0 ]; then
      echo '==> Error on MySqlDBConnector_unittest $ret='$ret
@@ -35,7 +35,7 @@ fi
 
 # ==========> RedisDBConnector.py <==============
 export COVERAGE_FILE=$COV_RESULTS/.coverage.results_RedisDBConnector
-coverage run $UNIT_TEST_DIR/RedisDBConnector_unittest.py
+coverage run $UNIT_TEST_DIR/RedisDBConnector_unittest.py -v
 ret=$?
 if [ $ret -ne 0 ]; then
      echo '==> Error on RedisDBConnector_unittest $ret='$ret

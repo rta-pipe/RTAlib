@@ -36,35 +36,6 @@ class MySqlDBConnector(DBConnector):
         self.cursor = None
         self.autocommit = False
 
-
-
-
-    def close(self):
-        if self.conn and self.conn.is_connected():
-            if self.config.get('General','debug', 'bool'):
-                print("[MySqlConnector] in transaction: {}.  Closing connection..".format(self.conn.in_transaction))
-
-            if self.conn.in_transaction:
-
-                if self.config.get('General','debug', 'bool'):
-                    print("[MySqlConnector] Commiting last transaction before exiting")
-                    
-                self.conn.commit()
-
-                if self.config.get('General','debug', 'bool'):
-                    print("[MySqlConnector] in transaction: {}".format(self.conn.in_transaction))
-
-            else:
-                if self.config.get('General','debug', 'bool'):
-                    print("[MySqlConnector] No transaction are active. Exiting without committing")
-
-            self.disconnect()
-            return True
-        else:
-            print("[MySqlConnector] Error, close() -> self.conn object is None")
-            return False
-
-
     # https://dev.mysql.com/doc/connector-python/en/connector-python-connectargs.html
     def connect(self):
         """Connects to MySql.
@@ -91,26 +62,58 @@ class MySqlDBConnector(DBConnector):
             self.conn = mysql.connector.connect(**connConfig)
 
         except mysql.connector.Error as err:
-            print(err)
-            self.conn = None
+            print("[MySqlConnector] Error! connect() -> {}".format(err))
             return False
 
         try:
-            self.cursor = self.conn.cursor()#raw=True)
+            self.cursor = self.conn.cursor()
 
         except mysql.connector.Error as err:
-            print(err)
+            print("[MySqlConnector] Error! connect() -> {}".format(err))
+            self.conn.close()
             self.conn = None
             return False
 
-
-        if self.config.get('General','debug', 'bool'):
-            print("[MySqlConnector] Connected to MySql. {}@{} -> {}".format(connConfig['user'], connConfig['host'], connConfig['database']))
+        if self.debug:
+            print("[MySqlConnector] connect() -> Connected to MySql. {}@{} -> {}".format(connConfig['user'], connConfig['host'], connConfig['database']))
 
         return True
 
+
     def testConnection(self):
-        return self.conn.is_connected()
+        if self.conn:
+            return self.conn.is_connected()
+        else:
+            return False
+
+    def close(self):
+        if self.testConnection():
+
+
+            if self.conn.in_transaction:
+
+                if self.debug:
+                    print("[MySqlConnector] close() -> Committing last transaction before disconnecting")
+
+                try:
+                    self.conn.commit()
+                except mysql.connector.Error as err:
+                    print("[MySqlConnector] Error! close() Can't commit transaction -> {}".format(err))
+
+                if self.debug:
+                    print("[MySqlConnector] close() -> In transaction: {}".format(self.conn.in_transaction))
+
+            else:
+                if self.debug:
+                    print("[MySqlConnector] close() -> No need to commit. Exiting without committing")
+
+            self.disconnect()
+            return True
+        else:
+            print("[MySqlConnector] Error! close() -> connection is already closed")
+            return False
+
+
 
     def disconnect(self):
         """Disconnects to MySql.
@@ -121,17 +124,17 @@ class MySqlDBConnector(DBConnector):
         Return value:
         --
         """
-        if self.config.get('General','debug', 'bool'):
-            print("[MySqlConnector] Disconnecting..")
+        if self.debug:
+            print("[MySqlConnector] disconnect() -> Disconnecting..")
         self.cursor.close()
         self.conn.close()
 
 
     def insertData(self, tableName, dataDict):
         """
-
         Keyword arguments:
-        --
+        -- tableName
+        -- dataDict
 
         Return value:
         True  -- if no error occurs
@@ -139,49 +142,39 @@ class MySqlDBConnector(DBConnector):
         """
         query = self.buildQueryFromDictionary(tableName, dataDict)
 
-        if self.config.get('General','debug', 'bool'):
-            print('[MySqlConnector] Query: {}   Batch size: {}'.format(query,self.config.get('General','batchsize', 'int')))
+        if self.debug:
+            print('[MySqlConnector] insertData() -> \n   Query: {}\n   Batch size: {}'.format(query,self.config.get('General','batchsize', 'int')))
 
-        if self.conn and self.config.get('General','batchsize', 'int') == 1:
+        if self.config.get('General','batchsize', 'int') == 1:
             return self.streamingInsert(query)
-        elif self.conn and self.config.get('General','batchsize', 'int') > 1:
+        elif self.config.get('General','batchsize', 'int') > 1:
             return self.batchInsert(query)
         else:
-            print("[MySqlConnector] Error, insertData() -> self.conn object is None")
+            print("[MySqlConnector] Error! insertData() -> batchsize cannot be lesser than 1!")
             return False
 
-    def fakeInsertData(self, tableName, dataDict):
-        """
 
-        Keyword arguments:
-        --
-
-        Return value:
-        True
-        """
+    def fakeInsertData(self, tableName, dataDict): # pragma: no cover
         query = self.buildQueryFromDictionary(tableName, dataDict)
         return True
 
 
     def streamingInsert(self, query):
-        if self.config.get('General','debug', 'bool'):
-            print("[MySqlConnector] Streaming insert..")
+
         try:
             self.cursor.execute(query)
             return self.SUCCESS_AND_COMMIT
 
         except mysql.connector.Error as err:
-            print("[MySqlConnector] Error from database: {}".format(err))
+            print("[MySqlConnector] streamingInsert() -> Error: {}".format(err))
             return False
 
 
     def batchInsert(self, query):
-        if self.config.get('General','debug', 'bool'):
-            print("[MySqlConnector] Batch insert..")
 
         if self.commandsSent == 0:
-            if self.config.get('General','debug', 'bool'):
-                print("[MySqlConnector] Starting transaction..")
+            if self.debug:
+                print("[MySqlConnector] batchInsert() -> Starting transaction..")
             try:
                 #Transaction isolation is one of the foundations of database processing. Isolation is the I in the acronym ACID;
                 # the isolation level is the setting that fine-tunes the balance between performance and reliability, consistency,
@@ -189,82 +182,55 @@ class MySqlDBConnector(DBConnector):
                 self.conn.start_transaction()#consistent_snapshot=False, isolation_level=None)
 
             except mysql.connector.Error as err:
-                print("[MySqlConnector] Start transaction Err: {}".format(err))
+                print("[MySqlConnector] batchInsert() -> Start transaction err: {}".format(err))
                 return False
 
         try:
-            #print("[MySqlConnector] Executing..")
             self.cursor.execute(query)
 
         except mysql.connector.Error as err:
-            print("[MySqlConnector] Execute Err: {}".format(err))
+            print("[MySqlConnector] batchInsert() -> Execute query err: {}".format(err))
             return False
 
 
         self.commandsSent += 1
 
         if self.commandsSent >= self.config.get('General','batchsize', 'int'):
-            try:
-                if self.config.get('General','debug', 'bool'):
-                    print("[MySqlConnector] Committing.. (command sent: {}, batchsize: {})".format(self.commandsSent, self.config.get('General','batchsize', 'int')))
+            if self.debug:
+                print("[MySqlConnector] batchInsert() -> Committing.. (command sent: {}, batchsize: {})".format(self.commandsSent, self.config.get('General','batchsize', 'int')))
 
+            try:
                 self.conn.commit()
                 self.commandsSent = 0
                 return self.SUCCESS_AND_COMMIT
 
             except mysql.connector.Error as err:
-                print("[MySqlConnector] Failed to commit transaction to database: {}".format(err))
+                print("[MySqlConnector] batchInsert() -> Failed to commit transaction to database: {}".format(err))
                 return False
         else:
                 return self.SUCCESS
 
 
     def executeQuery(self, query):
-        if self.conn:# and not self.conn.in_transaction:
-            if self.config.get('General','debug', 'bool'):
-                print("[MySqlConnector] Executing query {}.. (conn in transaction: {}, autocommit: {})".format(query,self.conn.in_transaction, self.autocommit))
+        if self.testConnection():
+
+            if self.debug:
+                print("[MySqlConnector] executeQuery() -> {}.. (conn in transaction: {}, autocommit: {})".format(query,self.conn.in_transaction, self.autocommit))
 
             try:
-                #self.cursor.close()
-                #self.cursor = self.conn.cursor()
                 self.cursor.execute(query)
                 if not self.autocommit:
                     self.conn.commit()
                 return True
             except mysql.connector.Error as err:
-                print("[MySqlConnector] Failed to execute query {}. Error: {}".format(query, err))
+                print("[MySqlConnector] executeQuery() -> Failed to execute query {}. Error: {}".format(query, err))
                 return False
-        elif not self.conn:
-            print("[MySqlConnector] Error, executeQuery() -> self.conn object is None")
+
+        else:
+            print("[MySqlConnector] Error! executeQuery() -> connection is closed")
             return False
-        #else:
-        #    print("[MySqlConnector] Error, Transaction in progress")
-        #    return False
 
 
-
-    def checkIfTableExist(self, tablename):
-        """Check if table 'tableName' exists in the database. (FOR NOW THIS METHOD IS NOT USED)
-
-        Keyword arguments:
-        tableName -- the table name (required)
-
-        Return value:
-        True  -- if table 'tableName' exists
-        False -- otherwise
-        """
-
-        dbcur = self.conn.cursor()#raw=True)
-        dbcur.execute("""
-        SELECT COUNT(*)
-        FROM information_schema.tables
-        WHERE table_name = '{0}'
-        """.format(tablename.replace('\'', '\'\'')))
-        if dbcur.fetchone()[0] == 1:
-            dbcur.close()
-            return True
-        dbcur.close()
-        return False
 
     def buildQueryFromDictionary(self, tableName, dict):
         """Using the key/value of the input dictionary, builds the the INSERT query
@@ -287,22 +253,3 @@ class MySqlDBConnector(DBConnector):
         queryH += ')'
         queryV += ')'
         return queryS+queryH+' '+queryV
-
-    def buildQueryFromList(self, tableName, *args):
-        """Using the values of the input list, build the the INSERT query
-        INSERT INTO table_name VALUES(value1, value2)
-
-        Keyword arguments:
-        list -- the dictionary (required)
-
-        Return value:
-        The right part of the INSERT query
-        """
-
-        queryS = "INSERT INTO "+tableName+" "
-        queryV = 'VALUES ('
-        for val in args:
-            queryV += str(val)+','
-        queryV = queryV[:-1]
-        queryV += ')'
-        return queryS+queryV

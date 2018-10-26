@@ -47,34 +47,41 @@ config_file_path = '../'
 """
 class ConfigFile(unittest.TestCase):
 
+
     def test_no_path_no_env_var_provided(self):
         if 'RTACONFIGFILE' in os.environ:
             del os.environ['RTACONFIGFILE']
         config = Config('', False)
         self.assertRaises(Exception, config.parseConfigFile, '')
 
+
     def test_file_not_found_wrong_path(self):
         config = Config('', False)
         self.assertRaises(FileNotFoundError, config.parseConfigFile, 'akjdiajwnd')
+
 
     def test_file_not_found_wrong_env_var_path(self):
         os.environ['RTACONFIGFILE'] = './ajdoiwajdoiwd'
         config = Config('', False)
         self.assertRaises(FileNotFoundError, config.parseConfigFile, '')
 
+
     def test_file_found_with_relative_path(self):
         config = Config(config_file_path)
         self.assertEqual(True, bool(config.get()))
+
 
     def test_file_found_with_environment_variable(self):
         os.environ['RTACONFIGFILE'] = config_file_path
         config = Config()
         self.assertEqual(True, bool(config.get()))
 
+
     def test_priority_to_env_var(self):
         os.environ['RTACONFIGFILE'] = config_file_path
         config = Config(config_file_path+'pluto')
         self.assertEqual(True, bool(config.get()))
+
 
     def test_singleton(self):
         config = Config(config_file_path)
@@ -83,15 +90,57 @@ class ConfigFile(unittest.TestCase):
         self.assertEqual(666, config.get('General', 'batchsize'))
         config.reload(config_file_path)
 
-    def test_get(self):
+
+    def test_wrong_attribute(self):
+        config = Config(config_file_path)
+        self.assertEqual(False, config.get('General', 'Paperino'))
+
+
+    def test_wrong_section(self):
+        config = Config(config_file_path)
+        self.assertEqual(False, config.get('Pluto', 'Paperino'))
+
+
+    def test_wrong_section_no_attribute(self):
+        config = Config(config_file_path)
+        self.assertEqual(False, config.get('Pluto'))
+
+
+    def test_get_section(self):
+        config = Config(config_file_path)
+        self.assertEqual(4, len(config.get('MySql')))
+
+
+    def test_set_and_get_value(self):
         config = Config(config_file_path)
         config.set('General', 'batchsize', 666)
         self.assertEqual(666, config.get('General', 'batchsize'))
 
-    def test_get_cast(self):
+
+    def test_int_cast(self):
         config = Config(config_file_path)
-        config.set('General', 'batchsize', '1')
-        self.assertEqual(1, config.get('General', 'batchsize', 'int'))
+        config.set('General', 'mjdref', 666.666)
+        self.assertEqual(True, isinstance(config.get('General', 'mjdref', 'int'), int))
+        self.assertEqual(666, config.get('General', 'mjdref', 'int'))
+
+
+    def test_float_cast(self):
+        config = Config(config_file_path)
+        config.set('General', 'mjdref', 666.666)
+        self.assertEqual(True, isinstance(config.get('General', 'mjdref', 'float'), float))
+        self.assertEqual(666.666, config.get('General', 'mjdref', 'float'))
+
+    def test_bool_true_cast(self):
+        config = Config(config_file_path)
+        config.set('General', 'debug', 'yes')
+        self.assertEqual(True, isinstance(config.get('General', 'debug', 'bool'), bool))
+        self.assertEqual(True, config.get('General', 'debug', 'bool'))
+
+    def test_bool_false_cast(self):
+        config = Config(config_file_path)
+        config.set('General', 'debug', 'alksjdlkasjd')
+        self.assertEqual(True, isinstance(config.get('General', 'debug', 'bool'), bool))
+        self.assertEqual(False, config.get('General', 'debug', 'bool'))
 
 if __name__ == '__main__':
 

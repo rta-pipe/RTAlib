@@ -203,3 +203,113 @@ class RedisDBConnector(DBConnector):
         False - otherwise
         """
         pass
+
+
+        """
+        OLD CODE
+
+        def cacheUniqueIds(self):
+            keys = self.getKeys('uniqueId:*')
+            for key in keys:
+                id = self.decodeResponse(self.conn.get(key))
+                self.cachedUniqueIds[key] = int(id)
+
+
+        def cacheAllKeyIndexes(self):
+            keys = self.getKeys('indexstring:*')
+            for key in keys:
+                indexedKey = self.decodeResponse(self.conn.get(key))
+                self.cachedIndexes[key] = indexedKey
+            print(self.cachedIndexes)
+
+        let's try to avoid too many Redis calls
+        def getUniqueId(self, modelname):
+            self.conn.incr('uniqueId:'+modelname) # if key doesnt exist it will be created with value 0
+            uniqueId = self.decodeResponse(self.conn.get('uniqueId:'+modelname))
+            return int(uniqueId)-1
+
+        def getUniqueIds(self, modelname, howMany):
+            self.conn.incrby('uniqueId:'+modelname, howMany) # if key doesnt exist it will be created with value howMany
+            uniqueId = self.decodeResponse(self.conn.get('uniqueId:'+modelname))
+            return list(range(int(uniqueId)-howMany, howMany))
+
+
+
+        def decodeResponse(self, response):
+            By default, all Redis responses are returned as bytes in Python 3. This
+            function converts the bytecode back to utf-8
+
+            Keyword arguments:
+            response -- Redis bytecode response (required)
+
+            Return value:
+            The utf-8 decoding of the response
+            return response.decode('utf-8')
+
+        def getSetElements(self, setname):
+            return self.decodeResponseList(self.conn.smembers(setname))
+
+
+        def decodeResponseList(self, responseListBytecode):
+
+            responseList = []
+            for lb in responseListBytecode:
+                responseList.append(lb.decode('utf-8'))
+            return responseList
+
+
+
+
+
+        def getListElements(self, listname):
+            listlength = self.conn.llen(listname)
+            return self.decodeResponseList(self.conn.lrange(listname, 0, listlength))
+
+        def getKeys(self, pattern):
+            return self.decodeResponseList(self.conn.keys(pattern))
+
+
+        def checkIfTableExist(self, tablename):
+            Check if table 'tableName' exists in the database. (FOR NOW THIS METHOD IS NOT USED)
+
+            Keyword arguments:
+            tableName -- the table name (required)
+
+            Return value:
+            True  -- if table 'tableName' exists
+            False -- otherwise
+
+
+            dbcur = self.conn.cursor()#raw=True)
+            dbcur.execute
+            SELECT COUNT(*)
+            FROM information_schema.tables
+            WHERE table_name = '{0}'
+            .format(tablename.replace('\'', '\'\'')))
+            if dbcur.fetchone()[0] == 1:
+                dbcur.close()
+                return True
+            dbcur.close()
+            return False
+
+
+        def buildQueryFromList(self, tableName, *args):
+            Using the values of the input list, build the the INSERT query
+            INSERT INTO table_name VALUES(value1, value2)
+
+            Keyword arguments:
+            list -- the dictionary (required)
+
+            Return value:
+            The right part of the INSERT query
+            
+            queryS = "INSERT INTO "+tableName+" "
+            queryV = 'VALUES ('
+            for val in args:
+                queryV += str(val)+','
+            queryV = queryV[:-1]
+            queryV += ')'
+            return queryS+queryV
+
+
+        """

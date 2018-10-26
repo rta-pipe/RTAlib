@@ -9,7 +9,7 @@ jobs:
       - image: circleci/python:3.6.6
         environment:
           DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
-      - image: circleci/mysql:5.7.17
+      - image: circleci/mysql:5.7.23-ram
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_DATABASE: rtalib_test_db
@@ -153,7 +153,7 @@ jobs:
             mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
             mkdir ~/cxx-rtalib-circleci/External_Libraries_Building_Area/mysql-connector-cpp-build
             cd mysql-connector-cpp
-            git checkout 8.0
+            git checkout 1.1
             cd ../mysql-connector-cpp-build
             /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.12.3/bin/cmake -DCMAKE_POLICY_DEFAULT_CMP0022=NEW -DCMAKE_INSTALL_PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install -DBOOST_ROOT=~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0 ~/cxx-rtalib-circleci/External_Libraries_Building_Area/mysql-connector-cpp
             make

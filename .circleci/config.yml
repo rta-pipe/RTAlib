@@ -199,7 +199,7 @@ jobs:
             cd googletest/googletest
             mkdir build
             cd build/
-            cmake ../
+            /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake ../
             fi
       - save_cache:
               key: cxxrtalic-googletest-cache

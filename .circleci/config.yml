@@ -9,11 +9,11 @@ jobs:
       - image: circleci/python:3.6.6
         environment:
           DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
-          CTA_UTILS: ~/cxx-rtalib-circleci/CxxRTAlib/CxxRTAlib/RTAPrototype2-Setup/CTAUtils/
-          CTA_ALGORITHMS: ~/cxx-rtalib-circleci/CxxRTAlib/CxxRTAlib/RTAPrototype2-Setup/CTAAlgorithms/
-          MYSQL_CXX_CNT: ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
-          BOOST_PATH: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
-          REDIS: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
+          CTA_UTILS: /home/circleci/cxx-rtalib-circleci/CxxRTAlib/CxxRTAlib/RTAPrototype2-Setup/CTAUtils/
+          CTA_ALGORITHMS: /home/circleci/cxx-rtalib-circleci/CxxRTAlib/CxxRTAlib/RTAPrototype2-Setup/CTAAlgorithms/
+          MYSQL_CXX_CNT: /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
+          BOOST_PATH: /home/circleci/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
+          REDIS: /home/circleci/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
       - image: circleci/mysql:5.7.23-ram
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
@@ -79,6 +79,7 @@ jobs:
           command: |
             mkdir ~/cxx-rtalib-circleci/External_Libraries_Building_Area
             mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed
+
       - restore_cache:
           keys:
             - cxxrtalic-hiredis-cache
@@ -199,7 +200,7 @@ jobs:
             cd googletest/googletest
             mkdir build
             cd build/
-            /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake ../
+            /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.12.3/bin/cmake ../
             fi
       - save_cache:
               key: cxxrtalic-googletest-cache
@@ -216,7 +217,7 @@ jobs:
           name: Installing CxxRTAlib
           command: |
             cd ~/cxx-rtalib-circleci/CxxRTAlib
-            make
+            
 workflows:
   version: 2
   pyrtalib_circleci_test:

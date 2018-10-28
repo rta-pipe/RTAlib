@@ -9,6 +9,8 @@ jobs:
       - image: circleci/python:3.6.6
         environment:
           DATABASE_URL: mysql://root@127.0.0.1/rtalib_test_db
+          CTA_UTILS: ~/cxx-rtalib-circleci/CxxRTAlib/CxxRTAlib/RTAPrototype2-Setup/CTAUtils/
+          CTA_ALGORITHMS: ~/cxx-rtalib-circleci/CxxRTAlib/CxxRTAlib/RTAPrototype2-Setup/CTAAlgorithms/
           MYSQL_CXX_CNT: ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
           BOOST_PATH: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0
           REDIS: ~/cxx-rtalib-circleci/External_Libraries_Building_Area/hiredis
@@ -185,6 +187,26 @@ jobs:
               paths:
                 - ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cfitsio
 
+      - restore_cache:
+          keys:
+            - cxxrtalic-googletest-cache
+      - run:
+          name: Installng googletest dependencies
+          command: |
+            cd ~/cxx-rtalib-circleci/External_Libraries_Building_Area
+            if [ ! -d ~/cxx-rtalib-circleci/External_Libraries_Building_Area/googletest ]; then
+            git clone https://github.com/google/googletest.git
+            cd googletest/googletest
+            mkdir build
+            cd build/
+            cmake ../
+            fi
+      - save_cache:
+              key: cxxrtalic-googletest-cache
+              paths:
+                - ~/cxx-rtalib-circleci/External_Libraries_Building_Area/googletest
+
+
       - run:
           name: Creating folder for test results
           command: |
@@ -194,7 +216,7 @@ jobs:
           name: Installing CxxRTAlib
           command: |
             cd ~/cxx-rtalib-circleci/CxxRTAlib
-            echo TO_DO_make
+            make
 workflows:
   version: 2
   pyrtalib_circleci_test:

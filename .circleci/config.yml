@@ -217,7 +217,7 @@ jobs:
           name: Installing CxxRTAlib
           command: |
             cd ~/cxx-rtalib-circleci/CxxRTAlib
-            
+            make
 workflows:
   version: 2
   pyrtalib_circleci_test:

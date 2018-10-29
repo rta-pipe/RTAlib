@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if [ "$1" = "--help" ] ; then
   printf "\nThe following script will create databases, users and tables needed by the RTAlib"
   printf "\n"
@@ -99,11 +101,21 @@ password=
 dbname=
 " >> $SCRIPT_DIR/../Configs/rtalibconfig_testing
 
+
+
 #__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\
-# Creating the configuration file for the production environment
-> $SCRIPT_DIR/../Configs/rtalibconfig_default
-echo "[General]
-modelname=
+# Creating the configuration file for the production environment -> one for each datamodel
+
+tables=$(mysql --user="$rtalibuser" --password="$rtalibuserpsw" --database="$dbname" --execute="SELECT table_name FROM information_schema.tables where table_schema='$dbname';")
+
+isFirst=1
+for tableName in $tables;
+  do
+    if [[ "$isFirst" -eq 0 ]];
+      then
+        > $SCRIPT_DIR/../Configs/rtalibconfig_$tableName
+        echo "[General]
+modelname=$tableName
 mjdref=
 debug=
 batchsize=
@@ -128,21 +140,27 @@ dbname=1
 indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
 
 [MySqlPipelineDatabase]
-active=no
-debug=no
+active=
+debug=
 host=
 username=
 password=
 dbname=
-" >> $SCRIPT_DIR/../Configs/rtalibconfig_default
+" >> $SCRIPT_DIR/../Configs/rtalibconfig_$tableName
 
+    printf '\n  * Created rtalibconfig_'$tableName' file in RTAlib/Configs/'
+
+    fi
+    isFirst=0
+
+done
 
 printf '\n  * Created rtalibconfig_testing file in RTAlib/Configs/'
-printf '\n  * Created rtalibconfig_default file in RTAlib/Configs/'
+
 
 for mysql_script in mysql/*.sql; do
   printf '\n  * Executed: '$mysql_script
 done
 printf '\n'
 
-printf '\n\n --> Please, fill in the password field in the Redis section of the configuration files!\n\n'
+printf '\n\n --> Please, fill in the configuration file fields!\n\n'

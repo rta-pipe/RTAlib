@@ -45,8 +45,16 @@ fi
 #coverage report
 
 
-
-
+# ==========> RTA_DL_DB.py <==============
+export COVERAGE_FILE=$COV_RESULTS/.coverage.results_RTA_DL_DB
+coverage run $UNIT_TEST_DIR/RTA_DL_DB_unittest.py -v
+ret=$?
+if [ $ret -ne 0 ]; then
+     echo '==> Error on RTA_DL_DB_unittest $ret='$ret
+     export EXIT_CODE=$ret
+     return;
+fi
+#coverage report
 
 
 

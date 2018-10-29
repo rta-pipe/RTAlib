@@ -32,24 +32,25 @@ class RTA_DL_DB(ABC):
 
     def __init__(self, database, configFilePath = '', pure_multithreading = False):
 
-        #print('___/\____/\____/\___RTAlib-init()___/\____/\____/\___')
 
-        if database != 'mysql' and database != 'redis-basic':
+        if database != 'mysql' and database != 'redis-basic': # pragma_ no cover
             print("[RTA_DL_DB] Error! Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis-basic'))
             exit()
 
+
         self.config = Config(configFilePath) # singleton config object
+
 
         # Debug configuration
         self.DEBUG = False
-        if self.config.get('General','debug', 'bool'):
+        if self.config.get('General','debug', 'bool'): # pragma: no cover
             self.DEBUG = True
+
 
         # DTR configuration ----------------------------------------------------
         self.redisPub = None
         if self.config.get('Dtr', 'active', 'bool'):
             self.redisPub = RedisPublisher(configFilePath)
-
 
 
         # Pure multithreading configuration ------------------------------------
@@ -210,8 +211,7 @@ class RTA_DL_DB(ABC):
             if self.redisPub:
                 self.redisPub.publish(self.config.get('Dtr','inputchannel'), 'STOP')
 
-            self.dbConnector.close()
-            return True
+            return self.dbConnector.close()
 
         # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
         #                    /\____/\____/\____/\____/\____/\____/\____/\____/\

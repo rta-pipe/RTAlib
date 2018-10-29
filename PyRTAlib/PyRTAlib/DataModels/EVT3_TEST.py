@@ -26,7 +26,7 @@ from .EVTbase import EVTbase
 
 class EVT3_TEST(EVTbase):
     def __init__(self, eventidfits, timemjd, ra_deg, dec_deg, energy, detx, dety, mcid, mjdref, observationid, datarepositoryid, status):
-        super().__init__();
+        super().__init__(); # pragma: no cover
 
         ## I convert those data to float() in order to convert them to json later in RedisDBConnector
         ## beacause of --> TypeError: Object of type 'uint32' (<class 'numpy.uint32'>) is not JSON serializable
@@ -52,7 +52,7 @@ class EVT3_TEST(EVTbase):
         return vars(self)
 
     @staticmethod
-    def getRandomEvent():
+    def getRandomEvent(): # pragma: no cover
         rndEvent = []
         rndEvent.append(randint(0, 9999999))
         rndEvent.append(time.time())

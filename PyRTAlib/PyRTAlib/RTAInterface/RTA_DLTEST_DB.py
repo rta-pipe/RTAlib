@@ -28,7 +28,7 @@ class RTA_DLTEST_DB(RTA_DL_DB):
         super().__init__(database, configFilePath, pure_multithreading)
 
         # Pipeline Database Updater
-        if not self.pure_multithreading and self.config.get('MySqlPipelineDatabase', 'active', 'bool'):
+        if not self.pure_multithreading and self.config.get('MySqlPipelineDatabase', 'active', 'bool'): # pragma: no cover
             self.mysqlDbConnector = self.getMySqlConnector(configFilePath, 'MySqlPipelineDatabase')
             self.mysqlDbConnector.connect()
             print('[RTA_DL3ASTRI_DB] Pipeline updater activated.')
@@ -36,13 +36,13 @@ class RTA_DLTEST_DB(RTA_DL_DB):
     def insertEvent(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid = 1, datarepositoryid = 1, status = 1):
         evt3 = EVT3_TEST(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.config.get('General', 'mjdref', 'float'), observationid, datarepositoryid, status)
         committed = super()._insertEvent(evt3)
-        if committed and self.config.get('MySqlPipelineDatabase', 'active', 'bool'):
+        if committed and self.config.get('MySqlPipelineDatabase', 'active', 'bool'): # pragma: no cover
             self.updatePipeline(evt3.timerealtt, evt3.observationid, evt3.datarepositoryid)
 
-    def getRandomEvent(self):
+    def getRandomEvent(self): # pragma : no cover
         return EVT3_TEST.getRandomEvent()
 
-    def updatePipeline(self, timerealtt, observationid, datarepositoryid):
+    def updatePipeline(self, timerealtt, observationid, datarepositoryid): # pragma: no cover
         query = 'update observation_to_datarepository set tenddata='+str(timerealtt)+' where observationid='+str(observationid)+' and datarepositoryid='+str(datarepositoryid)
         if self.config.get('MySqlPipelineDatabase', 'debug', 'bool'):
             print('[RTA_DL3ASTRI_DB] Updating pipeline..query={}'.format(query))

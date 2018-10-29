@@ -69,7 +69,7 @@ jobs:
             username=
             password=
             dbname=
-            " > ~/rtalib-circleci/PyRTAlib/TestEnvironment/rtalibconfig
+            " > ~/rtalib-circleci/Configs/rtalibconfig_testing
       - run:
           name: Creating folder for test results
           command: |

@@ -33,7 +33,7 @@ jobs:
       - run:
           name: Executing sql script to initialize db
           command: |
-            sudo mysql -h 127.0.0.1 -u root  -v < ~/rtalib-circleci/PyRTAlib/TestEnvironment/setup/setup_test_db_circleci.sql
+            sudo mysql -h 127.0.0.1 -u root  -v < ~/rtalib-circleci/SetupDB/circleci/setup_mysql_db.sql
       - run:
           name: Creating the rtalibconfig configuration file
           command: |

@@ -5,7 +5,9 @@ pks1510-089.fits
 push.sh
 
 # Files in PyLibRTA
-rtalibconfig
+rtalibconfig_default
+rtalibconfig_testing
+rtalibconfig_test
 PyRTAlib/rtalibconfig
 PyRTAlib/TestEnvironment/rtalibconfig
 PyRTAlib/TestEnvironment/export_env_var.sh

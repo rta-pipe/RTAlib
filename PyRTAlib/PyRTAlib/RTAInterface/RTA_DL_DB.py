@@ -24,7 +24,7 @@ import threading
 import time
 
 
-from ..DBConnectors import RedisDBConnector, MySqlDBConnector, RedisDBConnectorBASIC
+from ..DBConnectors import MySqlDBConnector, RedisDBConnectorBASIC
 from ..Utils import Config
 from ..Utils import RedisPublisher
 

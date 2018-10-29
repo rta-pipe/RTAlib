@@ -1,7 +1,4 @@
 from .DTR import DTR
 from .DTR_Transformer import DTR_Transformer
-from .DTR_DetectionsDataTransformer import DTR_DetectionsDataTransformer
-from .DTR_ASTRIEVT3DataTransformer import DTR_ASTRIEVT3DataTransformer
-from .DTR_CTA_DetectionsDataTransformer import DTR_CTA_DetectionsDataTransformer
 from .DTR_Utils import convert_fk5_to_gal
 from .DTR_Utils import convert_gal_to_fk5

@@ -4,7 +4,7 @@ The Python version of the RTAlib.
 ## Dependencies
 The following external dependencies are needed:
 * Python 3.6+
-* MySql server (Ver 14.14 Distrib 5.7.17, for Linux (x86_64))
+* MySql server (Ver 14+ Distrib 5.7+, for Linux (x86_64))
 * Redis server (4.0.10+)
 
 ## Features
@@ -26,7 +26,12 @@ The following features are supported:
   - this module contains all the classes that describe the data types that are stored in the database.
 
 ## Installation
-* Create a virtualenv:
+* Clone the source:
+  ```bash
+    cd ~/
+    git clone https://github.com/rta-pipe/RTAlib
+  ```
+* Create a python virtualenv:
   ```bash
     conda create --name rtalib python=3.6
   ```
@@ -36,55 +41,63 @@ The following features are supported:
   ```
 * Install dependencies with:
   ```Python
+    cd ~/RTAlib/PyRTAlib
     python setup.py install
   ```
-* Rename the configuration file from rtalibconfig_default to rtalibconfig.
-* Fill in the configuration file's fields.
-
-## Setup the test environment
-* Call the following script that takes in input a MySql username with enough privileges to create a database:
+* Run the following script:
   ```bash
-    . PyRTAlib/TestEnvironment/setup_test.sh
+    cd ~/RTAlib/SetupDB
+    . setup_db.sh
   ```
-  The script will create a database for testing purpose, an associated user and two tables. It will also create a rtalibconfig configuration file for the test environment (located under PyRTAlib/TestEnvironment).
-* Set the Redis password in the rtalibconfig configuration file.
+* Complete the fields of configuration files located under RTAlib/Configs
+
+The setup_db.sh script will create 2 environment, one for testing and one for production.
+For each environment the script will create:
+* a mysql database
+* a mysql user
+* mysql tables
+* a rtalibconfig under RTAlib/Configs
+
+
 
 ## Configuration options
-```
-[General]
-modelname=         # the name of the mysql table or of the redis zset/hashset
-mjdref=            # MJDREFI+MJDREFF
-debug=             # yes/y/True/'True' or any other value for False
-batchsize=         # performance tuning parameter: the input streaming is writed to db with a batch strategy (if batchsize > 1)
-numberofthreads=   # performance tuning parameter: more than one thread may help to sustain a high-rate input streaming
+There will be one rtalibconfig configuration file for each data model.
 
-[Dtr]
-guiname=
-active=            # yes/y/True/'True' or any other value for False
-debug=             # yes/y/True/'True' or any other value for False
-inputchannel=
-outputchannel=
+### General
+* modelname: mysql table / redis key for the data model
+* mjdref: MJDREFI+MJDREFF
+* debug: yes/y/True/'True' or any other value for False
+* batchsize: performance tuning parameter: =1 streaming strategy, >1 batch strategy
+* numberofthreads: performance tuning parameter: more than one thread may help to sustain a high-rate input
 
-[MySql]
-host=
-username=
-password=
-dbname=
+### DTR
+The DTR system...
+* guiname:
+* active: yes/y/True/'True' or any other value for False
+* debug: yes/y/True/'True' or any other value for False
+* inputchannel:
+* outputchannel:
 
-[Redis]
-host=
-password=
-dbname=
-indexon=           # key:value,key:value
+### MySql
+host:
+username: this field is filled by the setup_db.sh script
+password: this field is filled by the setup_db.sh script
+dbname: this field is filled by the setup_db.sh script
 
-[MySqlPipelineDatabase]
-active=            # yes/y/True/'True' or any other value for False
-debug=             # yes/y/True/'True' or any other value for False
-host=
-username=
-password=
-dbname=
-```
+### Redis
+host:
+password:
+dbname:
+indexon: dictionary field (key:value,key:value)
+
+### MySqlPipelineDatabase
+active: yes/y/True/'True' or any other value for False
+debug:  yes/y/True/'True' or any other value for False
+host:
+username:
+password:
+dbname:
+
 
 ## General usage
 * Specify the location of the configuration file

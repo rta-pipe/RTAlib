@@ -38,7 +38,8 @@ class DTR():
         self.DEBUG = False
         if self.config.get('Dtr','debug', 'bool'):
             self.DEBUG = True
-            print("[DTR] DTR system started!")
+
+        print("[DTR] DTR system started!")
 
         self.transformers = []
 
@@ -55,6 +56,7 @@ class DTR():
 
         self.senderWorker = threading.Thread(target=self.processQueue, args=())
         self.senderWorker.start()
+
 
     def addTransformer(self, transformer):
         if self.DEBUG:
@@ -74,8 +76,7 @@ class DTR():
         pubsub = self.redisConn.pubsub()
         pubsub.subscribe(inputChannel)
 
-        if self.DEBUG:
-            print('[DTR] DTR subscribed to channel {} , waiting for messages...'.format(inputChannel))
+        print('[DTR] Subscribed to channel {} , waiting for messages...'.format(inputChannel))
 
         for message in pubsub.listen():
 

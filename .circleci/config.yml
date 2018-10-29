@@ -143,7 +143,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - cxxrtalic-mysql-cxx-connector-cache
+            - cxxrtalic-mysql-cxx-connector-1.1-cache
       - run:
           name: Installng mysqlcppconnector dependencies
           command: |
@@ -154,7 +154,7 @@ jobs:
             mkdir ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
             mkdir ~/cxx-rtalib-circleci/External_Libraries_Building_Area/mysql-connector-cpp-build
             cd mysql-connector-cpp
-            git checkout 8.0
+            git checkout 1.1
             cd ../mysql-connector-cpp-build
             /home/circleci/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/cmake-3.12.3/bin/cmake -DCMAKE_POLICY_DEFAULT_CMP0022=NEW -DCMAKE_INSTALL_PREFIX=~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install -DBOOST_ROOT=~/cxx-rtalib-circleci/External_Libraries_Building_Area/boost_1_67_0 ~/cxx-rtalib-circleci/External_Libraries_Building_Area/mysql-connector-cpp
             make
@@ -162,7 +162,7 @@ jobs:
             echo MySql connector cpp installed.
             fi
       - save_cache:
-              key: cxxrtalic-mysql-cxx-connector-cache
+              key: cxxrtalic-mysql-cxx-connector-1.1-cache
               paths:
                 - ~/cxx-rtalib-circleci/CxxRTAlib_External_Dependencies_Installed/mysql-connector-cpp-install
 
@@ -217,7 +217,7 @@ jobs:
           name: Installing CxxRTAlib
           command: |
             cd ~/cxx-rtalib-circleci/CxxRTAlib
-            
+
 workflows:
   version: 2
   pyrtalib_circleci_test:

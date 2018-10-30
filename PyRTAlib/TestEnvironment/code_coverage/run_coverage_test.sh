@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 command -v coverage  >/dev/null 2>&1 || { echo >&2 "I require 'coverage' but it's not installed. Please install it or activate a virtual environment. Aborting."; return; }
 
@@ -14,7 +14,7 @@ export COVERAGE_FILE=$COV_RESULTS/.coverage.results_Config
 coverage run $UNIT_TEST_DIR/Config_unittest.py -v
 ret=$?
 if [ $ret -ne 0 ]; then
-     echo '==> Error on Config_unittest $ret='$ret
+     echo "==> Error on Config_unittest ret=$ret"
      export EXIT_CODE=$ret
      return;
 fi
@@ -26,7 +26,7 @@ export COVERAGE_FILE=$COV_RESULTS/.coverage.results_MySqlDBConnector
 coverage run $UNIT_TEST_DIR/MySqlDBConnector_unittest.py -v
 ret=$?
 if [ $ret -ne 0 ]; then
-     echo '==> Error on MySqlDBConnector_unittest $ret='$ret
+     echo "==> Error on MySqlDBConnector_unittest ret=$ret"
      export EXIT_CODE=$ret
      return;
 fi
@@ -38,7 +38,7 @@ export COVERAGE_FILE=$COV_RESULTS/.coverage.results_RedisDBConnector
 coverage run $UNIT_TEST_DIR/RedisDBConnector_unittest.py -v
 ret=$?
 if [ $ret -ne 0 ]; then
-     echo '==> Error on RedisDBConnector_unittest $ret='$ret
+     echo "==> Error on RedisDBConnector_unittest ret=$ret"
      export EXIT_CODE=$ret
      return;
 fi

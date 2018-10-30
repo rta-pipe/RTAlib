@@ -23,11 +23,17 @@ class UtilsRedis:
         self.redisConnector.connect()
 
     def deleteKey(self, key):
-        self.redisConnector.conn.delete(key)
+        if self.redisConnector.testConnection():
+            self.redisConnector.conn.delete(key)
+            return True
+        else:
+            return False
 
     def countSortedSetMembers(self, key):
-        membersNumber = self.redisConnector.conn.zcard(key)
-        return membersNumber
+        if self.redisConnector.testConnection():
+            return self.redisConnector.conn.zcard(key)
+        else:
+            return False
 
 class UtilsMySql:
 
@@ -36,8 +42,15 @@ class UtilsMySql:
         self.mySqlConnector.connect()
 
     def truncateTable(self, tableName):
-        self.mySqlConnector.executeQuery('delete from '+tableName)
+        if self.mySqlConnector.testConnection():
+            self.mySqlConnector.executeQuery('delete from '+tableName)
+            return True
+        else:
+            return False
 
     def countRowsInTable(self, tableName):
-        self.mySqlConnector.executeQuery('SELECT COUNT(*) FROM '+tableName)
-        return int(self.mySqlConnector.cursor.fetchone()[0])
+        if self.mySqlConnector.testConnection():
+            self.mySqlConnector.executeQuery('SELECT COUNT(*) FROM '+tableName)
+            return int(self.mySqlConnector.cursor.fetchone()[0])
+        else:
+            return False

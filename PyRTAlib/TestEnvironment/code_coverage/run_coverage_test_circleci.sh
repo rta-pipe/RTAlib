@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
@@ -12,7 +12,7 @@ export COVERAGE_FILE=$COV_RESULTS/.coverage.results_Config
 pipenv run python -m coverage run $UNIT_TEST_DIR/Config_unittest.py
 ret=$?
 if [ $ret -ne 0 ]; then
-     echo '==> Error on Config_unittest $ret='$ret
+     echo "==> Error on Config_unittest ret=$ret"
      export EXIT_CODE=$ret
      return;
 fi
@@ -24,7 +24,7 @@ export COVERAGE_FILE=$COV_RESULTS/.coverage.results_MySqlDBConnector
 pipenv run python -m coverage run $UNIT_TEST_DIR/MySqlDBConnector_unittest.py
 ret=$?
 if [ $ret -ne 0 ]; then
-     echo '==> Error on MySqlDBConnector_unittest $ret='$ret
+     echo "==> Error on MySqlDBConnector_unittest ret=$ret"
      export EXIT_CODE=$ret
      return;
 fi
@@ -36,7 +36,7 @@ export COVERAGE_FILE=$COV_RESULTS/.coverage.results_RedisDBConnector
 pipenv run python -m coverage run $UNIT_TEST_DIR/RedisDBConnector_unittest.py
 ret=$?
 if [ $ret -ne 0 ]; then
-     echo '==> Error on RedisDBConnector_unittest $ret='$ret
+     echo "==> Error on RedisDBConnector_unittest ret=$ret"
      export EXIT_CODE=$ret
      return;
 fi

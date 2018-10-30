@@ -35,7 +35,7 @@ from UtilsUT import getConfig
 
 
 DEBUG = False
-config_file_path = '../'
+config_file_path = '../../../Configs'
 utils = UtilsMySql(config_file_path)
 tableName = 'rtalib_test_table'
 
@@ -100,7 +100,7 @@ class MySqlConnector(unittest.TestCase):
         getConfig(config_file_path, DEBUG).set('General', 'batchsize', 1)
 
         mysqlConn = MySqlDBConnector(config_file_path)
-        mysqlConn.connect()
+        self.assertEqual(True, mysqlConn.connect())
         self.assertEqual(False, mysqlConn.insertData('lest_fable', {'a': 1, 'b':2, 'c':3, 'd':4}))
         self.assertEqual(True, mysqlConn.close())
 
@@ -121,7 +121,7 @@ class MySqlConnector(unittest.TestCase):
         getConfig(config_file_path, DEBUG).set('General', 'batchsize', 1)
 
         mysqlConn = MySqlDBConnector(config_file_path)
-        mysqlConn.connect()
+        self.assertEqual(True, mysqlConn.connect())
         self.assertEqual(False, mysqlConn.executeQuery('INSERT INTO '+tableName+' VALUES(1,2)'))
         self.assertEqual(True, mysqlConn.close())
 
@@ -133,13 +133,13 @@ class MySqlConnector(unittest.TestCase):
 
 
     def test_streaming_insert(self):
+        self.assertEqual(True, utils.truncateTable(tableName))
+
         getConfig(config_file_path, DEBUG, reload=True)
         getConfig(config_file_path, DEBUG).set('General', 'batchsize', 1)
 
-        utils.truncateTable(tableName)
-
         mysqlConn = MySqlDBConnector(config_file_path)
-        mysqlConn.connect()
+        self.assertEqual(True, mysqlConn.connect())
 
         self.assertEqual(MySqlDBConnector.SUCCESS_AND_COMMIT, mysqlConn.insertData(tableName, {'a': 1, 'b':2, 'c':3, 'd':4}))
         self.assertEqual(0, mysqlConn.conn.in_transaction)
@@ -157,13 +157,13 @@ class MySqlConnector(unittest.TestCase):
 
 
     def test_batch_insert(self):
+        self.assertEqual(True, utils.truncateTable(tableName))
+
         getConfig(config_file_path, DEBUG, reload=True)
         getConfig(config_file_path, DEBUG).set('General', 'batchsize', 2)
 
         mysqlConn = MySqlDBConnector(config_file_path)
-        mysqlConn.connect()
-
-        utils.truncateTable(tableName)
+        self.assertEqual(True, mysqlConn.connect())
 
         self.assertEqual(MySqlDBConnector.SUCCESS, mysqlConn.insertData(tableName, {'a': 1, 'b':2, 'c':3, 'd':4}))
         self.assertEqual(1, mysqlConn.conn.in_transaction)
@@ -181,13 +181,13 @@ class MySqlConnector(unittest.TestCase):
 
 
     def test_batch_closing_connection_before_finish(self):
+        self.assertEqual(True, utils.truncateTable(tableName))
+
         getConfig(config_file_path, DEBUG, reload=True)
         getConfig(config_file_path, DEBUG).set('General', 'batchsize', 2)
 
         mysqlConn = MySqlDBConnector(config_file_path)
-        mysqlConn.connect()
-
-        utils.truncateTable(tableName)
+        self.assertEqual(True, mysqlConn.connect())
 
         self.assertEqual(MySqlDBConnector.SUCCESS, mysqlConn.insertData(tableName, {'a': 1, 'b':2, 'c':3, 'd':4}))
         self.assertEqual(1, mysqlConn.conn.in_transaction)

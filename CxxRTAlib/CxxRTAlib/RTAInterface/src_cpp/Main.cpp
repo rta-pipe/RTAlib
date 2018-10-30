@@ -106,9 +106,8 @@ int main(int argc, char *argv[]) {
   }
 
 
-  auto rtaTestDb = make_shared<RTA_DLTEST_DB>(database, configFilePath);
-
-  sleep(1);
+  unique_ptr<RTA_DLTEST_DB> rtaTestDb(new RTA_DLTEST_DB(database, configFilePath));
+  // RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
 
   auto start = std::chrono::system_clock::now();
 

@@ -21,16 +21,13 @@
 import unittest
 import sys
 import os
-from os.path import dirname, abspath, join
+from os.path import dirname, abspath
 import time
-from random import randint, uniform
 
 rootFolder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 sys.path.append(rootFolder+'/PyRTAlib/')
 
 from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
-from PyRTAlib.Utils         import Config
-#from PyRTAlib.DBConnectors  import MySqlDBConnector
 from UtilsUT import getConfig
 from UtilsUT import UtilsMySql
 from UtilsUT import UtilsRedis
@@ -88,8 +85,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
 
-        rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-        rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+        rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         self.assertEqual(1, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
@@ -107,14 +104,14 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
 
-        rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-        rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+        rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
 
-        rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-        rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+        rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         self.assertEqual(2, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(2, utilsRedis.countSortedSetMembers(tableName))
@@ -133,8 +130,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
 
-        rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-        rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+        rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
@@ -171,8 +168,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path, pure_multithreading=True)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path, pure_multithreading=True)
 
-        rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-        rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+        rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         time.sleep(0.3)
 
@@ -197,16 +194,16 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path, pure_multithreading=True)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path, pure_multithreading=True)
 
-        rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-        rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+        rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         time.sleep(0.3)
 
         self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
 
-        rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-        rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+        rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         time.sleep(0.3)
 
@@ -230,8 +227,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path, pure_multithreading=True)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path, pure_multithreading=True)
 
-        rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-        rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+        rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         s1 = rta_dltest_db_mysql.waitAndClose()
         s2 = rta_dltest_db_redis.waitAndClose()
@@ -255,8 +252,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
 
         for i in range(50):
-            rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-            rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+            rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+            rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         time.sleep(0.3)
 
@@ -282,16 +279,16 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
 
         for i in range(2):
-            rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-            rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+            rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+            rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         time.sleep(0.5)
 
         self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
 
-        rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-        rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+        rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         time.sleep(0.5)
 
@@ -316,8 +313,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
 
         for i in range(2):
-            rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
-            rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+            rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+            rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         time.sleep(0.5)
 
@@ -342,13 +339,13 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
         getConfig(config_file_path, DEBUG, reload=True)
         with RTA_DLTEST_DB('mysql', config_file_path) as rta_dltest_db_mysql:
-            rta_dltest_db_mysql.insertEvent( *rta_dltest_db_mysql.getRandomEvent() )
+            rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         self.assertEqual(1, utilsMySql.countRowsInTable(tableName))
 
 
         with RTA_DLTEST_DB('redis-basic', config_file_path) as rta_dltest_db_redis:
-            rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+            rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
 
@@ -375,7 +372,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
             countMessages += 1
             break
 
-        rta_dltest_db_redis.insertEvent( *rta_dltest_db_redis.getRandomEvent() )
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         for message in channel.listen():
             countMessages += 1
             break

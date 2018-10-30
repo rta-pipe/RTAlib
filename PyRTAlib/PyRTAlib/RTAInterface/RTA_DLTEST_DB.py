@@ -39,6 +39,7 @@ class RTA_DLTEST_DB(RTA_DL_DB):
         if committed and self.config.get('MySqlPipelineDatabase', 'active', 'bool'): # pragma: no cover
             self.updatePipeline(evt3.timerealtt, evt3.observationid, evt3.datarepositoryid)
 
+    @classmethod
     def getRandomEvent(self): # pragma : no cover
         return EVT3_TEST.getRandomEvent()
 

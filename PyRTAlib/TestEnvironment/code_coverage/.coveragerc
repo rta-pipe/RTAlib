@@ -17,11 +17,7 @@ omit =
     /home/circleci/.local*
     *RedisDBConnector.py
     *EVT3_ASTRI.py
-    *EVT3_TEST.py
-    *EVTbase.py
     *RTA_DL3ASTRI_DB.py
-    *RTA_DLTEST_DB.py
-    *RTA_DL_DB.py
     *Fits.py
     *Generic.py
     *RedisPublisher.py

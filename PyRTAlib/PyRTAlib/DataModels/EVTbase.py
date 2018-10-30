@@ -20,7 +20,7 @@
 from ..Utils import Config
 
 class EVTbase:
-    def __init__(self):
+    def __init__(self): # pragma: no cover
 
         """
         NEVER PUT CLASS ATTRIBUTES (they will be inherited by subclasses and added to the dict representation)

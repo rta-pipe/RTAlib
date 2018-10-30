@@ -32,24 +32,25 @@ class RTA_DL_DB(ABC):
 
     def __init__(self, database, configFilePath = '', pure_multithreading = False):
 
-        #print('___/\____/\____/\___RTAlib-init()___/\____/\____/\___')
 
-        if database != 'mysql' and database != 'redis-basic':
+        if database != 'mysql' and database != 'redis-basic': # pragma: no cover
             print("[RTA_DL_DB] Error! Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis-basic'))
             exit()
 
+
         self.config = Config(configFilePath) # singleton config object
+
 
         # Debug configuration
         self.DEBUG = False
-        if self.config.get('General','debug', 'bool'):
+        if self.config.get('General','debug', 'bool'): # pragma: no cover
             self.DEBUG = True
+
 
         # DTR configuration ----------------------------------------------------
         self.redisPub = None
         if self.config.get('Dtr', 'active', 'bool'):
             self.redisPub = RedisPublisher(configFilePath)
-
 
 
         # Pure multithreading configuration ------------------------------------
@@ -123,7 +124,7 @@ class RTA_DL_DB(ABC):
 
 
     @abstractmethod
-    def insertEvent(self, *args):
+    def insertEvent(self, *args): # pragma: no cover
         pass
 
 
@@ -166,12 +167,11 @@ class RTA_DL_DB(ABC):
             return RedisDBConnectorBASIC(configFilePath)
 
 
-
     def getMySqlConnector(self, configFilePath, connectTo='MySql'):
         return MySqlDBConnector(configFilePath, connectTo)
 
     def consumeQueue(self, threadId, dbConnector):
-        if self.config.get('General','debug', 'bool'):
+        if self.config.get('General','debug', 'bool'): # pragma: no cover
             print('-->[RTA_DL_DB thread: {} ] Starting..'.format(threadId))
 
         dbConnector.connect()
@@ -180,7 +180,7 @@ class RTA_DL_DB(ABC):
             event = self.readNewData()
 
             if isinstance(event, str):
-                if self.config.get('General','debug', 'bool'):
+                if self.config.get('General','debug', 'bool'): # pragma: no cover
                     print("-->[RTA_DL_DB thread: {} ] Found END string in eventList.".format(threadId))
                 break
 
@@ -189,12 +189,12 @@ class RTA_DL_DB(ABC):
                     print("-->[RTA_DL_DB thread: {} ] DBconnector insert data error. ".format(threadId))
                     break;
 
-                elif self.config.get('General','debug', 'bool'):
+                elif self.config.get('General','debug', 'bool'): # pragma: no cover
                     print("-->[RTA_DL_DB thread: {} ] Data inserted: {} ".format(threadId, event.getData()))
 
                 self.insertions[threadId] += 1
 
-        if self.config.get('General','debug', 'bool'):
+        if self.config.get('General','debug', 'bool'): # pragma: no cover
             print("-->[RTA_DL_DB thread: {} ] Closing connection and terminating..")
 
         dbConnector.close()
@@ -210,14 +210,13 @@ class RTA_DL_DB(ABC):
             if self.redisPub:
                 self.redisPub.publish(self.config.get('Dtr','inputchannel'), 'STOP')
 
-            self.dbConnector.close()
-            return True
+            return self.dbConnector.close()
 
         # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
         #                    /\____/\____/\____/\____/\____/\____/\____/\____/\
         else:
 
-            if self.config.get('General', 'debug', 'bool'):
+            if self.config.get('General', 'debug', 'bool'): # pragma: no cover
                 print('[RTA_DL_DB] Waiting all threads to finish..')
 
             for i in range(self.config.get('General', 'numberofthreads', 'int')):
@@ -234,29 +233,10 @@ class RTA_DL_DB(ABC):
                 self.redisPub.publish(self.config.get('Dtr','inputchannel'), 'STOP')
 
 
-            if self.config.get('General', 'debug', 'bool'):
+            if self.config.get('General', 'debug', 'bool'): # pragma: no cover
                 print('[RTA_DL_DB] All threads stopped! Computing statistics and closing..')
 
             return self.getStatistics()
-
-
-
-    # DEPRECATED
-    def forceClose(self):
-        if self.config.get('General', 'debug', 'bool'):
-            print('[RTA_DL_DB] Stopping all threads on close()..')
-
-        # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
-        if not self.pure_multithreading:
-            self.dbConnector.close()
-
-        # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
-        #                    /\____/\____/\____/\____/\____/\____/\____/\____/\
-        else:
-            for i in range(self.config.get('General', 'numberofthreads', 'int')):
-                self.run[i] = False
-
-
 
 
 
@@ -271,3 +251,20 @@ class RTA_DL_DB(ABC):
         executionTime = self.end_perf - self.start_perf
 
         return (totalEvents, executionTime, round(totalEvents/executionTime,2))
+
+
+
+    # DEPRECATED
+    def forceClose(self): # pragma: no cover
+        if self.config.get('General', 'debug', 'bool'): # pragma: no cover
+            print('[RTA_DL_DB] Stopping all threads on close()..')
+
+        # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
+        if not self.pure_multithreading:
+            self.dbConnector.close()
+
+        # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
+        #                    /\____/\____/\____/\____/\____/\____/\____/\____/\
+        else:
+            for i in range(self.config.get('General', 'numberofthreads', 'int')):
+                self.run[i] = False

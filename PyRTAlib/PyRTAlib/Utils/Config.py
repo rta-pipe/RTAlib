@@ -67,6 +67,7 @@ class Config(metaclass=Singleton):
 
     def set(self, sectionName, attributeName, attributeValue):
         self.configs[sectionName][attributeName] = attributeValue
+        return self
 
     def reload(self, filepath=''):
         self.configs = self.parseConfigFile(filepath)

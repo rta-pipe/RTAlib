@@ -45,8 +45,16 @@ fi
 #coverage report
 
 
-
-
+# ==========> RTA_DL_DB.py <==============
+export COVERAGE_FILE=$COV_RESULTS/.coverage.results_RTA_DL_DB
+coverage run $UNIT_TEST_DIR/RTA_DL_DB_unittest.py -v
+ret=$?
+if [ $ret -ne 0 ]; then
+     echo "==> Error on RTA_DL_DB_unittest ret=$ret"
+     export EXIT_CODE=$ret
+     return;
+fi
+#coverage report
 
 
 
@@ -57,7 +65,7 @@ export EXIT_CODE=0
 printf "\n\nTEST COVERAGE RESULTS\n $exit_code_config $exit_code_mysql $exit_code_redis"
 
 export COVERAGE_FILE=$DIR/.coverage.combined
-coverage combine $COV_RESULTS/.coverage.results_Config $COV_RESULTS/.coverage.results_MySqlDBConnector $COV_RESULTS/.coverage.results_RedisDBConnector
+coverage combine $COV_RESULTS/.coverage.results_Config $COV_RESULTS/.coverage.results_MySqlDBConnector $COV_RESULTS/.coverage.results_RedisDBConnector $COV_RESULTS/.coverage.results_RTA_DL_DB
 coverage report
 
 coverage xml

@@ -32,7 +32,7 @@ from PyRTAlib.Utils import Config
 
 
 DEBUG = False
-config_file_path = '../'
+config_file_path = '../../../Configs'
 
 """
             )       )   (      (

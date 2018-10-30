@@ -47,10 +47,3 @@ class RTA_DLTEST_DB(RTA_DL_DB):
         if self.config.get('MySqlPipelineDatabase', 'debug', 'bool'):
             print('[RTA_DL3ASTRI_DB] Updating pipeline..query={}'.format(query))
         self.mysqlDbConnector.executeQuery(query)
-
-
-    """
-    def fakeInsert(self, eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid=0, datarepositoryid=0, status = 1):
-        evt3 = EVT3_TEST(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, self.configs['mjdref'], observationid, datarepositoryid, status)
-        return self.dbConnector.fakeInsertData(self.configs['modelname'], evt3.getData())
-    """

@@ -1,7 +1,20 @@
-CREATE DATABASE IF NOT EXISTS rtalib_test_db;
+CREATE DATABASE IF NOT EXISTS __DBNAME___testing;
+CREATE DATABASE IF NOT EXISTS __DBNAME__;
 
-USE rtalib_test_db;
 
+/* User for rtalib tests */
+CREATE USER IF NOT EXISTS __TESTUSER__@'__HOST__' IDENTIFIED BY '__TESTUSERPSW__';
+GRANT ALL PRIVILEGES ON __DBNAME___testing.* to '__TESTUSER__'@'__HOST__' identified by '__TESTUSERPSW__';
+
+/* User for rtalib */
+CREATE USER IF NOT EXISTS __RTALIBUSER__@'__HOST__' IDENTIFIED BY '__RTALIBUSERPSW__';
+GRANT ALL PRIVILEGES ON __DBNAME__.* to '__RTALIBUSER__'@'__HOST__' identified by '__RTALIBUSERPSW__';
+
+
+
+USE __DBNAME___testing;
+
+/* Table for tests */
 CREATE TABLE IF NOT EXISTS rtalib_test_table (
                                           id INT AUTO_INCREMENT PRIMARY KEY,
                                           a INTEGER,
@@ -25,10 +38,3 @@ CREATE TABLE IF NOT EXISTS rtalib_dl_test_table (
                                         timerealtt DOUBLE,
                                         insert_time INTEGER UNSIGNED
                                       );
-
-SET GLOBAL validate_password_length = 12;
-SET GLOBAL validate_password_number_count = 0;
-
-CREATE USER IF NOT EXISTS rtalib_test_user@'localhost' IDENTIFIED BY '#Rtalibtest@2018';
-
-GRANT ALL PRIVILEGES ON rtalib_test_db.* to 'rtalib_test_user'@'localhost' identified by '#Rtalibtest@2018'

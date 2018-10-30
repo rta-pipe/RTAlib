@@ -33,7 +33,7 @@ from UtilsUT import getConfig
 
 
 DEBUG = False
-config_file_path = '../'
+config_file_path = '../../../Configs'
 utils = UtilsRedis(config_file_path)
 tableName = 'rtalib_test_table'
 
@@ -118,7 +118,7 @@ class RedisConnectorBASIC(unittest.TestCase):
 
 
     def test_streaming_insert(self):
-        utils.deleteKey(tableName)
+        self.assertEqual(True, utils.deleteKey(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True)
         redisConn = RedisDBConnectorBASIC(config_file_path)
@@ -134,7 +134,7 @@ class RedisConnectorBASIC(unittest.TestCase):
 
 
     def test_batch_insert(self):
-        utils.deleteKey(tableName)
+        self.assertEqual(True, utils.deleteKey(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True)
         getConfig(config_file_path, DEBUG).set('General', 'batchsize', 2)
@@ -152,7 +152,7 @@ class RedisConnectorBASIC(unittest.TestCase):
 
 
     def test_batch_insert_closing_connection_before_finish(self):
-        utils.deleteKey(tableName)
+        self.assertEqual(True, utils.deleteKey(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True)
         getConfig(config_file_path, DEBUG).set('General', 'batchsize', 2)

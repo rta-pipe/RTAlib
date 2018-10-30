@@ -32,7 +32,7 @@ from UtilsUT import getConfig
 
 
 DEBUG = False
-config_file_path = '../../../Configs'
+config_file_path = '../../../Configs/rtalibconfig_testing'
 utils = UtilsRedis(config_file_path)
 tableName = 'rtalib_test_table'
 

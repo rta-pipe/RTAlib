@@ -33,7 +33,7 @@ from UtilsUT import UtilsRedis
 
 
 DEBUG = False
-config_file_path = '../../../Configs'
+config_file_path = '../../../Configs/rtalibconfig_testing'
 tableName = 'rtalib_dl_test_table'
 utilsMySql = UtilsMySql(config_file_path)
 utilsRedis = UtilsRedis(config_file_path)

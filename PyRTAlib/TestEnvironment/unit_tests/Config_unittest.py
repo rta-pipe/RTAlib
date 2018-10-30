@@ -30,7 +30,7 @@ from PyRTAlib.Utils import Config
 
 
 DEBUG = False
-config_file_path = '../../../Configs'
+config_file_path = '../../../Configs/rtalibconfig_testing'
 
 """
             )       )   (      (
@@ -55,11 +55,11 @@ class ConfigFile(unittest.TestCase):
 
     def test_file_not_found_wrong_path(self):
         config = Config('', False)
-        self.assertRaises(FileNotFoundError, config.parseConfigFile, 'akjdiajwnd')
+        self.assertRaises(FileNotFoundError, config.parseConfigFile, '../../../Configs/akjdiajwnd')
 
 
     def test_file_not_found_wrong_env_var_path(self):
-        environ['RTACONFIGFILE'] = './ajdoiwajdoiwd'
+        environ['RTACONFIGFILE'] = '../wrong/path/Configs/rtalibconfig_testing'
         config = Config('', False)
         self.assertRaises(FileNotFoundError, config.parseConfigFile, '')
 
@@ -77,7 +77,7 @@ class ConfigFile(unittest.TestCase):
 
     def test_priority_to_env_var(self):
         environ['RTACONFIGFILE'] = config_file_path
-        config = Config(config_file_path+'pluto')
+        config = Config('../../../Configs/wrongconfigfile')
         self.assertEqual(True, bool(config.get()))
 
 

@@ -79,9 +79,6 @@ class Config(metaclass=Singleton):
             if not filepath:
                 raise Exception('[Config] Cant configure. Neither the filepath parameter or the RTACONFIGFILE environment variable have been provided.')
 
-
-        filepath += '/rtalibconfig_testing'
-
         configs = {}
 
         try:

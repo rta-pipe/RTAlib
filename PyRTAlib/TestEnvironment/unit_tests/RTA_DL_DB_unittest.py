@@ -19,13 +19,12 @@
 # ==========================================================================
 
 import unittest
-import sys
-import os
-from os.path import dirname, abspath
-import time
+from sys import path
+from os.path import dirname, abspath, realpath
+from time import sleep
 
-rootFolder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
-sys.path.append(rootFolder+'/PyRTAlib/')
+rootFolder = dirname(dirname(dirname(dirname(realpath(__file__)))))
+path.append(rootFolder+'/PyRTAlib/')
 
 from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
 from UtilsUT import getConfig
@@ -171,7 +170,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        time.sleep(0.3)
+        sleep(0.3)
 
         self.assertEqual(1, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
@@ -197,7 +196,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        time.sleep(0.3)
+        sleep(0.3)
 
         self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
@@ -205,7 +204,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        time.sleep(0.3)
+        sleep(0.3)
 
         self.assertEqual(2, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(2, utilsRedis.countSortedSetMembers(tableName))
@@ -236,7 +235,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         self.assertEqual(1, s1[0])
         self.assertEqual(1, s2[0])
 
-        time.sleep(0.2)
+        sleep(0.2)
 
         self.assertEqual(1, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
@@ -255,7 +254,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
             rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
             rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        time.sleep(0.3)
+        sleep(0.3)
 
         self.assertEqual(50, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(50, utilsRedis.countSortedSetMembers(tableName))
@@ -282,7 +281,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
             rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
             rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        time.sleep(0.5)
+        sleep(0.5)
 
         self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
@@ -290,7 +289,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        time.sleep(0.5)
+        sleep(0.5)
 
         self.assertEqual(3, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(3, utilsRedis.countSortedSetMembers(tableName))
@@ -316,7 +315,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
             rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
             rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        time.sleep(0.5)
+        sleep(0.5)
 
         self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
         self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
@@ -365,7 +364,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
         self.assertEqual(True, rta_dltest_db_redis.dbConnector.testConnection())
 
-        time.sleep(0.3)
+        sleep(0.3)
 
         countMessages = 0
         for message in channel.listen():

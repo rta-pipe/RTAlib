@@ -19,14 +19,12 @@
 # ==========================================================================
 
 import unittest
-import sys
-import os
-from os.path import dirname, abspath, join
-import time
-from random import randint, uniform
+from sys import path
+from os.path import dirname, abspath, realpath
+from os import environ
 
-rootFolder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
-sys.path.append(rootFolder+'/PyRTAlib/')
+rootFolder = dirname(dirname(dirname(dirname(realpath(__file__)))))
+path.append(rootFolder+'/PyRTAlib/')
 
 from PyRTAlib.Utils import Config
 
@@ -49,8 +47,8 @@ class ConfigFile(unittest.TestCase):
 
 
     def test_no_path_no_env_var_provided(self):
-        if 'RTACONFIGFILE' in os.environ:
-            del os.environ['RTACONFIGFILE']
+        if 'RTACONFIGFILE' in environ:
+            del environ['RTACONFIGFILE']
         config = Config('', False)
         self.assertRaises(Exception, config.parseConfigFile, '')
 
@@ -61,7 +59,7 @@ class ConfigFile(unittest.TestCase):
 
 
     def test_file_not_found_wrong_env_var_path(self):
-        os.environ['RTACONFIGFILE'] = './ajdoiwajdoiwd'
+        environ['RTACONFIGFILE'] = './ajdoiwajdoiwd'
         config = Config('', False)
         self.assertRaises(FileNotFoundError, config.parseConfigFile, '')
 
@@ -72,13 +70,13 @@ class ConfigFile(unittest.TestCase):
 
 
     def test_file_found_with_environment_variable(self):
-        os.environ['RTACONFIGFILE'] = config_file_path
+        environ['RTACONFIGFILE'] = config_file_path
         config = Config()
         self.assertEqual(True, bool(config.get()))
 
 
     def test_priority_to_env_var(self):
-        os.environ['RTACONFIGFILE'] = config_file_path
+        environ['RTACONFIGFILE'] = config_file_path
         config = Config(config_file_path+'pluto')
         self.assertEqual(True, bool(config.get()))
 

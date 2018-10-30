@@ -19,12 +19,11 @@
 # ==========================================================================
 
 import unittest
-import sys
-import os
-from os.path import dirname, abspath, join
+from sys import path
+from os.path import dirname, abspath, realpath
 
-rootFolder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
-sys.path.append(rootFolder+'/PyRTAlib/')
+rootFolder = dirname(dirname(dirname(dirname(realpath(__file__)))))
+path.append(rootFolder+'/PyRTAlib/')
 
 from PyRTAlib.Utils         import Config
 from PyRTAlib.DBConnectors  import RedisDBConnectorBASIC

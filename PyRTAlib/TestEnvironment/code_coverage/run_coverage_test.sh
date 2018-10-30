@@ -65,7 +65,7 @@ export EXIT_CODE=0
 printf "\n\nTEST COVERAGE RESULTS\n $exit_code_config $exit_code_mysql $exit_code_redis"
 
 export COVERAGE_FILE=$DIR/.coverage.combined
-coverage combine $COV_RESULTS/.coverage.results_Config $COV_RESULTS/.coverage.results_MySqlDBConnector $COV_RESULTS/.coverage.results_RedisDBConnector
+coverage combine $COV_RESULTS/.coverage.results_Config $COV_RESULTS/.coverage.results_MySqlDBConnector $COV_RESULTS/.coverage.results_RedisDBConnector $COV_RESULTS/.coverage.results_RTA_DL_DB
 coverage report
 
 coverage xml

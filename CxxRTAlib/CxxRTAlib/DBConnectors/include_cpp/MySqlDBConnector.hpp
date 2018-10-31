@@ -19,13 +19,9 @@
 #define MYSQL_DB_CONNECTOR_H
 
 #include <string>
+#include <mysqlx/xdevapi.h>
 
 #include "DBConnector.hpp"
-
-#include "mysql_connection.h"
-#include "cppconn/statement.h"
-#include "mysql_driver.h"
-#include "examples.h"
 
 #define ONE_ROW 1
 
@@ -34,13 +30,19 @@ using std::endl;
 using std::stringstream;
 using std::runtime_error;
 using std::to_string;
+using mysqlx::Session;
+using mysqlx::Schema;
+using mysqlx::Table;
+using mysqlx::RowResult;
+using mysqlx::Client;
+using mysqlx::SessionSettings;
+using mysqlx::SessionOption;
 
 class MySqlDBConnector : public DBConnector {
 public:
   MySqlDBConnector(int id,string filepath="") : DBConnector(filepath){  //cout << "MySqlDBConnector" << endl;
                                                                         // cout << "[MySqlDBConnector] idConnector: " << id << endl;
                                                                         idConnector = id;
-                                                                        driver = 0;
                                                                         commandsSent = 0;
                                                                         inserted = false;
                                                                         insertDataCall = 0;
@@ -60,11 +62,8 @@ public:
   string buildQuery(string modelName, int batchsize, map <string,string> args);
   bool streamingInsert(string query);
   bool batchInsert(string query, int batchsize);
-  // bool executeQuery(string query);
 
-
-  sql::Driver *driver;
-  sql::Connection *con;
+  shared_ptr<Session> mySession;
 
   int idConnector;
   int commandsSent;

@@ -8,31 +8,45 @@ The C++ version of the RTAlib.
 The following dependencies are needed:
 * C++11
 * cmake >=2.18
-* MySql Client library
 * Boost C++ library
+* cfitsio
+* MySql Client library
 * hiredis
 * RTAPrototype2
+* googletest
 
 ## Installation
+* Install cmake library:
+```
+    wget https://cmake.org/files/v3.12/cmake-3.12.3.tar.gz
+    tar -zxvf cmake-3.12.3.tar.gz
+    cd cmake-3.12.3
+    ./bootstrap --prefix=path/to/installation/folder/cmake-3.12.3
+    make
+    make install
+```
+
 * Install Boost C++ library:
 ```
   wget https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2
   tar --bzip2 -xf boost_1_67_0.tar.bz2
   cd boost_1_67_0/tools/build
   . bootstrap.sh
+  ./b2 install --prefix=/path/to/installation/folder/boost_1_67_0
 ```
 
 * Install MySql C++ Connector:
 ```
   git clone https://github.com/mysql/mysql-connector-cpp.git
   mkdir mysql-connector-cpp-install
+  mkdir mysql-connector-cpp-build
   cd mysql-connector-cpp
-  git checkout 1.1
-  cmake -DCMAKE_INSTALL_PREFIX=/path/to/mysql-connector-cpp-install
-  -DBOOST_ROOT=/path/to/boost_1_67_0
-  ccmake ./    (to check the compilation variables)
-  make
-  make install
+  git checkout 8.0
+  cd ../mysql-connector-cpp-build
+  path/to/installation/folder/cmake-3.12.3/bin/cmake -DCMAKE_INSTALL_PREFIX=../mysql-connector-cpp-install -DBOOST_ROOT=/path/to/installation/folder/boost_1_67_0 ../mysql-connector-cpp
+  cmake --build . --config Release
+  cmake --build . --target install --config Release
+
 ```
 
 * Install hiredis library:
@@ -41,6 +55,17 @@ The following dependencies are needed:
   cd /path/to/hiredis/
   make
 ```
+
+* Install cfitsio library:
+```
+    wget http://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio3450.tar.gz
+    tar -zxvf cfitsio3450.tar.gz
+    cd cfitsio
+    ./configure --prefix=/path/to/installation/folder/cfitsio
+    make
+    make install
+```
+
 
 ## General usage
 In order to obtain the googletest framework when cloning the project run:

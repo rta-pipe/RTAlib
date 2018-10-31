@@ -84,7 +84,7 @@ CXX = g++
 
 CXXFLAGS = -O3 -funroll-loops -std=c++11 -lpthread
 
-LIBS += -L$(MYSQL_CXX_CNT)/lib64 -lmysqlcppconn
+LIBS += -L$(MYSQL_CXX_CNT)/lib64/debug -lmysqlcppconn8
 
 LIBS += -L$(REDIS)/ -lhiredis
 
@@ -106,7 +106,7 @@ CXXFLAGS += -I$(BOOST_PATH)
 
 CXXFLAGS += -Wl,-Bdynamic
 
-CXXFLAGS += -I/usr/local/include/cppconn	
+CXXFLAGS += -I/usr/local/include/cppconn
 
 
 ######### C COMPILING

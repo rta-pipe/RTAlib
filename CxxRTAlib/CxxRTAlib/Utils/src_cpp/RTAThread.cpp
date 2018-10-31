@@ -33,10 +33,10 @@ void *RTAThread::run()  {
 
   if( !con ) {
 
-    #ifdef DEBUG
+    // #ifdef DEBUG
     cout << "[Thread " << id <<"] CXX_RTA_DL_X_DB Connection Error!" << endl;
-    #endif
-
+    // #endif
+    exit(EXIT_FAILURE); //  double free or corruption (fasttop): 0x00000000015a6060 ***
     return NULL;
 
   }else{
@@ -50,6 +50,7 @@ void *RTAThread::run()  {
 
         map < string, string > fetchData = currentEvent->getData();
         dbConnector->insertData( modelname, fetchData);
+        delete currentEvent;
         totalEvents++;
         // threadStatistic->addEvent();
 

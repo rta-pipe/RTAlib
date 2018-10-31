@@ -142,6 +142,7 @@ int RTA_DL_DB::_insertEvent( EVTbase *event ) {
     // #endif
 
     // Synchronous (master thread)
+    delete event;
     return dbConnector->insertData(modelname, eventData);
 
 

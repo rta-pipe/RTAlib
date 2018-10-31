@@ -24,6 +24,7 @@
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <memory>
 
 #include "Config.hpp"
 #include "Mutex.hpp"
@@ -34,6 +35,9 @@ using std::vector;
 using std::cout;
 using std::endl;
 using std::map;
+using std::make_shared;
+using std::shared_ptr;
+using std::unique_ptr;
 
 class DBConnector {
 public:

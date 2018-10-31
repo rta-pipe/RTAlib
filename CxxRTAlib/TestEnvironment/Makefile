@@ -105,7 +105,7 @@ CXXFLAGS = -O3 -funroll-loops -pthread -std=c++11 -I$(INCLUDE_DIR) -I$(GTEST_HEA
 
 LIBS += -L$(GTEST_DIR)/build/lib -lgtest
 
-LIBS += -L$(MYSQL_CXX_CNT)/lib64 -lmysqlcppconn
+LIBS += -L$(MYSQL_CXX_CNT)/lib64/debug -lmysqlcppconn8
 
 LIBS += -L$(REDIS)/ -lhiredis
 

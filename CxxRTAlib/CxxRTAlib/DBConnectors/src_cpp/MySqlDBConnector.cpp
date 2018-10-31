@@ -18,21 +18,33 @@
 #include "MySqlDBConnector.hpp"
 
 bool MySqlDBConnector::connect(Mutex* mux){
-  try{
 
-  //Connecting to a Single MySQL Server
-  //https://dev.mysql.com/doc/x-devapi-userguide/en/connecting-to-a-single-mysqld-node-setup.html
   #ifdef DEBUG
   cout << hostname << endl;
   cout << username<< endl;
+  cout << database << endl;
   #endif
 
-  // Connect to MySQL Server on a network machine
-  mySession = new Session(SessionOption::HOST, hostname,
-                  SessionOption::PORT, 33060,
-                  SessionOption::USER, username,
-                  SessionOption::PWD, password,
-                  SessionOption::DB, database);
+  string query ="SELECT table_name FROM information_schema.tables where table_schema='" + database+"'";
+
+  try{
+
+    // mux->mutexLock();
+    mySession = make_shared<Session>( SessionOption::HOST, hostname,
+                                      SessionOption::PORT, 33060,
+                                      SessionOption::USER, username,
+                                      SessionOption::PWD, password,
+                                      SessionOption::DB, database);
+
+                                      // mux->mutexUnlock();
+    RowResult res = mySession->sql(query).execute();
+    int c = res.count();
+    if (c==0){
+      cout <<"[MySqlDBConnector " <<idConnector << "] connect ERROR: No database selected"<<endl;
+      return false;
+    }
+
+
 
 
   }

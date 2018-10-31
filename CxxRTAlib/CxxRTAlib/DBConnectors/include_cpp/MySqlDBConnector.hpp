@@ -23,11 +23,6 @@
 
 #include "DBConnector.hpp"
 
-// #include "mysql_connection.h"
-// #include "cppconn/statement.h"
-// #include "mysql_driver.h"
-// #include "examples.h"
-
 #define ONE_ROW 1
 
 using std::cout;
@@ -48,7 +43,6 @@ public:
   MySqlDBConnector(int id,string filepath="") : DBConnector(filepath){  //cout << "MySqlDBConnector" << endl;
                                                                         // cout << "[MySqlDBConnector] idConnector: " << id << endl;
                                                                         idConnector = id;
-                                                                        // driver = 0;
                                                                         commandsSent = 0;
                                                                         inserted = false;
                                                                         insertDataCall = 0;
@@ -68,13 +62,8 @@ public:
   string buildQuery(string modelName, int batchsize, map <string,string> args);
   bool streamingInsert(string query);
   bool batchInsert(string query, int batchsize);
-  // bool executeQuery(string query);
 
-
-  // sql::Driver *driver;
-  // sql::Connection *con;
-  Schema * myDb;
-  Session *mySession;
+  shared_ptr<Session> mySession;
 
   int idConnector;
   int commandsSent;

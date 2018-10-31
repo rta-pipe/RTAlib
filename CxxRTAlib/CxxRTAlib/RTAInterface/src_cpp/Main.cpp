@@ -105,9 +105,9 @@ int main(int argc, char *argv[]) {
 
   }
 
-
-  unique_ptr<RTA_DLTEST_DB> rtaTestDb(new RTA_DLTEST_DB(database, configFilePath));
-  // RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
+  
+  RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
+  int numberofthreads = rtaTestDb->getNumberOfThreads();
 
   auto start = std::chrono::system_clock::now();
 
@@ -137,16 +137,15 @@ int main(int argc, char *argv[]) {
 
   rtaTestDb->waitAndClose();
 
+
   cout << "\n"<< count <<" events inserted correctly."<< endl;
 
   auto stop = std::chrono::system_clock::now();
 
-  int numberofthreads = rtaTestDb->getNumberOfThreads();
-
   std::chrono::duration<double> diff;
 
   if(numberofthreads>1){
-    std::chrono::duration<double> overhead(0.5*rtaTestDb->getNumberOfThreads());
+    // std::chrono::duration<double> overhead(0.5*rtaTestDb->getNumberOfThreads());
 
     diff = stop - start/* - overhead*/; // BE CAREFUL! POSSIBILE BUG ON 0.5 hardcoded value (sleep time of RTA_DL_DB between each thread start)
 
@@ -160,6 +159,7 @@ int main(int argc, char *argv[]) {
   cout << "Event rate: " << size/diff.count() << endl;
 
   cout << endString << endl;
+  // delete rtaTestDb;
 
   return 0;
 

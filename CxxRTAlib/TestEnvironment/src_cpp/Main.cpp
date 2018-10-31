@@ -184,7 +184,7 @@ TEST(MySqlDBConnector, SelectRowsTestTable) {
 
   mySqlDBTest->connect(mux);
 
-  // EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
+  EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
 
   myConf->deleteInstance();
 

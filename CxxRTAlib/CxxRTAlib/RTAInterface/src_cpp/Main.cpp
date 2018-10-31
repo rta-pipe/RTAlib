@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
 
   }
 
-  
+
   RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
   int numberofthreads = rtaTestDb->getNumberOfThreads();
 
@@ -144,22 +144,13 @@ int main(int argc, char *argv[]) {
 
   std::chrono::duration<double> diff;
 
-  if(numberofthreads>1){
-    // std::chrono::duration<double> overhead(0.5*rtaTestDb->getNumberOfThreads());
-
-    diff = stop - start/* - overhead*/; // BE CAREFUL! POSSIBILE BUG ON 0.5 hardcoded value (sleep time of RTA_DL_DB between each thread start)
-
-  }
-  else
-    diff = stop-start;
-
+  diff = stop-start;
 
   cout << "Tempo impiegato per inserire " << size << " eventi = " << diff.count() << " s" << endl;
 
   cout << "Event rate: " << size/diff.count() << endl;
 
   cout << endString << endl;
-  // delete rtaTestDb;
 
   return 0;
 

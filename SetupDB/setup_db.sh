@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ "$1" = "--help" ] ; then
   printf "\nThe following script will create databases, users and tables needed by the RTAlib"
@@ -15,6 +15,31 @@ fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+cat << EOF
+
+ __/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__
+|                  RTAlib setup                    |
+|__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__|
+
+Hi! The following script will create databases, users and tables needed by the RTAlib
+
+If you provide 'xyz' as database name, the script will create:
+
+  - 'xyz':                  database for production
+  - 'xyz_testing':          database for testing
+  - 'rtalib_user_xyz':      user with permission on X
+  - 'rtalib_test_user_xyz': user with permission on X_testing
+  - 'rtalibconfig_testing': configuration file for testing
+  - 'rtalibconfig_*':       one configuration file for each data model
+
+The user credentials will be generated on the fly and pasted in the configuration files.
+
+Warning! If the following message pops up: 'Your password does not satisfy the current policy requirements'
+please, modify the password generation command at row 46 and 48 in order to generate passwords that satisfy your database policy.
+EOF
+
+
+
 printf '\nPlease enter the name of the database you wish to create > '
 read dbname
 
@@ -29,8 +54,9 @@ rtalibuserpsw="!A$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 5)2018@"
 #__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\
 
 find $SCRIPT_DIR -name '*tmp.sql' -delete
+rm -f $SCRIPT_DIR/mysql/merged.sql
 
-# Executing each sql script in mysql/
+# Creating real sql scripts from template
 for mysql_script in $SCRIPT_DIR/mysql/*.sql; do
 
   mysql_script_tmp="${mysql_script%.*}_tmp.sql";
@@ -45,18 +71,25 @@ for mysql_script in $SCRIPT_DIR/mysql/*.sql; do
 
   sed -i -e 's/__HOST__/'$host'/g' $mysql_script_tmp;
 
-  printf '\n --> Executing: '$mysql_script_tmp
-  printf '\n'
-
-  mysql --user=$user -p -v < $mysql_script_tmp;
-
-  if [ $? -ne 0 ]; then
-    printf "\n --> Something went wrong..quitting..\n\n"
-    return;
-  fi
 done
 
+# Merging all the scripts into one
+cat $SCRIPT_DIR/mysql/*_tmp.sql > $SCRIPT_DIR/mysql/merged.sql
+
+printf '\n --> Executing: '$SCRIPT_DIR/mysql/merged.sql
+printf '\n'
+
+mysql --user=$user -p -v < $SCRIPT_DIR/mysql/merged.sql;
+
+if [ $? -ne 0 ]; then
+  printf "\n --> Something went wrong..no configuartion files will be created. Please, rerun the script.\nQuitting..\n\n"
+  find $SCRIPT_DIR -name '*tmp.sql' -delete
+  rm $SCRIPT_DIR/mysql/merged.sql
+  return;
+fi
+
 find $SCRIPT_DIR -name '*tmp.sql' -delete
+rm $SCRIPT_DIR/mysql/merged.sql
 
 
 
@@ -161,9 +194,5 @@ done
 printf '\n  * Created rtalibconfig_testing file in RTAlib/Configs/'
 
 
-for mysql_script in mysql/*.sql; do
-  printf '\n  * Executed: '$mysql_script
-done
-printf '\n'
 
 printf '\n\n --> Please, fill in the configuration file fields!\n\n'

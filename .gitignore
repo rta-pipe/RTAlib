@@ -5,6 +5,7 @@ pks1510-089.fits
 push.sh
 
 # Files in PyLibRTA
+rtalibconfig_*
 rtalibconfig_default
 rtalibconfig_testing
 rtalibconfig_test

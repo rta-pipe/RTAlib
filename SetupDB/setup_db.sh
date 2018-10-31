@@ -13,6 +13,8 @@ if [ -z "$1" ]
     host=$1
 fi
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
 printf '\nPlease enter the name of the database you wish to create > '
 read dbname
 
@@ -26,9 +28,9 @@ rtalibuserpsw="!A$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 5)2018@"
 
 #__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\
 # Executing each sql script in mysql/
-find . -name '*tmp.sql' -delete
+find $SCRIPT_DIR -name '*tmp.sql' -delete
 
-for mysql_script in mysql/*.sql; do
+for mysql_script in $SCRIPT_DIR/mysql/*.sql; do
 
   mysql_script_tmp="${mysql_script%.*}_tmp.sql";
 
@@ -61,7 +63,7 @@ find . -name '*tmp.sql' -delete
 
 #__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\
 # Creating the configuration file for the test environment
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
 mkdir -p $SCRIPT_DIR/../Configs/
 
 testdb="$dbname"_testing

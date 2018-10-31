@@ -124,8 +124,8 @@ batchsize=
 numberofthreads=
 
 [Dtr]
-active=
-debug=
+active=no
+debug=no
 inputchannel=
 outputchannel=
 
@@ -142,8 +142,8 @@ dbname=1
 indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
 
 [MySqlPipelineDatabase]
-active=
-debug=
+active=no
+debug=no
 host=
 username=
 password=

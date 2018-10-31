@@ -18,6 +18,8 @@
 #
 # ==========================================================================
 
+#!/usr/bin/env python
+
 import unittest
 from sys import path
 from os.path import dirname, abspath, realpath

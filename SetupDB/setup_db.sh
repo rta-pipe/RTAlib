@@ -21,15 +21,16 @@ read dbname
 printf '\nPlease enter the name of a Mysql user that has enough privileges to create a database > '
 read user
 
-testuser=rtalib_test_user
+testuser=rtalib_test_user_$dbname
 testuserpsw="!A$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 5)2018@"
-rtalibuser=rtalib_user
+rtalibuser=rtalib_user_$dbname
 rtalibuserpsw="!A$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 5)2018@"
 
 #__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\__/\
-# Executing each sql script in mysql/
+
 find $SCRIPT_DIR -name '*tmp.sql' -delete
 
+# Executing each sql script in mysql/
 for mysql_script in $SCRIPT_DIR/mysql/*.sql; do
 
   mysql_script_tmp="${mysql_script%.*}_tmp.sql";
@@ -55,7 +56,7 @@ for mysql_script in $SCRIPT_DIR/mysql/*.sql; do
   fi
 done
 
-find . -name '*tmp.sql' -delete
+find $SCRIPT_DIR -name '*tmp.sql' -delete
 
 
 

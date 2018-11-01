@@ -31,8 +31,12 @@ path.append(rootFolder+'/PyRTAlib/')
 from PyRTAlib.Utils import Config
 
 
+if 'RTALIBCONFIG' not in environ:
+    print('\n[Config__unittest.py] No RTALIBCONFIG env var found. Please export it and let it points to the rtalibconfig_testing configuration file.\n')
+    exit(1)
+config_file_path = environ['RTALIBCONFIG']
+
 DEBUG = False
-config_file_path = '../../../Configs/rtalibconfig_testing'
 
 """
             )       )   (      (

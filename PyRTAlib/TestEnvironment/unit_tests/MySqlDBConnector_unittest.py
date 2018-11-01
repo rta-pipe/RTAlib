@@ -23,6 +23,7 @@
 import unittest
 from sys import path
 from os.path import dirname, abspath, realpath
+from os import environ
 
 rootFolder = dirname(dirname(dirname(dirname(realpath(__file__)))))
 path.append(rootFolder+'/PyRTAlib/')
@@ -33,8 +34,12 @@ from UtilsUT import UtilsMySql
 from UtilsUT import getConfig
 
 
+if 'RTALIBCONFIG' not in environ:
+    print('\n[MySqlDBConnector__unittest.py] No RTALIBCONFIG env var found. Please export it and let it points to the rtalibconfig_testing configuration file.\n')
+    exit(1)
+config_file_path = environ['RTALIBCONFIG']
+
 DEBUG = False
-config_file_path = '../../../Configs/rtalibconfig_testing'
 utils = UtilsMySql(config_file_path)
 tableName = 'rtalib_test_table'
 

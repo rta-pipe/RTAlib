@@ -173,7 +173,7 @@ dbname=$dbname
 host=127.0.0.1
 password=
 dbname=1
-indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
+indexon=$tableName:??
 
 [MySqlPipelineDatabase]
 active=no

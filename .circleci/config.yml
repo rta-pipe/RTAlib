@@ -102,6 +102,7 @@ jobs:
           name: PyRTAlib unit testing
           command: |
             cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/unit_tests;
+            export RTALIBCONFIG=~/rtalib-circleci/Configs/rtalibconfig_testing
             for f in *.py; do
               printf "\n\n * Testing ->  $f \n" >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;
               pipenv run python "$f" -v >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;

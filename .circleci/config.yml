@@ -99,10 +99,13 @@ jobs:
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter;
             chmod +x ./cc-test-reporter;
       - run:
+          name: Exporting RTALIBCONFIG environment var
+          command: |
+            echo 'export RTALIBCONFIG=~/rtalib-circleci/Configs/rtalibconfig_testing' >> $BASH_ENV
+      - run:
           name: PyRTAlib unit testing
           command: |
             cd ~/rtalib-circleci/PyRTAlib/TestEnvironment/unit_tests;
-            export RTALIBCONFIG=~/rtalib-circleci/Configs/rtalibconfig_testing
             for f in *.py; do
               printf "\n\n * Testing ->  $f \n" >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;
               pipenv run python "$f" -v >> ~/rtalib-circleci/test_artifacts/python_unittest_results.txt 2>&1;

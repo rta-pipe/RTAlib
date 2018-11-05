@@ -62,7 +62,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
     # test connection
     def test_connection(self):
-        getConfig(config_file_path, DEBUG, reload=True)
+        getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 0)
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
         self.assertEqual(True, rta_dltest_db_mysql.dbConnector.testConnection())
@@ -70,7 +70,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
     # test closed connection
     def test_closed_connection(self):
-        getConfig(config_file_path, DEBUG, reload=True)
+        getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 0)
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
         self.assertEqual(True, rta_dltest_db_mysql.dbConnector.testConnection())
@@ -81,13 +81,25 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         self.assertEqual(False, rta_dltest_db_redis.dbConnector.testConnection())
 
 
+    # test synchronous mode active
+    def test_set_synchronous_mode(self):
+        getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 0)
+        rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
+        rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
+        self.assertEqual(rta_dltest_db_mysql.multithreading, False)
+        self.assertEqual(rta_dltest_db_redis.multithreading, False)
 
-    # test single threading straming insert
+
+
+    # test synchronous mode streaming insert
     def test_streaming_insert(self):
         self.assertEqual(True, utilsMySql.truncateTable(tableName))
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True)
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General', 'numberofthreads', 0)\
+            .set('General', 'batchsize', 1)
+
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
 
@@ -101,12 +113,15 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         self.assertEqual(True, rta_dltest_db_redis.waitAndClose())
 
 
-    # test single threading batch insert
+    # test synchronous mode batch insert
     def test_batch_insert(self):
         self.assertEqual(True, utilsMySql.truncateTable(tableName))
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True).set('General', 'batchsize', 2)
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General', 'numberofthreads', 0)\
+            .set('General', 'batchsize', 2)
+
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
 
@@ -127,12 +142,15 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
 
 
-    # test single threading batch insert closing before finish
+    # test synchronous mode batch insert closing before finish
     def test_batch_insert_closed_connection_before_finish(self):
         self.assertEqual(True, utilsMySql.truncateTable(tableName))
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True).set('General', 'batchsize', 2)
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General', 'numberofthreads', 0)\
+            .set('General', 'batchsize', 2)
+
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
 
@@ -149,30 +167,34 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
 
 
-    # pure multi threading mode active with flag = true or numberofthreads > 1
-    def test_pure_multi_threading_mode_active(self):
+    # multi threading mode active with numberofthreads >= 1
+    def test_multi_threading_mode_active(self):
 
-        getConfig(config_file_path, DEBUG, reload=True)
-        rta_dltest_db = RTA_DLTEST_DB('mysql', config_file_path, True)
-        self.assertEqual(rta_dltest_db.pure_multithreading, True)
-        rta_dltest_db.waitAndClose()
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General','numberofthreads', 1)
 
-        getConfig(config_file_path, DEBUG, reload=True).set('General','numberofthreads', 2)
-        rta_dltest_db = RTA_DLTEST_DB('mysql', config_file_path, False)
-        self.assertEqual(rta_dltest_db.pure_multithreading, True)
+        rta_dltest_db = RTA_DLTEST_DB('mysql', config_file_path)
+
+        self.assertEqual(rta_dltest_db.multithreading, True)
+
         rta_dltest_db.waitAndClose()
 
 
 
     # test multi threading streaming (one asynchronous thread)
-    def test_aynchronous_single_thread_streaming_insert(self):
+    def test_asynchronous_single_thread_streaming_insert(self):
         self.assertEqual(True, utilsMySql.truncateTable(tableName))
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 1)
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General', 'numberofthreads', 1)\
+            .set('General', 'batchsize', 1)
 
-        rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path, pure_multithreading=True)
-        rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path, pure_multithreading=True)
+        rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
+        rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
+
+        self.assertEqual(rta_dltest_db_mysql.multithreading, True)
+        self.assertEqual(rta_dltest_db_redis.multithreading, True)
 
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
@@ -191,14 +213,19 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         # check statistics
 
     # test multi threading batch (one asynchronous thread)
-    def test_aynchronous_single_thread_batch_insert(self):
+    def test_asynchronous_single_thread_batch_insert(self):
         self.assertEqual(True, utilsMySql.truncateTable(tableName))
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 1).set('General', 'batchsize', 2)
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General', 'numberofthreads', 1)\
+            .set('General', 'batchsize', 2)
 
-        rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path, pure_multithreading=True)
-        rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path, pure_multithreading=True)
+        rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
+        rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
+
+        self.assertEqual(rta_dltest_db_mysql.multithreading, True)
+        self.assertEqual(rta_dltest_db_redis.multithreading, True)
 
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
@@ -224,14 +251,19 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
 
     # test multi threading batch (one asynchronous thread)
-    def test_aynchronous_single_thread_batch_insert_closing_connection_before_finish(self):
+    def test_asynchronous_single_thread_batch_insert_closing_connection_before_finish(self):
         self.assertEqual(True, utilsMySql.truncateTable(tableName))
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 1).set('General', 'batchsize', 2)
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General', 'numberofthreads', 1)\
+            .set('General', 'batchsize', 2)
 
-        rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path, pure_multithreading=True)
-        rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path, pure_multithreading=True)
+        rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
+        rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
+
+        self.assertEqual(rta_dltest_db_mysql.multithreading, True)
+        self.assertEqual(rta_dltest_db_redis.multithreading, True)
 
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
@@ -248,14 +280,19 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
 
     # test multi threading streaming (multiple threads)
-    def test_aynchronous_multi_thread_streaming_insert(self):
+    def test_asynchronous_multi_thread_streaming_insert(self):
         self.assertEqual(True, utilsMySql.truncateTable(tableName))
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 2)
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General', 'numberofthreads', 2)\
+            .set('General', 'batchsize', 1)
 
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
+
+        self.assertEqual(rta_dltest_db_mysql.multithreading, True)
+        self.assertEqual(rta_dltest_db_redis.multithreading, True)
 
         for i in range(50):
             rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
@@ -275,7 +312,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
     # test multi threading batch (multiple threads)
     """ It's difficult to understand when a thread commits the transaction
 
-    def test_aynchronous_multi_thread_batch_insert(self):
+    def test_asynchronous_multi_thread_batch_insert(self):
         self.assertEqual(True, utilsMySql.truncateTable(tableName))
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
@@ -309,14 +346,19 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
     """
 
     # test multi threading batch closing connection before finish (multiple threads)
-    def test_aynchronous_multi_thread_batch_insert_closing_connection_before_finish(self):
+    def test_asynchronous_multi_thread_batch_insert_closing_connection_before_finish(self):
         self.assertEqual(True, utilsMySql.truncateTable(tableName))
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 2).set('General', 'batchsize', 3)
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General', 'numberofthreads', 2)\
+            .set('General', 'batchsize', 3)
 
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
+
+        self.assertEqual(rta_dltest_db_mysql.multithreading, True)
+        self.assertEqual(rta_dltest_db_redis.multithreading, True)
 
         for i in range(2):
             rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
@@ -344,6 +386,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True)
+
+
         with RTA_DLTEST_DB('mysql', config_file_path) as rta_dltest_db_mysql:
             rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
@@ -358,18 +402,19 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
 
 
-    # test Redis Publisher
+    # test Redis Publisher synchronous mode
     def test_publish_for_dtr(self):
         self.assertEqual(True, utilsRedis.deleteKey(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True).set('Dtr', 'active', 'yes').set('Dtr', 'inputchannel', 'test_channel')
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General', 'numberofthreads', 0)\
+            .set('Dtr', 'active', 'yes')\
+            .set('Dtr', 'inputchannel', 'test_channel')
 
         channel = utilsRedis.getRedisChannelListener('test_channel')
         self.assertEqual(True, bool(channel))
 
         rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
-
-        self.assertEqual(True, rta_dltest_db_redis.dbConnector.testConnection())
 
         sleep(0.3)
 
@@ -391,6 +436,40 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         self.assertEqual(3, countMessages)
 
 
+    # test Redis Publisher multithreading mode
+    def test_publish_for_dtr_multithread(self):
+        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('General', 'numberofthreads', 2)\
+            .set('Dtr', 'active', 'yes')\
+            .set('Dtr', 'inputchannel', 'test_channel')
+
+        channel = utilsRedis.getRedisChannelListener('test_channel')
+        self.assertEqual(True, bool(channel))
+
+        rta_dltest_db_redis = RTA_DLTEST_DB('redis-basic', config_file_path)
+
+        sleep(0.3)
+
+        countMessages = 0
+        for message in channel.listen():
+            countMessages += 1
+            break
+
+        rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
+        for message in channel.listen():
+            countMessages += 1
+            break
+
+        s1 = rta_dltest_db_redis.waitAndClose()
+        self.assertEqual(1, s1[0])
+
+        for message in channel.listen():
+            countMessages += 1
+            break
+
+        self.assertEqual(3, countMessages)
 
 
 

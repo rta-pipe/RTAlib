@@ -24,11 +24,11 @@ from ..DataModels import EVT3_TEST
 
 class RTA_DLTEST_DB(RTA_DL_DB):
 
-    def __init__(self, database, configFilePath = '', pure_multithreading = False):
-        super().__init__(database, configFilePath, pure_multithreading)
+    def __init__(self, database, configFilePath = ''):
+        super().__init__(database, configFilePath)
 
         # Pipeline Database Updater
-        if not self.pure_multithreading and self.config.get('MySqlPipelineDatabase', 'active', 'bool'): # pragma: no cover
+        if not self.multithreading and self.config.get('MySqlPipelineDatabase', 'active', 'bool'): # pragma: no cover
             self.mysqlDbConnector = self.getMySqlConnector(configFilePath, 'MySqlPipelineDatabase')
             self.mysqlDbConnector.connect()
             print('[RTA_DL3ASTRI_DB] Pipeline updater activated.')

@@ -19,22 +19,18 @@
 # ==========================================================================
 
 from sys import path, argv
-from os.path import dirname, abspath, realpath
-from os import environ
+from os.path import dirname, realpath
 
 from time import perf_counter, strftime
 from collections import namedtuple
 from statistics import mean, stdev
-from random import randint, uniform
 
 import json
 
 rootFolder = dirname(dirname(dirname(dirname(realpath(__file__)))))
 path.append(rootFolder+'/PyRTAlib/')
 
-from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
 from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
-from PyRTAlib.Utils         import Config
 
 from PyRTAlib.Utils.UtilsUT import getConfig
 from PyRTAlib.Utils.UtilsUT import UtilsMySql

@@ -19,7 +19,7 @@
 # ==========================================================================
 
 from sys import path
-from os.path import dirname, abspath, realpath
+from os.path import dirname, realpath
 from abc import ABC, abstractmethod
 
 rootFolder = dirname(dirname(dirname(dirname(realpath(__file__)))))
@@ -52,16 +52,16 @@ class UtilsRedis(Utils):
         self.redisConnector = RedisDBConnectorBASIC(config_file_path)
         self.redisConnector.connect()
 
-    def deleteElements(self, key):
+    def deleteElements(self, name):
         if self.redisConnector.testConnection():
-            self.redisConnector.conn.delete(key)
+            self.redisConnector.conn.delete(name)
             return True
         else:
             return False
 
-    def countElements(self, key):
+    def countElements(self, name):
         if self.redisConnector.testConnection():
-            return self.redisConnector.conn.zcard(key)
+            return self.redisConnector.conn.zcard(name)
         else:
             return False
 
@@ -82,16 +82,16 @@ class UtilsMySql(Utils):
         self.mySqlConnector = MySqlDBConnector(config_file_path)
         self.mySqlConnector.connect()
 
-    def deleteElements(self, tableName):
+    def deleteElements(self, name):
         if self.mySqlConnector.testConnection():
-            self.mySqlConnector.executeQuery('delete from '+tableName)
+            self.mySqlConnector.executeQuery('delete from '+name)
             return True
         else:
             return False
 
-    def countElements(self, tableName):
+    def countElements(self, name):
         if self.mySqlConnector.testConnection():
-            self.mySqlConnector.executeQuery('SELECT COUNT(*) FROM '+tableName)
+            self.mySqlConnector.executeQuery('SELECT COUNT(*) FROM '+name)
             return int(self.mySqlConnector.cursor.fetchone()[0])
         else:
             return False

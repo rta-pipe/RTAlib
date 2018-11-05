@@ -19,7 +19,8 @@
 # ==========================================================================
 
 from sys import path
-from os.path import dirname, abspath, realpath
+from os.path import dirname, realpath
+from abc import ABC, abstractmethod
 
 rootFolder = dirname(dirname(dirname(dirname(realpath(__file__)))))
 path.append(rootFolder+'/PyRTAlib/')
@@ -35,22 +36,32 @@ def getConfig(config_file_path, debug, reload = False):
     config.set('General', 'debug', debug)
     return config
 
-class UtilsRedis:
+class Utils(ABC):
+    @abstractmethod
+    def countElements(self, name):
+        pass
+    @abstractmethod
+    def deleteElements(self, name):
+        pass
+
+
+
+class UtilsRedis(Utils):
 
     def __init__(self, config_file_path):
         self.redisConnector = RedisDBConnectorBASIC(config_file_path)
         self.redisConnector.connect()
 
-    def deleteKey(self, key):
+    def deleteElements(self, name):
         if self.redisConnector.testConnection():
-            self.redisConnector.conn.delete(key)
+            self.redisConnector.conn.delete(name)
             return True
         else:
             return False
 
-    def countSortedSetMembers(self, key):
+    def countElements(self, name):
         if self.redisConnector.testConnection():
-            return self.redisConnector.conn.zcard(key)
+            return self.redisConnector.conn.zcard(name)
         else:
             return False
 
@@ -63,40 +74,24 @@ class UtilsRedis:
             return False
 
 
-    """
-    async def publish_to_channel(self, channelName, message):
-        await asyncio.sleep(1)
-        print("[UtilsUT] Publishing message on channel {}".format(channelName))
-        self.redisConnector.conn.publish(channelName, message)
-
-    def publishOnRedisChannel(self, channelName, message):
-        if self.redisConnector.testConnection():
-            loop = asyncio.get_event_loop()
-            task = loop.create_task(self.publish_to_channel(channelName, message))
-            loop.run_until_complete(task)
-            return True
-        else:
-            return False
-    """
 
 
-
-class UtilsMySql:
+class UtilsMySql(Utils):
 
     def __init__(self, config_file_path):
         self.mySqlConnector = MySqlDBConnector(config_file_path)
         self.mySqlConnector.connect()
 
-    def truncateTable(self, tableName):
+    def deleteElements(self, name):
         if self.mySqlConnector.testConnection():
-            self.mySqlConnector.executeQuery('delete from '+tableName)
+            self.mySqlConnector.executeQuery('delete from '+name)
             return True
         else:
             return False
 
-    def countRowsInTable(self, tableName):
+    def countElements(self, name):
         if self.mySqlConnector.testConnection():
-            self.mySqlConnector.executeQuery('SELECT COUNT(*) FROM '+tableName)
+            self.mySqlConnector.executeQuery('SELECT COUNT(*) FROM '+name)
             return int(self.mySqlConnector.cursor.fetchone()[0])
         else:
             return False

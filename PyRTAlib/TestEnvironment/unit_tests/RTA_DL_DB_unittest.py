@@ -30,9 +30,9 @@ rootFolder = dirname(dirname(dirname(dirname(realpath(__file__)))))
 path.append(rootFolder+'/PyRTAlib/')
 
 from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
-from UtilsUT import getConfig
-from UtilsUT import UtilsMySql
-from UtilsUT import UtilsRedis
+from PyRTAlib.Utils.UtilsUT import getConfig
+from PyRTAlib.Utils.UtilsUT import UtilsMySql
+from PyRTAlib.Utils.UtilsUT import UtilsRedis
 
 
 if 'RTALIBCONFIG' not in environ:
@@ -84,8 +84,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
     # test single threading straming insert
     def test_streaming_insert(self):
-        self.assertEqual(True, utilsMySql.truncateTable(tableName))
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsMySql.deleteElements(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True)
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
@@ -94,8 +94,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        self.assertEqual(1, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(1, utilsMySql.countElements(tableName))
+        self.assertEqual(1, utilsRedis.countElements(tableName))
 
         self.assertEqual(True, rta_dltest_db_mysql.waitAndClose())
         self.assertEqual(True, rta_dltest_db_redis.waitAndClose())
@@ -103,8 +103,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
     # test single threading batch insert
     def test_batch_insert(self):
-        self.assertEqual(True, utilsMySql.truncateTable(tableName))
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsMySql.deleteElements(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True).set('General', 'batchsize', 2)
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
@@ -113,14 +113,14 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(0, utilsMySql.countElements(tableName))
+        self.assertEqual(0, utilsRedis.countElements(tableName))
 
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        self.assertEqual(2, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(2, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(2, utilsMySql.countElements(tableName))
+        self.assertEqual(2, utilsRedis.countElements(tableName))
 
         self.assertEqual(True, rta_dltest_db_mysql.waitAndClose())
         self.assertEqual(True, rta_dltest_db_redis.waitAndClose())
@@ -129,8 +129,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
     # test single threading batch insert closing before finish
     def test_batch_insert_closed_connection_before_finish(self):
-        self.assertEqual(True, utilsMySql.truncateTable(tableName))
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsMySql.deleteElements(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True).set('General', 'batchsize', 2)
         rta_dltest_db_mysql = RTA_DLTEST_DB('mysql', config_file_path)
@@ -139,14 +139,14 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(0, utilsMySql.countElements(tableName))
+        self.assertEqual(0, utilsRedis.countElements(tableName))
 
         self.assertEqual(True, rta_dltest_db_mysql.waitAndClose())
         self.assertEqual(True, rta_dltest_db_redis.waitAndClose())
 
-        self.assertEqual(1, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(1, utilsMySql.countElements(tableName))
+        self.assertEqual(1, utilsRedis.countElements(tableName))
 
 
     # pure multi threading mode active with flag = true or numberofthreads > 1
@@ -166,8 +166,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
     # test multi threading streaming (one asynchronous thread)
     def test_aynchronous_single_thread_streaming_insert(self):
-        self.assertEqual(True, utilsMySql.truncateTable(tableName))
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsMySql.deleteElements(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 1)
 
@@ -179,8 +179,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
         sleep(0.3)
 
-        self.assertEqual(1, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(1, utilsMySql.countElements(tableName))
+        self.assertEqual(1, utilsRedis.countElements(tableName))
 
         s1 = rta_dltest_db_mysql.waitAndClose()
         s2 = rta_dltest_db_redis.waitAndClose()
@@ -192,8 +192,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
     # test multi threading batch (one asynchronous thread)
     def test_aynchronous_single_thread_batch_insert(self):
-        self.assertEqual(True, utilsMySql.truncateTable(tableName))
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsMySql.deleteElements(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 1).set('General', 'batchsize', 2)
 
@@ -205,16 +205,16 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
         sleep(0.3)
 
-        self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(0, utilsMySql.countElements(tableName))
+        self.assertEqual(0, utilsRedis.countElements(tableName))
 
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         sleep(0.3)
 
-        self.assertEqual(2, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(2, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(2, utilsMySql.countElements(tableName))
+        self.assertEqual(2, utilsRedis.countElements(tableName))
 
         s1 = rta_dltest_db_mysql.waitAndClose()
         s2 = rta_dltest_db_redis.waitAndClose()
@@ -225,8 +225,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
     # test multi threading batch (one asynchronous thread)
     def test_aynchronous_single_thread_batch_insert_closing_connection_before_finish(self):
-        self.assertEqual(True, utilsMySql.truncateTable(tableName))
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsMySql.deleteElements(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 1).set('General', 'batchsize', 2)
 
@@ -244,13 +244,13 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
         sleep(0.2)
 
-        self.assertEqual(1, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(1, utilsMySql.countElements(tableName))
+        self.assertEqual(1, utilsRedis.countElements(tableName))
 
     # test multi threading streaming (multiple threads)
     def test_aynchronous_multi_thread_streaming_insert(self):
-        self.assertEqual(True, utilsMySql.truncateTable(tableName))
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsMySql.deleteElements(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 2)
 
@@ -263,8 +263,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
         sleep(0.3)
 
-        self.assertEqual(50, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(50, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(50, utilsMySql.countElements(tableName))
+        self.assertEqual(50, utilsRedis.countElements(tableName))
 
         s1 = rta_dltest_db_mysql.waitAndClose()
         s2 = rta_dltest_db_redis.waitAndClose()
@@ -276,8 +276,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
     """ It's difficult to understand when a thread commits the transaction
 
     def test_aynchronous_multi_thread_batch_insert(self):
-        self.assertEqual(True, utilsMySql.truncateTable(tableName))
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsMySql.deleteElements(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 2).set('General', 'batchsize', 3)
 
@@ -290,16 +290,16 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
         sleep(0.5)
 
-        self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(0, utilsMySql.countElements(tableName))
+        self.assertEqual(0, utilsRedis.countElements(tableName))
 
         rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
         rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
         sleep(0.5)
 
-        self.assertEqual(3, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(3, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(3, utilsMySql.countElements(tableName))
+        self.assertEqual(3, utilsRedis.countElements(tableName))
 
         s1 = rta_dltest_db_mysql.waitAndClose()
         s2 = rta_dltest_db_redis.waitAndClose()
@@ -310,8 +310,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
     # test multi threading batch closing connection before finish (multiple threads)
     def test_aynchronous_multi_thread_batch_insert_closing_connection_before_finish(self):
-        self.assertEqual(True, utilsMySql.truncateTable(tableName))
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsMySql.deleteElements(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True).set('General', 'numberofthreads', 2).set('General', 'batchsize', 3)
 
@@ -324,8 +324,8 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
         sleep(0.5)
 
-        self.assertEqual(0, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(0, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(0, utilsMySql.countElements(tableName))
+        self.assertEqual(0, utilsRedis.countElements(tableName))
 
         s1 = rta_dltest_db_mysql.waitAndClose()
         s2 = rta_dltest_db_redis.waitAndClose()
@@ -333,34 +333,34 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
         self.assertEqual(2, s1[0])
         self.assertEqual(2, s2[0])
 
-        self.assertEqual(2, utilsMySql.countRowsInTable(tableName))
-        self.assertEqual(2, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(2, utilsMySql.countElements(tableName))
+        self.assertEqual(2, utilsRedis.countElements(tableName))
 
 
 
     # Test Pythonic usage
     def test_pythonic_usage(self):
-        self.assertEqual(True, utilsMySql.truncateTable(tableName))
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsMySql.deleteElements(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True)
         with RTA_DLTEST_DB('mysql', config_file_path) as rta_dltest_db_mysql:
             rta_dltest_db_mysql.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        self.assertEqual(1, utilsMySql.countRowsInTable(tableName))
+        self.assertEqual(1, utilsMySql.countElements(tableName))
 
 
         with RTA_DLTEST_DB('redis-basic', config_file_path) as rta_dltest_db_redis:
             rta_dltest_db_redis.insertEvent( *RTA_DLTEST_DB.getRandomEvent() )
 
-        self.assertEqual(1, utilsRedis.countSortedSetMembers(tableName))
+        self.assertEqual(1, utilsRedis.countElements(tableName))
 
 
 
 
     # test Redis Publisher
     def test_publish_for_dtr(self):
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True).set('Dtr', 'active', 'yes').set('Dtr', 'inputchannel', 'test_channel')
 

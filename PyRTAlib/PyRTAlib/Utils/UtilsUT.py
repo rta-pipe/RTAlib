@@ -52,14 +52,14 @@ class UtilsRedis(Utils):
         self.redisConnector = RedisDBConnectorBASIC(config_file_path)
         self.redisConnector.connect()
 
-    def deleteKey(self, key):
+    def deleteElements(self, key):
         if self.redisConnector.testConnection():
             self.redisConnector.conn.delete(key)
             return True
         else:
             return False
 
-    def countSortedSetMembers(self, key):
+    def countElements(self, key):
         if self.redisConnector.testConnection():
             return self.redisConnector.conn.zcard(key)
         else:
@@ -74,22 +74,6 @@ class UtilsRedis(Utils):
             return False
 
 
-    """
-    async def publish_to_channel(self, channelName, message):
-        await asyncio.sleep(1)
-        print("[UtilsUT] Publishing message on channel {}".format(channelName))
-        self.redisConnector.conn.publish(channelName, message)
-
-    def publishOnRedisChannel(self, channelName, message):
-        if self.redisConnector.testConnection():
-            loop = asyncio.get_event_loop()
-            task = loop.create_task(self.publish_to_channel(channelName, message))
-            loop.run_until_complete(task)
-            return True
-        else:
-            return False
-    """
-
 
 
 class UtilsMySql(Utils):
@@ -98,14 +82,14 @@ class UtilsMySql(Utils):
         self.mySqlConnector = MySqlDBConnector(config_file_path)
         self.mySqlConnector.connect()
 
-    def truncateTable(self, tableName):
+    def deleteElements(self, tableName):
         if self.mySqlConnector.testConnection():
             self.mySqlConnector.executeQuery('delete from '+tableName)
             return True
         else:
             return False
 
-    def countRowsInTable(self, tableName):
+    def countElements(self, tableName):
         if self.mySqlConnector.testConnection():
             self.mySqlConnector.executeQuery('SELECT COUNT(*) FROM '+tableName)
             return int(self.mySqlConnector.cursor.fetchone()[0])

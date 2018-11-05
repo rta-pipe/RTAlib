@@ -1,6 +1,6 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/02291c119ef146c68d58ce74876871e4)](https://www.codacy.com/app/Leofaber/RTAlib?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rta-pipe/RTAlib&amp;utm_campaign=Badge_Grade)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability)](https://codeclimate.com/github/codeclimate/codeclimate/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage)](https://codeclimate.com/github/codeclimate/codeclimate/test_coverage) 
+[![Test Coverage](https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage)](https://codeclimate.com/github/codeclimate/codeclimate/test_coverage)
 # PyRTAlib
 The Python version of the RTAlib.
 
@@ -215,13 +215,12 @@ In order to start the DTR, execute the startDTR.py script specifying the path to
 
 ## API
 ```python
-class RTA_DL3ASTRI_DB.RTA_DL3ASTRI_DB(database, configFilePath = '', pure_multithreading = False)
+class RTA_DL3ASTRI_DB.RTA_DL3ASTRI_DB(database, configFilePath = '')
 ```
 Constructor for a RTA_DL3ASTRI_DB object.
 Arguments:
 * *database* (required) is a string that sets the database type.
 * *configFilePath* (optional) is a string that specifies the location of the configuration file (it will be overrided by the RTACONFIGFILE environment variabile, if set)
-* *pure_multithreading* (optional) is a boolean that specifies the *pure multithreading* mode. When the number of threads is configured equal to one, a False value means that the execution flow is synchronous i.e. no asynchronous threads are created.
 ___
 ```python
 class RTA_DL3ASTRI_DB.insertEvent(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid = 0, datarepositoryid = 0, status = 1)
@@ -231,12 +230,7 @@ ___
 ```python
 class RTA_DL3ASTRI_DB.waitAndClose()
 ```
-TODO
-If the multithreading mode has been set, it returns:
+If the numberofthreads parameter is greater than 0, it returns a tuple:
 * (totalEvents, executionTime, eventRate)
-___
-```python
-class RTA_DL3ASTRI_DB.forceClose()
-```
-TODO
+otherwise it return True or False.
 ___

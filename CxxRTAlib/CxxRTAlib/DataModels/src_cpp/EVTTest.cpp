@@ -17,9 +17,37 @@
 
 #include"EVTTest.hpp"
 
+
+
+EVTTest::EVTTest( bool last,
+                  string eventidfits,
+                  string timerealtt,
+                  string ra_deg,
+                  string dec_deg,
+                  string energy,
+                  string detx,
+                  string dety,
+                  string observationid,
+                  string datarepositoryid,
+                  string mcid,
+                  string insert_time,
+                  string status): EVTbase(last) {
+
+  eventData["eventidfits"] = eventidfits;
+  eventData["timerealtt"] = timerealtt;
+  eventData["observationid"] = observationid;
+  eventData["datarepositoryid"] = datarepositoryid;
+  eventData["ra_deg"] = ra_deg;
+  eventData["dec_deg"] = dec_deg;
+  eventData["energy"] = energy;
+  eventData["detx"] = detx;
+  eventData["dety"] = dety;
+  eventData["status"] = status;
+  eventData["mcid"] = mcid;
+  eventData["insert_time"] = insert_time;
+
+}
+
 map <string,string> & EVTTest :: getData() {
-
     return eventData;
-
-
 }

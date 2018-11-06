@@ -1,6 +1,5 @@
 # ==========================================================================
 #
-#
 # Copyright (C) 2018 Giancarlo Zollino
 #
 # This program is free software: you can redistribute it and/or modify
@@ -21,6 +20,7 @@
 
 SHELL = /bin/sh
 
+# Check dependencies
 ifndef REDIS
 $(error REDIS is not set.)
 endif
@@ -37,16 +37,26 @@ ifndef CTA_UTILS
 $(error CTA_UTILS is not set.)
 endif
 
+# Utilities
+AR       = ar cqs
+TAR      = tar -cf
+GZIP     = gzip -9f
+COPY     = cp -f -r
+COPY_FILE= $(COPY) -p
+COPY_DIR = $(COPY) -pR
+DEL_FILE = rm -f
+SYMLINK  = ln -sf
+DEL_DIR  = rm -rf
+MOVE     = mv -f
+CHK_DIR_EXISTS= test -d
+MKDIR    = mkdir -p	# -p
+
 
 ####### 1) Project names and system
 SYSTEM= $(shell gcc -dumpmachine)
 
-# Applications
-EXE = testRTAlib
-
 
 ####### 2) Directories for the compiler
-
 ### Object directories
 OBJECTS_DIR = CxxRTAlib/obj_cpp
 OBJECTS_DIR_C = CxxRTAlib/obj_c
@@ -63,7 +73,6 @@ INCLUDE_DIR_CXX_DM = CxxRTAlib/DataModels/include_cpp
 INCLUDE_DIR_CXX_RTA = CxxRTAlib/RTAInterface/include_cpp
 INCLUDE_DIR_CXX_U = CxxRTAlib/Utils/include_cpp
 
-
 #### Source C directories
 SOURCE_DIR_C_DBC = CxxRTAlib/DBConnectors/src_c
 SOURCE_DIR_C_U = CxxRTAlib/Utils/src_c
@@ -73,13 +82,17 @@ INCLUDE_DIR_C_DBC = CxxRTAlib/DBConnectors/include_c
 INCLUDE_DIR_C_U = CxxRTAlib/Utils/include_c
 
 
+### Output
+EXE_DESTDIR  = bin
+EXE = testRTAlib
 
-PROJECTS_DIR = CxxRTAlib/projects
-EXE_DESTDIR  = CxxRTAlib/bin
-LIB_DESTDIR = CxxRTAlib/lib
+LIB_DESTDIR = lib
+LIB_NAME = libCxxRTAlib.a
+
+
 
 ####### 3) Compiler, tools and options
-
+######### C++ COMPILING
 CXX = g++
 
 CXXFLAGS = -O3 -funroll-loops -std=c++11 -lpthread
@@ -119,6 +132,8 @@ CFLAGS += -I$(REDIS)
 LIBS += -L$(REDIS) -lhiredis
 
 
+
+############ 4) DEBUG CONFIGURATION
 ifeq ($(DEBUG),1)
 	CXXFLAGS += -DDEBUG
 endif
@@ -127,21 +142,9 @@ ifeq ($(VALGRIND),1)
 endif
 
 
-AR       = ar cqs
-TAR      = tar -cf
-GZIP     = gzip -9f
-COPY     = cp -f -r
-COPY_FILE= $(COPY) -p
-COPY_DIR = $(COPY) -pR
-DEL_FILE = rm -f
-SYMLINK  = ln -sf
-DEL_DIR  = rm -rf
-MOVE     = mv -f
-CHK_DIR_EXISTS= test -d
-MKDIR    = mkdir -p	# -p
 
 
-#######  4) VPATH
+#######  5) VPATH
 VPATH=$(SOURCE_DIR_CXX_DBC):$(INCLUDE_DIR_CXX_DBC):$(SOURCE_DIR_CXX_DM):$(INCLUDE_DIR_CXX_DM):$(SOURCE_DIR_CXX_RTA):$(INCLUDE_DIR_CXX_RTA):$(SOURCE_DIR_CXX_U):$(INCLUDE_DIR_CXX_U):$(SOURCE_DIR_C_DBC):$(INCLUDE_DIR_C_DBC):$(SOURCE_DIR_C_U):$(INCLUDE_DIR_C_U)
 vpath %.o $(OBJECTS_DIR)
 
@@ -183,7 +186,7 @@ $(info $$OBJECTS_C is [${OBJECTS_C}])
 	$(C) $(CFLAGS) -c $< -o $(OBJECTS_DIR_C)/$@
 
 
-all: exe	#staticlib
+all: exe staticlib
 	#only if conf directory is present:
 	#$(SYMLINK) $(CONF_DIR) $(CONF_DEST_DIR)
 

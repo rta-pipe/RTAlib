@@ -113,7 +113,7 @@ def asynchronous_performance_test(batchsize, numberofthreads, numberOfIterationP
         # Delete data
         utilsObj.deleteElements(tableName)
 
-        RTA_DLTEST = RTA_DLTEST_DB(database, '', True)
+        RTA_DLTEST = RTA_DLTEST_DB(database, '')
 
         for i in range(int(numberOfEvents)):
             RTA_DLTEST.insertEvent( *evt3data[i] )

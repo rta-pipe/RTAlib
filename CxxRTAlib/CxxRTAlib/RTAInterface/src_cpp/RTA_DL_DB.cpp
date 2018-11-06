@@ -112,11 +112,9 @@ shared_ptr<DBConnector> RTA_DL_DB::getConnector(int id,string databaseEngine, st
 
 }
 
-int RTA_DL_DB::_insertEvent( EVTbase *event ) {
+bool RTA_DL_DB::_insertEvent( EVTbase *event ) {
 
   string modelname = config->file["General"]["modelname"].getString();
-
-  // cout << "\n[RTA_DL_DB] New event!" << endl;
 
   // Transform data for visualization and notify GUIs
   //  TODO
@@ -176,9 +174,9 @@ bool RTA_DL_DB::waitAndClose() {
 
     for(int i=0; i < numberofthreads; i++ ) {
       thread_array[i]->join();
-      #ifdef DEBUG
+      // #ifdef DEBUG
       cout << "[RTA_DL_DB] thread "<< i << " joined" << endl;
-      #endif
+      // #endif
     }
 
     // cout << "[RTA_DL_DB] Collecting statistics.. " << endl;

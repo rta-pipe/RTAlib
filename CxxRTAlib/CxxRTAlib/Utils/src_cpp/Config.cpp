@@ -36,7 +36,6 @@ Config::Config(string filepath){
 
   }
 
-  filepath += "/rtalibconfig";
 
 	#ifdef DEBUG
     cout << filepath << endl;
@@ -73,55 +72,55 @@ Config* Config::getIstance(string filepath){
   return _instance;
 }
 
-
-int Config::setSection(string filepath, string sectionName, vector < map <string, string > > values){
-
-
-  #ifdef DEBUG
-  cout << "Config set filepath: " << filepath << endl;
-  cout << "Config set SectionName: " << sectionName << endl;
-  #endif
-
-
-    for(vector < map <string, string> >::iterator it=values.begin(); it!=values.end(); ++it) {
-
-        IniSection section(sectionName);
-
-        map < string, string > currentEntry = *it;
-
-        for(map < string, string >::iterator map_it=currentEntry.begin(); map_it!=currentEntry.end(); ++map_it ) {
-
-          string key = map_it->first;
-
-          string value = map_it->second;
-
-          IniEntry entry(key, value);
-          section.insert(entry);
-
-        }
-
-          inifile.insert(section);
-
-      }
-
-}
-
-int Config :: setConfFile(string filepath) {
-
-  try{
-
-  IniParser::store(inifile, filepath, INI_UTF8_MODE_ALLOW, '=', ';');
-
-  }catch(IniParser::ParserException &e) {
-
-    std::cerr << "Error while loading file!\n";
-
-  }
-
-}
-
-void Config :: clearConfFile(string filepath) {
-
-  inifile.clear();
-
-}
+//
+// int Config::setSection(string filepath, string sectionName, vector < map <string, string > > values){
+//
+//
+//   #ifdef DEBUG
+//   cout << "Config set filepath: " << filepath << endl;
+//   cout << "Config set SectionName: " << sectionName << endl;
+//   #endif
+//
+//
+//     for(vector < map <string, string> >::iterator it=values.begin(); it!=values.end(); ++it) {
+//
+//         IniSection section(sectionName);
+//
+//         map < string, string > currentEntry = *it;
+//
+//         for(map < string, string >::iterator map_it=currentEntry.begin(); map_it!=currentEntry.end(); ++map_it ) {
+//
+//           string key = map_it->first;
+//
+//           string value = map_it->second;
+//
+//           IniEntry entry(key, value);
+//           section.insert(entry);
+//
+//         }
+//
+//           inifile.insert(section);
+//
+//       }
+//
+// }
+//
+// int Config :: setConfFile(string filepath) {
+//
+//   try{
+//
+//   IniParser::store(inifile, filepath, INI_UTF8_MODE_ALLOW, '=', ';');
+//
+//   }catch(IniParser::ParserException &e) {
+//
+//     std::cerr << "Error while loading file!\n";
+//
+//   }
+//
+// }
+//
+// void Config :: clearConfFile(string filepath) {
+//
+//   inifile.clear();
+//
+// }

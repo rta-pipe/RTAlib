@@ -37,6 +37,8 @@ using mysqlx::RowResult;
 using mysqlx::Client;
 using mysqlx::SessionSettings;
 using mysqlx::SessionOption;
+using mysqlx::Row;
+using mysqlx::Value;
 
 class MySqlDBConnector : public DBConnector {
 public:
@@ -62,6 +64,7 @@ public:
   string buildQuery(string modelName, int batchsize, map <string,string> args);
   bool streamingInsert(string query);
   bool batchInsert(string query, int batchsize);
+  bool executeQuery(string query);
 
   shared_ptr<Session> mySession;
 

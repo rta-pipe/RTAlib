@@ -193,3 +193,9 @@ bool batchInsert_c(int rc_commandsSent, redisContext *c, int idConnector,const c
   return true;
 
 }
+
+bool executeQuery_c(redisContext *c, int idConnector,const char *query){
+
+  // reply = redisCommand(c, "ZADD %s %s %s", modelName, score, query);
+
+}

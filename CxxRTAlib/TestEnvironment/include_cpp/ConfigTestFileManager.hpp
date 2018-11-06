@@ -14,41 +14,24 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==========================================================================
 */
-#ifndef DB_CONNECTOR_H
-#define DB_CONNECTOR_H
 
-
-/* Standard C++ includes */
-#include <string>
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <map>
-#include <memory>
+#ifndef CONFI_TEST_FILE_MANAGER_H
+#define CONFI_TEST_FILE_MANAGER_H
 
 #include "Config.hpp"
-#include "Mutex.hpp"
+#include "IniParser.hpp"
+#include <vector>
 
-using std::string;
-using std::pair;
-using std::vector;
-using std::cout;
-using std::endl;
-using std::map;
-using std::make_shared;
-using std::shared_ptr;
-using std::unique_ptr;
+using std:: vector;
 
-class DBConnector {
+class ConfigTestFileManager {
 public:
-  DBConnector(string filepath="");
-  virtual bool connect(Mutex* mux);
-  virtual bool disconnect();
-  virtual bool insertData(string modelName, map < string, string > args);
-  virtual bool executeQuery(string query);
-  // virtual bool selectData(string query);
+  static void writeConfigFile(map < string, vector < map < string, string > > > ma = map < string, vector < map < string, string > > >());
+  static void clearConfFile(string filepath);
 
-  Config * config;
+
+private:
+  ConfigTestFileManager();
+
 };
-
 #endif

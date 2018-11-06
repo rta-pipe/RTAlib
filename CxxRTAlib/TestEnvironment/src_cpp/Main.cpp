@@ -21,6 +21,7 @@
 #include "gtest/gtest.h"
 
 #include "Config.hpp"
+#include "ConfigTestFileManager.hpp"
 #include "DBConnector.hpp"
 #include "MySqlDBConnector.hpp"
 #include "RedisDBConnector.hpp"
@@ -37,8 +38,7 @@ const char* startString = {
 "###               - RTAlib/CXXRTAlib/UnitTest -              ###"
 };
 
-
-void writeConfFile(Config * myConf, string modelname, string mjdref, string debug, string batchsize, string numberofthread,string mhost, string mpwd, string musr, string mdb, string rhost, string rpwd, string rdb, string indexon );
+vector < map <string, string> > randomEventsGenerator(int size);
 
 /*
  ==================================
@@ -51,29 +51,19 @@ void writeConfFile(Config * myConf, string modelname, string mjdref, string debu
 TEST(MySqlDBConnector, CorrectConnection) {
 
   Mutex* mux = Mutex::getIstance();
-
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
-
-  myConf->deleteInstance();
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
 
   EXPECT_TRUE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
+  ConfigTestFileManager::writeConfigFile();
 
 }
 
@@ -81,134 +71,136 @@ TEST(MySqlDBConnector, CorrectConnection) {
 TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
 
   Mutex* mux = Mutex::getIstance();
-
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  string r_password = myConf->file["Redis"]["password"].getString();
-
-  string m_password = myConf->file["MySql"]["password"].getString();
+  kv["host"]= myConf->file["MySql"]["host"].getString();
+  kv["password"]= "djkfhbsal";
+  kv["username"]= myConf->file["MySql"]["username"].getString();
+  kv["dbname"]= myConf->file["MySql"]["dbname"].getString();
+  entry.push_back(kv);
+  section["MySql"] = entry;
 
   myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(section);
+  myConf->deleteInstance();
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost","asdasd","rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
 
   EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
-
+  ConfigTestFileManager::writeConfigFile();
 
 }
 
 TEST(MySqlDBConnector, FailedConnectionWrongUserName) {
 
   Mutex* mux = Mutex::getIstance();
-
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
+  kv["host"]= myConf->file["MySql"]["host"].getString();
+  kv["password"]= myConf->file["MySql"]["password"].getString();
+  kv["username"]= "sdklfhasjh";
+  kv["dbname"]= myConf->file["MySql"]["dbname"].getString();
+  entry.push_back(kv);
+  section["MySql"] = entry;
 
   myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(section);
+  myConf->deleteInstance();
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost", m_password,"fkajhuis","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
 
   EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+  ConfigTestFileManager::writeConfigFile();
 
 }
 
 TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
 
   Mutex* mux = Mutex::getIstance();
-
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
+  kv["host"]= myConf->file["MySql"]["host"].getString();
+  kv["password"]= myConf->file["MySql"]["password"].getString();
+  kv["username"]= myConf->file["MySql"]["username"].getString();
+  kv["dbname"]= "dsfljhn";
+  entry.push_back(kv);
+  section["MySql"] = entry;
 
   myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(section);
+  myConf->deleteInstance();
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","qwerty","localhost",r_password,"1","evt3:timerealtt");
-
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
-
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
   EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+  ConfigTestFileManager::writeConfigFile();
 
 }
 
-TEST(MySqlDBConnector, SelectRowsTestTable) {
-
-  Mutex* mux = Mutex::getIstance();
-
-  Config * myConf;
-
-  myConf = Config::getIstance("./");
-
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
-
-  myConf->deleteInstance();
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
-
-  mySqlDBTest->connect(mux);
-
-  EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
-
-  myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
-}
+// TEST(MySqlDBConnector, SelectRowsTestTable) {
+//
+//   Mutex* mux = Mutex::getIstance();
+//   Config * myConf;
+//   myConf = Config::getIstance("./rtalibconfig");
+//
+//   map < string, vector < map < string, string > > > section;
+//   vector < map < string, string > > entry;
+//   map < string, string>  kv;
+//
+//   kv["host"]= myConf->file["MySql"]["host"].getString();
+//   kv["password"]= myConf->file["MySql"]["password"].getString();
+//   kv["username"]= myConf->file["MySql"]["username"].getString();
+//   kv["dbname"]= myConf->file["MySql"]["dbname"].getString();
+//   entry.push_back(kv);
+//   section["MySql"] = entry;
+//
+//   myConf->deleteInstance();
+//   ConfigTestFileManager::writeConfigFile(section);
+//   myConf->deleteInstance();
+//
+//   auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
+//   mySqlDBTest->connect(mux);
+//   EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
+//
+//   myConf->deleteInstance();
+//   ConfigTestFileManager::writeConfigFile();
+//
+// }
 
 TEST(MySqlDBConnector, WriteWrongTable) {
 
   Mutex* mux = Mutex::getIstance();
-
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
-
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
   myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile();
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost", m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
 
   mySqlDBTest->connect(mux);
 
@@ -219,32 +211,25 @@ TEST(MySqlDBConnector, WriteWrongTable) {
   args["d"] = "4";
 
   EXPECT_FALSE( mySqlDBTest->insertData("lest_fable", args) );
-
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+  ConfigTestFileManager::writeConfigFile();
 
 }
 
 TEST(MySqlDBConnector, InsertDataSuccefully) {
 
   Mutex* mux = Mutex::getIstance();
-
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
-
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
   myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile();
 
-  writeConfFile(myConf,"test_table","51544.5","yes","1","1","localhost", m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
 
   mySqlDBTest->connect(mux);
 
@@ -254,13 +239,10 @@ TEST(MySqlDBConnector, InsertDataSuccefully) {
   args["c"] = "3";
   args["d"] = "4";
 
-  EXPECT_TRUE( mySqlDBTest->insertData("test_table", args) );
+  EXPECT_TRUE( mySqlDBTest->insertData("rtalib_test_table", args) );
 
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+  ConfigTestFileManager::writeConfigFile();
 
 }
 
@@ -277,28 +259,19 @@ TEST(MySqlDBConnector, InsertDataSuccefully) {
 TEST(RedisDBConnector, CorrectConnection) {
 
   Mutex* mux = Mutex::getIstance();
-
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
-
-  myConf->deleteInstance();
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
-  auto redisDBTest = make_shared<RedisDBConnector>(0,"./");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,"./rtalibconfig");
 
   EXPECT_TRUE(redisDBTest->connect(mux));
 
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
+  ConfigTestFileManager::writeConfigFile();
 
 }
 
@@ -306,21 +279,14 @@ TEST(RedisDBConnector, CorrectConnection) {
 TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
 
   Mutex* mux = Mutex::getIstance();
-
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
-
-  myConf->deleteInstance();
-
-  writeConfFile(myConf,"testmodel","51544.5","yes","1","1","localhost", m_password,"rta_test","evt_test","localhost",r_password,"1","testmodel:a");
-
-  auto redisDBTest = make_shared<RedisDBConnector>(0,"./");
-
+  auto redisDBTest = make_shared<RedisDBConnector>(0,"./rtalibconfig");
   redisDBTest->connect(mux);
 
   map <string, string > args;
@@ -331,11 +297,8 @@ TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
 
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile();
 
 }
 
@@ -343,20 +306,14 @@ TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
 TEST(RedisDBConnector, InsertDataSuccIndexonMiddle) {
 
   Mutex* mux = Mutex::getIstance();
-
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
-
-  myConf->deleteInstance();
-
-  writeConfFile(myConf,"testmodel","51544.5","yes","1","1","localhost", m_password,"rta_test","evt_test","localhost",r_password,"1","testmodel:c");
-
-  auto redisDBTest = make_shared<RedisDBConnector>(0,"./");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,"./rtalibconfig");
 
   redisDBTest->connect(mux);
 
@@ -368,31 +325,22 @@ TEST(RedisDBConnector, InsertDataSuccIndexonMiddle) {
 
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile();
 
 }
 
 TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
 
   Mutex* mux = Mutex::getIstance();
-
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
-
-  myConf->deleteInstance();
-
-  writeConfFile(myConf,"testmodel","51544.5","yes","1","1","localhost", m_password,"rta_test","evt_test","localhost",r_password,"1","testmodel:d");
-
-  auto redisDBTest = make_shared<RedisDBConnector>(0,"./");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,"./rtalibconfig");
 
   redisDBTest->connect(mux);
 
@@ -404,12 +352,8 @@ TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
 
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
+  ConfigTestFileManager::writeConfigFile();
 }
 
 /*
@@ -422,126 +366,412 @@ TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
 
 TEST(RTA_DL_DB, waitAndCloseMysqlTest) {
 
+  Mutex* mux = Mutex::getIstance();
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
-
-  myConf->deleteInstance();
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
-  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", "./");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", "./rtalibconfig");
 
   EXPECT_TRUE( rtaTestDb->waitAndClose() );
 
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
+  ConfigTestFileManager::writeConfigFile();
 }
 
 TEST(RTA_DL_DB, waitAndCloseRedisTest) {
 
+  Mutex* mux = Mutex::getIstance();
   Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  myConf = Config::getIstance("./");
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  string m_password = myConf->file["MySql"]["password"].getString();
-
-  string r_password = myConf->file["Redis"]["password"].getString();
-
-  myConf->deleteInstance();
-
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
-  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./rtalibconfig");
 
   EXPECT_TRUE( rtaTestDb->waitAndClose() );
 
-  writeConfFile(myConf,"evt3_memory","51544.5","yes","1","1","localhost",m_password,"rta_test","evt_test","localhost",r_password,"1","evt3:timerealtt");
-
   myConf->deleteInstance();
-
-  myConf->clearConfFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile();
 
 }
 
 
-void writeConfFile( Config * myConf,
-                    string modelname,
-                    string mjdref,
-                    string debug,
-                    string batchsize,
-                    string numberofthread,
-                    string mhost,
-                    string mpwd,
-                    string musr,
-                    string mdb,
-                    string rhost,
-                    string rpwd,
-                    string rdb,
-                    string indexon
-                  ) {
+TEST(RTA_DL_DB, streamingSingleThreadRedisTest) {
 
+  Mutex* mux = Mutex::getIstance();
+  Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  Config * writeConf = myConf;
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-  map < string, string > Gentries;
+  kv["modelname"]= myConf->file["General"]["modelname"].getString();
+  kv["mjdref"]= myConf->file["General"]["modelname"].getString();
+  kv["debug"]= myConf->file["General"]["debug"].getString();
+  kv["batchsize"]= "1";
+  kv["numberofthreads"]= myConf->file["General"]["numberofthreads"].getString();
+  entry.push_back(kv);
+  section["General"] = entry;
 
-  map < string, string > Mentries;
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(section);
+  myConf->deleteInstance();
 
-  map < string, string > Rentries;
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./rtalibconfig");
 
-  vector < map <string, string > > GSection;
+  vector < map < string, string > > events = randomEventsGenerator(1);
 
-  vector < map <string, string > > MSection;
+  for(vector < map < string, string > >::iterator it = events.begin(); it!=events.end(); ++it ) {
 
-  vector < map <string, string > > RSection;
+    map < string, string > currentEvent = *it;
 
-  Gentries["modelname"]= modelname;
-  Gentries["mjdref"]= mjdref;
-  Gentries["debug"]= debug;
-  Gentries["batchsize"]= batchsize;
-  Gentries["numberofthreads"]= numberofthread;
+    EXPECT_TRUE( rtaTestDb->insertEvent(  currentEvent["eventidfits"],
+                                          currentEvent["timerealtt"],
+                                          currentEvent["ra_deg"],
+                                          currentEvent["dec_deg"],
+                                          currentEvent["energy"],
+                                          currentEvent["detx"],
+                                          currentEvent["dety"],
+                                          currentEvent["observationid"],
+                                          currentEvent["datarepositoryid"],
+                                          currentEvent["mcid"],
+                                          currentEvent["insert_time"],
+                                          currentEvent["status"] ) );
+  }
 
-  GSection.push_back(Gentries);
+  rtaTestDb->waitAndClose();
 
-  Mentries["host"]= mhost;
-  Mentries["password"]= mpwd;
-  Mentries["username"]= musr;
-  Mentries["dbname"]= mdb;
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile();
 
-  MSection.push_back(Mentries);
+}
 
-  Rentries["host"]= rhost;
-  Rentries["password"]= rpwd;
-  Rentries["dbname"]= rdb;
-  Rentries["indexon"]= indexon;
+TEST(RTA_DL_DB, streamingSingleThreadMysqlTest) {
 
-  RSection.push_back(Rentries);
+  Mutex* mux = Mutex::getIstance();
+  Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
 
-  for(int i=0; i <2; i++) {
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
 
-    switch(i) {
+  kv["modelname"]= myConf->file["General"]["modelname"].getString();
+  kv["mjdref"]= myConf->file["General"]["modelname"].getString();
+  kv["debug"]= myConf->file["General"]["debug"].getString();
+  kv["batchsize"]= "1";
+  kv["numberofthreads"]= myConf->file["General"]["numberofthreads"].getString();
+  entry.push_back(kv);
+  section["General"] = entry;
 
-      case 1 : writeConf->setSection("./rtalibconfig", "General", GSection);
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(section);
+  myConf->deleteInstance();
 
-      case 2 : writeConf->setSection("./rtalibconfig", "MySql", MSection);
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", "./rtalibconfig");
 
-      case 3 : writeConf->setSection("./rtalibconfig", "Redis", RSection);
-    }
+  vector < map < string, string > > events = randomEventsGenerator(1);
+
+  for(vector < map < string, string > >::iterator it = events.begin(); it!=events.end(); ++it ) {
+
+    map < string, string > currentEvent = *it;
+
+    EXPECT_TRUE( rtaTestDb->insertEvent(  currentEvent["eventidfits"],
+                                          currentEvent["timerealtt"],
+                                          currentEvent["ra_deg"],
+                                          currentEvent["dec_deg"],
+                                          currentEvent["energy"],
+                                          currentEvent["detx"],
+                                          currentEvent["dety"],
+                                          currentEvent["observationid"],
+                                          currentEvent["datarepositoryid"],
+                                          currentEvent["mcid"],
+                                          currentEvent["insert_time"],
+                                          currentEvent["status"] ) );
+  }
+
+  rtaTestDb->waitAndClose();
+
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile();
+
+}
+
+TEST(RTA_DL_DB, streamingMultiThreadMysqlTest) {
+
+  Mutex* mux = Mutex::getIstance();
+  Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
+
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
+
+  kv["modelname"]= myConf->file["General"]["modelname"].getString();
+  kv["mjdref"]= myConf->file["General"]["modelname"].getString();
+  kv["debug"]= myConf->file["General"]["debug"].getString();
+  kv["batchsize"]= "1";
+  kv["numberofthreads"]= "2";
+  entry.push_back(kv);
+  section["General"] = entry;
+
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(section);
+  myConf->deleteInstance();
+
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", "./rtalibconfig");
+
+  vector < map < string, string > > events = randomEventsGenerator(4);
+
+  for(vector < map < string, string > >::iterator it = events.begin(); it!=events.end(); ++it ) {
+
+    map < string, string > currentEvent = *it;
+
+    EXPECT_TRUE( rtaTestDb->insertEvent(  currentEvent["eventidfits"],
+                                          currentEvent["timerealtt"],
+                                          currentEvent["ra_deg"],
+                                          currentEvent["dec_deg"],
+                                          currentEvent["energy"],
+                                          currentEvent["detx"],
+                                          currentEvent["dety"],
+                                          currentEvent["observationid"],
+                                          currentEvent["datarepositoryid"],
+                                          currentEvent["mcid"],
+                                          currentEvent["insert_time"],
+                                          currentEvent["status"] ) );
+  }
+
+  rtaTestDb->waitAndClose();
+
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile();
+
+}
+
+TEST(RTA_DL_DB, batchSingleThreadMysqlTest) {
+
+  Mutex* mux = Mutex::getIstance();
+  Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
+
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
+
+  kv["modelname"]= myConf->file["General"]["modelname"].getString();
+  kv["mjdref"]= myConf->file["General"]["modelname"].getString();
+  kv["debug"]= myConf->file["General"]["debug"].getString();
+  kv["batchsize"]= "2";
+  kv["numberofthreads"]= myConf->file["General"]["numberofthreads"].getString();
+  entry.push_back(kv);
+  section["General"] = entry;
+
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(section);
+  myConf->deleteInstance();
+
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./rtalibconfig");
+
+  vector < map < string, string > > events = randomEventsGenerator(4);
+
+  for(vector < map < string, string > >::iterator it = events.begin(); it!=events.end(); ++it ) {
+
+    map < string, string > currentEvent = *it;
+
+    EXPECT_TRUE( rtaTestDb->insertEvent(  currentEvent["eventidfits"],
+                                          currentEvent["timerealtt"],
+                                          currentEvent["ra_deg"],
+                                          currentEvent["dec_deg"],
+                                          currentEvent["energy"],
+                                          currentEvent["detx"],
+                                          currentEvent["dety"],
+                                          currentEvent["observationid"],
+                                          currentEvent["datarepositoryid"],
+                                          currentEvent["mcid"],
+                                          currentEvent["insert_time"],
+                                          currentEvent["status"] ) );
+  }
+
+  rtaTestDb->waitAndClose();
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile();
+
+}
+
+TEST(RTA_DL_DB, selectSingleThreadMysqlTest) {
+
+  Mutex* mux = Mutex::getIstance();
+  Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
+
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
+
+  kv["modelname"]= myConf->file["General"]["modelname"].getString();
+  kv["mjdref"]= myConf->file["General"]["modelname"].getString();
+  kv["debug"]= myConf->file["General"]["debug"].getString();
+  kv["batchsize"]= "2";
+  kv["numberofthreads"]= myConf->file["General"]["numberofthreads"].getString();
+  entry.push_back(kv);
+  section["General"] = entry;
+
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(section);
+  myConf->deleteInstance();
+
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
+
+  mySqlDBTest->connect(mux);
+  string query = "SELECT * FROM " + kv["modelname"];
+  cout << query << endl;
+  mySqlDBTest->executeQuery(query);
+
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile();
+
+}
+
+// TEST(RTA_DL_DB, batchErrorSingleThreadMysqlTest) {
+//
+//   Mutex* mux = Mutex::getIstance();
+//   Config * myConf;
+//   myConf = Config::getIstance("./rtalibconfig");
+//
+//   map < string, vector < map < string, string > > > section;
+//   vector < map < string, string > > entry;
+//   map < string, string>  kv;
+//
+//   kv["modelname"]= myConf->file["General"]["modelname"].getString();
+//   kv["mjdref"]= myConf->file["General"]["modelname"].getString();
+//   kv["debug"]= myConf->file["General"]["debug"].getString();
+//   kv["batchsize"]= "2";
+//   kv["numberofthreads"]= myConf->file["General"]["numberofthreads"].getString();
+//   entry.push_back(kv);
+//   section["General"] = entry;
+//
+//   myConf->deleteInstance();
+//   ConfigTestFileManager::writeConfigFile(section);
+//   myConf->deleteInstance();
+//
+//   auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", "./rtalibconfig");
+//
+//   vector < map < string, string > > events = randomEventsGenerator(5);
+//
+//   for(vector < map < string, string > >::iterator it = events.begin(); it!=events.end(); ++it ) {
+//
+//     map < string, string > currentEvent = *it;
+//
+//     EXPECT_TRUE( rtaTestDb->insertEvent(  currentEvent["eventidfits"],
+//                                           currentEvent["timerealtt"],
+//                                           currentEvent["ra_deg"],
+//                                           currentEvent["dec_deg"],
+//                                           currentEvent["energy"],
+//                                           currentEvent["detx"],
+//                                           currentEvent["dety"],
+//                                           currentEvent["observationid"],
+//                                           currentEvent["datarepositoryid"],
+//                                           currentEvent["mcid"],
+//                                           currentEvent["insert_time"],
+//                                           currentEvent["status"] ) );
+//
+//     if( it == next(next(events.end())) ) {
+//       rtaTestDb->waitAndClose();
+//     }
+//   }
+//
+//   rtaTestDb->waitAndClose();
+//   myConf->deleteInstance();
+//   ConfigTestFileManager::writeConfigFile();
+//
+// }
+
+TEST(RTA_DL_DB, batchSingleThreadRedisTest) {
+
+  Mutex* mux = Mutex::getIstance();
+  Config * myConf;
+  myConf = Config::getIstance("./rtalibconfig");
+
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
+
+  kv["modelname"]= myConf->file["General"]["modelname"].getString();
+  kv["mjdref"]= myConf->file["General"]["modelname"].getString();
+  kv["debug"]= myConf->file["General"]["debug"].getString();
+  kv["batchsize"]= "2";
+  kv["numberofthreads"]= myConf->file["General"]["numberofthreads"].getString();
+  entry.push_back(kv);
+  section["General"] = entry;
+
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(section);
+  myConf->deleteInstance();
+
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./rtalibconfig");
+
+  vector < map < string, string > > events = randomEventsGenerator(4);
+
+  for(vector < map < string, string > >::iterator it = events.begin(); it!=events.end(); ++it ) {
+
+    map < string, string > currentEvent = *it;
+
+    EXPECT_TRUE( rtaTestDb->insertEvent(  currentEvent["eventidfits"],
+                                          currentEvent["timerealtt"],
+                                          currentEvent["ra_deg"],
+                                          currentEvent["dec_deg"],
+                                          currentEvent["energy"],
+                                          currentEvent["detx"],
+                                          currentEvent["dety"],
+                                          currentEvent["observationid"],
+                                          currentEvent["datarepositoryid"],
+                                          currentEvent["mcid"],
+                                          currentEvent["insert_time"],
+                                          currentEvent["status"] ) );
+  }
+
+  rtaTestDb->waitAndClose();
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile();
+
+}
+
+vector < map <string, string> > randomEventsGenerator(int size){
+
+  map <string, string> args;
+
+  vector < map <string, string> > events;
+
+  /*  CREAZIONE EVENTI RANDOM  */
+  for(int i=0; i<size; i++){
+    args["eventidfits"] =to_string(rand());
+    args["timerealtt"] =to_string(rand());
+    args["detx"] =to_string(rand());
+    args["ra_deg"] =to_string(rand());
+    args["dec_deg"] =to_string(rand());
+    args["energy"] =to_string(rand());
+    args["dety"] =to_string(rand());
+    args["observationid"] =to_string(rand());
+    args["datarepositoryid"] =to_string(rand());
+    args["status"] =to_string(1);
+    args["mcid"] =to_string(1);
+    args["insert_time"] =to_string(rand());
+
+    events.push_back(args);
 
   }
 
-  writeConf->setConfFile("./rtalibconfig");
+  return events;
 
 }
+
 
 
 int main(int argc, char **argv) {
@@ -549,6 +779,8 @@ int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
 
   cout << startString<< endl;
+
+  std::system("cp ../../Configs/rtalibconfig_testing ./rtalibconfig");
 
   return RUN_ALL_TESTS();
 

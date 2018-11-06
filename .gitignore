@@ -12,6 +12,7 @@ rtalibconfig_test
 PyRTAlib/rtalibconfig
 PyRTAlib/TestEnvironment/rtalibconfig
 PyRTAlib/TestEnvironment/export_env_var.sh
+rtalibconfig
 
 __pycache__/
 

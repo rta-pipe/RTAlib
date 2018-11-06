@@ -443,7 +443,7 @@ class RTA_DLTEST_DB_interface(unittest.TestCase):
 
     # test Redis Publisher multithreading mode
     def test_publish_for_dtr_multithread(self):
-        self.assertEqual(True, utilsRedis.deleteKey(tableName))
+        self.assertEqual(True, utilsRedis.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True)\
             .set('General', 'numberofthreads', 2)\

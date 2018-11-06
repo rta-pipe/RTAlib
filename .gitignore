@@ -13,6 +13,9 @@ PyRTAlib/rtalibconfig
 PyRTAlib/TestEnvironment/rtalibconfig
 PyRTAlib/TestEnvironment/export_env_var.sh
 
+testRTAlib
+rtalibconfig
+
 __pycache__/
 
 # File in PyLibRTA package

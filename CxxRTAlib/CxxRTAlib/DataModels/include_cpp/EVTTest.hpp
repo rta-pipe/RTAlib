@@ -24,22 +24,20 @@ class EVTTest : public EVTbase {
 
 public:
 
-  EVTTest(bool last=false, string eventidfits="", string timerealtt="" ,string ra_deg="", string dec_deg="", string energy="", string detx="", string dety="",  string observationid="", string datarepositoryid="", string mcid="", string insert_time="", string status="") : EVTbase(last) {
-
-    eventData["eventidfits"] = eventidfits;
-    eventData["timerealtt"] = timerealtt;
-    eventData["observationid"] = observationid;
-    eventData["datarepositoryid"] = datarepositoryid;
-    eventData["ra_deg"] = ra_deg;
-    eventData["dec_deg"] = dec_deg;
-    eventData["energy"] = energy;
-    eventData["detx"] = detx;
-    eventData["dety"] = dety;
-    eventData["status"] = status;
-    eventData["mcid"] = mcid;
-    eventData["insert_time"] = insert_time;
-
-  };
+  EVTTest(    bool last=false,
+            string eventidfits="",
+            string timerealtt="" ,
+            string ra_deg="",
+            string dec_deg="",
+            string energy="",
+            string detx="",
+            string dety="",
+            string observationid="",
+            string datarepositoryid="",
+            string mcid="",
+            string insert_time="",
+            string status=""
+         );
 
   map <string,string> & getData();
 

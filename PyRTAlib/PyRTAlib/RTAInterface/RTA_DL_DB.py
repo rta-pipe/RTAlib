@@ -30,7 +30,7 @@ from ..Utils import RedisPublisher
 
 class RTA_DL_DB(ABC):
 
-    def __init__(self, database, configFilePath = '', pure_multithreading = False):
+    def __init__(self, database, configFilePath = ''):
 
         if database != 'mysql' and database != 'redis-basic': # pragma: no cover
             print("[RTA_DL_DB] Error! Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis-basic'))
@@ -52,14 +52,13 @@ class RTA_DL_DB(ABC):
             self.redisPub = RedisPublisher(configFilePath)
 
 
-        # Pure multithreading configuration ------------------------------------
-        self.pure_multithreading = pure_multithreading # Synchronous/Asynchronous single thread
-        if self.config.get('General', 'numberofthreads', 'int') > 1:
-            self.pure_multithreading = True
+        self.multithreading = False
+        if self.config.get('General', 'numberofthreads', 'int') >= 1:
+            self.multithreading = True
 
 
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
-        if not self.pure_multithreading:
+        if not self.multithreading:
             self.dbConnector = self.getConnector(database, configFilePath)
             self.dbConnector.connect()
 
@@ -140,7 +139,7 @@ class RTA_DL_DB(ABC):
             self.redisPub.publish(self.config.get('Dtr','inputchannel'), eventData)
 
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
-        if not self.pure_multithreading:
+        if not self.multithreading:
             return self.dbConnector.insertData(self.config.get('General','modelname'), eventData)
 
         # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\
@@ -203,7 +202,7 @@ class RTA_DL_DB(ABC):
 
 
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
-        if not self.pure_multithreading:
+        if not self.multithreading:
 
             # Stopping DTR's working thread
             if self.redisPub:
@@ -259,7 +258,7 @@ class RTA_DL_DB(ABC):
             print('[RTA_DL_DB] Stopping all threads on close()..')
 
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
-        if not self.pure_multithreading:
+        if not self.multithreading:
             self.dbConnector.close()
 
         # Multi threading mode /\____/\____/\____/\____/\____/\____/\____/\____/\

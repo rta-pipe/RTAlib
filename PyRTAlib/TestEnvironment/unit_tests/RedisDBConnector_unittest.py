@@ -30,8 +30,8 @@ path.append(rootFolder+'/PyRTAlib/')
 
 from PyRTAlib.Utils         import Config
 from PyRTAlib.DBConnectors  import RedisDBConnectorBASIC
-from UtilsUT import UtilsRedis
-from UtilsUT import getConfig
+from PyRTAlib.Utils.UtilsUT import UtilsRedis
+from PyRTAlib.Utils.UtilsUT import getConfig
 
 
 if 'RTALIBCONFIG' not in environ:
@@ -124,7 +124,7 @@ class RedisConnectorBASIC(unittest.TestCase):
 
 
     def test_streaming_insert(self):
-        self.assertEqual(True, utils.deleteKey(tableName))
+        self.assertEqual(True, utils.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True)
         redisConn = RedisDBConnectorBASIC(config_file_path)
@@ -135,12 +135,12 @@ class RedisConnectorBASIC(unittest.TestCase):
         self.assertEqual(True, redisConn.insertData(tableName, {'a': 9, 'b': 2, 'c': 3}))
         self.assertEqual(True, redisConn.close())
 
-        self.assertEqual(3, utils.countSortedSetMembers(tableName))
+        self.assertEqual(3, utils.countElements(tableName))
 
 
 
     def test_batch_insert(self):
-        self.assertEqual(True, utils.deleteKey(tableName))
+        self.assertEqual(True, utils.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True)
         getConfig(config_file_path, DEBUG).set('General', 'batchsize', 2)
@@ -149,16 +149,16 @@ class RedisConnectorBASIC(unittest.TestCase):
 
         self.assertEqual(True, redisConn.connect())
         self.assertEqual(True, redisConn.insertData(tableName, {'a': 4, 'b': 2, 'c': 3}))
-        self.assertEqual(0, utils.countSortedSetMembers(tableName))
+        self.assertEqual(0, utils.countElements(tableName))
 
         self.assertEqual(True, redisConn.insertData(tableName, {'a': 2, 'b': 2, 'c': 3}))
-        self.assertEqual(2, utils.countSortedSetMembers(tableName))
+        self.assertEqual(2, utils.countElements(tableName))
 
         self.assertEqual(True, redisConn.close())
 
 
     def test_batch_insert_closing_connection_before_finish(self):
-        self.assertEqual(True, utils.deleteKey(tableName))
+        self.assertEqual(True, utils.deleteElements(tableName))
 
         getConfig(config_file_path, DEBUG, reload=True)
         getConfig(config_file_path, DEBUG).set('General', 'batchsize', 2)
@@ -167,11 +167,11 @@ class RedisConnectorBASIC(unittest.TestCase):
 
         self.assertEqual(True, redisConn.connect())
         self.assertEqual(True, redisConn.insertData(tableName, {'a': 4, 'b': 2, 'c': 3}))
-        self.assertEqual(0, utils.countSortedSetMembers(tableName))
+        self.assertEqual(0, utils.countElements(tableName))
 
         self.assertEqual(True, redisConn.close())
 
-        self.assertEqual(1, utils.countSortedSetMembers(tableName))
+        self.assertEqual(1, utils.countElements(tableName))
 
 
 

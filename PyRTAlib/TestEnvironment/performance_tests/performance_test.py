@@ -17,100 +17,122 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # ==========================================================================
-import os
-import sys
-import time
-import collections
-import statistics
-import threading
-from random import randint, uniform
 
-#import matplotlib
-#import matplotlib.pyplot as plt
-#import numpy as np
-rootFolder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
-sys.path.append(rootFolder+'/PyRTAlib/')
+from sys import path, argv
+from os.path import dirname, realpath
 
-from PyRTAlib.DBConnectors  import MySqlDBConnector, RedisDBConnectorBASIC
+from time import perf_counter, strftime
+from collections import namedtuple
+from statistics import mean, stdev
+
+import json
+
+rootFolder = dirname(dirname(dirname(dirname(realpath(__file__)))))
+path.append(rootFolder+'/PyRTAlib/')
+
 from PyRTAlib.RTAInterface  import RTA_DLTEST_DB
-#from PyRTAlib.Utils         import read_data_from_fits
-from PyRTAlib.Utils         import Config
 
+from PyRTAlib.Utils.UtilsUT import getConfig
+from PyRTAlib.Utils.UtilsUT import UtilsMySql
+from PyRTAlib.Utils.UtilsUT import UtilsRedis
 
-def deleteData(database):
-
-    config = Config('./')
-
-    """
-        Deleting existing data
-    """
-    if database == 'mysql':
-        mysqlConn = MySqlDBConnector('./')
-        mysqlConn.connect()
-        if not mysqlConn.executeQuery('delete from '+config.get('General', 'modelname')):
-            exit()
-        #if not mysqlConn.executeQuery('delete from '+config.get('General', 'modelname')+'_memory'):
-            #exit()
-        mysqlConn.close()
-    elif database == 'redis' or database == 'redis-basic':
-        redisConn = RedisDBConnectorBASIC('./')
-        redisConn.connect()
-        redisConn.conn.delete(config.get('General', 'modelname'))
+def getUtils(dbName, configurationFilePath):
+    if dbName == 'redis-basic':
+        return UtilsRedis(configurationFilePath)
+    elif dbName == 'mysql':
+        return UtilsMySql(configurationFilePath)
     else:
-        print("Error!! Unknown database {}".format(database))
+        print("The database: {} is not supported. Please retry.".format(dbName))
         exit()
 
 
-def test(batchsize, numberofthreads):
+def simulate_evt3_data(numberOfEvents):
+    evt3data = []
+    for i in range(int(numberOfEvents)):
+        evt3data.append(RTA_DLTEST_DB.getRandomEvent())
+    return evt3data
 
-    config = Config('./')
-    config.reload('./')
-    config.set('General', 'debug', 'no')
-    config.set('General', 'numberofthreads', numberofthreads)
-    config.set('General', 'batchsize', batchsize)
-    config.set('Dtr', 'active', 'no')
 
+def synchronous_performance_test(batchsize, numberofthreads, numberOfIterationPerTest, utilsObj):
+
+    getConfig(configurationFilePath, False, reload=True)\
+        .set('General', 'batchsize', batchsize)\
+        .set('General', 'numberofthreads', numberofthreads)\
+        .set('Dtr', 'active', 'no')\
+        .set('MySqlPipelineDatabase', 'active', 'no')
+
+    eventSecList = []
+    executionTimeList = []
+
+    for jj in range(numberOfIterationPerTest):
+
+        # Delete data
+        utilsObj.deleteElements(tableName)
+
+        RTA_DLTEST = RTA_DLTEST_DB(database)
+
+        start_perf = perf_counter()
+        for i in range(numberOfEvents):
+            RTA_DLTEST.insertEvent( *evt3data[i] )
+
+        RTA_DLTEST.waitAndClose()
+        end_perf = perf_counter()
+
+        executionTime = end_perf - start_perf
+        eventSec = numberOfEvents/executionTime
+        eventSecList.append(eventSec)
+        executionTimeList.append(executionTime)
+
+
+    Perf = namedtuple('res', ['avg', 'stddev'])
+
+    avgES = mean(eventSecList)
+    stddevES = stdev(eventSecList)
+    ES = Perf(avgES, stddevES)
+
+    avgET = mean(executionTimeList)
+    stddevET = stdev(executionTimeList)
+    ET = Perf(avgET, stddevET)
+
+    print("{} +- {}\n{} +- {}".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
+    return ES
+
+def asynchronous_performance_test(batchsize, numberofthreads, numberOfIterationPerTest, utilsObj):
+
+    getConfig(configurationFilePath, False, reload=True)\
+        .set('General', 'batchsize', batchsize)\
+        .set('General', 'numberofthreads', numberofthreads)\
+        .set('Dtr', 'active', 'no')\
+        .set('MySqlPipelineDatabase', 'active', 'no')
 
     eventSecList = []
     executionTimeList = []
 
     for jj in range(5):
 
-        obsId = getUniqueObservationId()
-        RTA_DLTEST = RTA_DLTEST_DB(database)
+        # Delete data
+        utilsObj.deleteElements(tableName)
 
-        start_perf = time.perf_counter()
+        RTA_DLTEST = RTA_DLTEST_DB(database, '')
+
         for i in range(int(numberOfEvents)):
-            RTA_DLTEST.insertEvent(
-                                       eventidfits = evt3data[i][0],
-                                       time = evt3data[i][1],
-                                       ra_deg = evt3data[i][2],
-                                       dec_deg = evt3data[i][3],
-                                       energy = evt3data[i][4],
-                                       detx = evt3data[i][5],
-                                       dety = evt3data[i][6],
-                                       mcid = evt3data[i][7],
-                                       observationid = obsId
-                                     )
+            RTA_DLTEST.insertEvent( *evt3data[i] )
 
-        RTA_DLTEST.waitAndClose()
-        end_perf = time.perf_counter()
+        stats = RTA_DLTEST.waitAndClose()
 
-        executionTime = end_perf - start_perf
-        eventSec = int(numberOfEvents)/executionTime
-        eventSecList.append(eventSec)
-        executionTimeList.append(executionTime)
+        eventSecList.append(stats[2])
+        executionTimeList.append(stats[1])
 
 
-    Perf = collections.namedtuple('res', ['avg', 'stddev'])
+    Perf = namedtuple('res', ['avg', 'stddev'])
 
-    avgES = statistics.mean(eventSecList)
-    stddevES = statistics.stdev(eventSecList)
-    ES = Perf(avgES, stddevES)
+    avgES = mean(eventSecList)
+    stddevES = stdev(eventSecList)
+    ES = Perf(avgES, round(stddevES,2))
 
-    avgET = statistics.mean(executionTimeList)
-    stddevET = statistics.stdev(executionTimeList)
-    ET = Perf(avgET, stddevET)
+    avgET = mean(executionTimeList)
+    stddevET = stdev(executionTimeList)
+    ET = Perf(avgET, round(stddevET,2))
 
     print("{} +- {}\n{} +- {}".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
     return ES
@@ -118,127 +140,72 @@ def test(batchsize, numberofthreads):
 
 
 
-def getUniqueObservationId():
-    global OBSID
-    OBSID += 1
-    return OBSID
-
-def simulate_evt3_data(numberOfEvents):
-    evt3data = []
-    for i in range(int(numberOfEvents)):
-        rndEvent = []
-        rndEvent.append(randint(0, 9999999))
-        rndEvent.append(time.time())
-        rndEvent.append(randint(0, 9999999))
-        rndEvent.append(uniform(-180,180))
-        rndEvent.append(uniform(-90, 90))
-        rndEvent.append(uniform(0, 0.5))
-        rndEvent.append(uniform(0, 0.1))
-        rndEvent.append(uniform(0, 0.1))
-        rndEvent.append(randint(0, 9999999))
-        rndEvent.append(randint(0, 9999999))
-        evt3data.append(rndEvent)
-    return evt3data
-
-
-
 
 if __name__ == '__main__':
 
-    OBSID = 0
-
-
-    if len(sys.argv) < 4:
-        print("Please enter: \n - the database to be used (mysql or redis-basic) \n - the number of events to be inserted \n - the path to the configuration file")
+    if len(argv) < 5:
+        print("Please enter:\
+                    \n - the database to be used (mysql or redis-basic)\
+                    \n - the number of events to be inserted\
+                    \n - the number of times a test must be repeated (>1)\
+                    \n - the path to the configuration file")
         exit()
 
-    database = sys.argv[1]
-    numberOfEvents = sys.argv[2]
-    configurationFilePath = sys.argv[3]
+    database = argv[1]
+    numberOfEvents = int(argv[2])
+    numberOfIterationPerTest = int(argv[3])
+    configurationFilePath = argv[4]
+    tableName = 'rtalib_dl_test_table'
 
-    os.environ['RTACONFIGFILE'] = configurationFilePath
+    utils = getUtils(database, configurationFilePath)
 
-    """
-        Reading FITS data
+    # Test configuration
+    threads = [0, 1, 2]
+    batchsizes = [1, 100]#10, 50, 100, 200, 400, 800, 1600, 3200]
 
-    print("Reading data..")
-    evt3data = read_data_from_fits(fitspath)
-    print(evt3data[0])
-    """
-
-    """
-        Simulating data
-    """
-    evt3data = simulate_evt3_data(numberOfEvents)
-
-
-
-    """
-        Deleting existing data
-    """
-    deleteData(database)
+    # Simulating data
+    numberOfElementsToInsert = len(threads)*len(batchsizes)*int(numberOfEvents)
+    evt3data = simulate_evt3_data(numberOfElementsToInsert)
 
 
 
 
-    """
-        Test configuration
-    """
-    threads = [1]
-    batchsizes = [1, 10, 50, 100, 200, 400, 800, 1600, 3200]
-
-    insertionsNumber = len(threads)*len(batchsizes)*int(numberOfEvents)
-    availableData = len(evt3data)
-
-    print("Number of insertions: {}".format(insertionsNumber))
-    print("Available data: {}".format(len(evt3data)))
-
-    if insertionsNumber > availableData:
-        print("NOT ENOUGH DATA!!")
-
-    """
-        Plot
-    """
-    #w, h = len(batchsizes), len(threads);
-    x  = []
-    y = []
-    erry = []
-
-
-    """
-        Starting testing
-    """
     print("\n**************************\n******  START TEST  ******\n**************************\n")
     print("Number of events: {}".format(numberOfEvents))
     print("--> Number of threads: x, Batch size: y")
     print("Events/sec, Execution time")
 
-    for idx_t, t in enumerate(threads):
-        for idx_b, b in enumerate(batchsizes):
-            print("\n--> Number of threads: {}, Batch size: {}".format(t, b))
-            p = test(b,t)
-            x.append(b)
-            y.append(p[0])
-            erry.append(p[1])
 
-            deleteData(database)
+    outputArray = []
+
+    for idx_t, threadsNum in enumerate(threads):
+
+        for idx_b, batchSize in enumerate(batchsizes):
+
+            print("\n--> Number of threads: {}, Batch size: {}".format(threadsNum, batchSize))
+            if threadsNum == 0:
+                p = synchronous_performance_test(batchSize, threadsNum, numberOfIterationPerTest, utils)
+            else:
+                p = asynchronous_performance_test(batchSize, threadsNum, numberOfIterationPerTest, utils)
+
+            resultObj = {}
+            resultObj['threads'] = threadsNum
+            resultObj['batchsize'] = batchSize
+            resultObj['eventrate'] = p[0]
+            resultObj['error'] = p[1]
+            outputArray.append(resultObj)
+
+            # Check tables
+            elementsInserted = utils.countElements(tableName)
+            if elementsInserted != numberOfEvents:
+                print("--> COUNT DATA CHECK FAILED!! Inserted: {}/{}".format(elementsInserted, numberOfEvents))
+                exit()
 
 
-    print(x)
-    print(y)
-    print(erry)
+    print("\n\n")
 
-    """
-    # Two subplots, the axes array is 1-d
-    f, ax = plt.subplots(1)
+    timestr = strftime("%Y%m%d-%H%M%S")
+    with open('performance_pyrtalib_'+timestr+'.txt', 'w') as file:
+         file.write(json.dumps(outputArray))
 
-    ax.plot(np.array(x), np.array(y))
-    ax.grid()
-    ax.set_title('Event/Sec')
-    ax.errorbar(x, y, yerr=erry)
-
-    plt.xlabel('Batch size')
-    plt.xlabel('Event/Sec')
-
-    plt.show()
-    """
+    print(json.dumps(outputArray))

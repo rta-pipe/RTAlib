@@ -3,7 +3,7 @@ activate_virtual_env.sh
 pks1510-089.fits
 
 push.sh
-
+performance_pyrtalib*
 # Files in PyLibRTA
 rtalibconfig_*
 rtalibconfig_default
@@ -12,6 +12,9 @@ rtalibconfig_test
 PyRTAlib/rtalibconfig
 PyRTAlib/TestEnvironment/rtalibconfig
 PyRTAlib/TestEnvironment/export_env_var.sh
+
+testRTAlib
+rtalibconfig
 
 __pycache__/
 

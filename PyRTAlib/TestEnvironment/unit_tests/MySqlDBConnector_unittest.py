@@ -30,8 +30,8 @@ path.append(rootFolder+'/PyRTAlib/')
 
 from PyRTAlib.Utils         import Config
 from PyRTAlib.DBConnectors  import MySqlDBConnector
-from UtilsUT import UtilsMySql
-from UtilsUT import getConfig
+from PyRTAlib.Utils.UtilsUT import UtilsMySql
+from PyRTAlib.Utils.UtilsUT import getConfig
 
 
 if 'RTALIBCONFIG' not in environ:
@@ -59,26 +59,23 @@ class MySqlConnector(unittest.TestCase):
 
 
     def test_connection_with_wrong_password(self):
-        getConfig(config_file_path, DEBUG, reload=True)
-        getConfig(config_file_path, DEBUG).set('MySql', 'password', 'asdasd')
+        getConfig(config_file_path, DEBUG, reload=True).set('MySql', 'password', 'asdasd')
 
         mysqlConn = MySqlDBConnector(config_file_path)
         self.assertEqual(False, mysqlConn.connect())
 
 
     def test_connection_with_wrong_username(self):
-        getConfig(config_file_path, DEBUG, reload=True)
-        getConfig(config_file_path, DEBUG).set('MySql', 'password', 'asdasd')
-        getConfig(config_file_path, DEBUG).set('MySql', 'username', 'gioacchino')
+        getConfig(config_file_path, DEBUG, reload=True)\
+            .set('MySql', 'password', 'asdasd')\
+            .set('MySql', 'username', 'gioacchino')
 
         mysqlConn = MySqlDBConnector(config_file_path)
         self.assertEqual(False, mysqlConn.connect())
 
 
     def test_connection_with_wrong_database(self):
-        getConfig(config_file_path, DEBUG, reload=True)
-        getConfig(config_file_path, DEBUG).set('MySql', 'dbname', 'evttttest')
-
+        getConfig(config_file_path, DEBUG, reload=True).set('MySql', 'dbname', 'evttttest')
         mysqlConn = MySqlDBConnector(config_file_path)
         self.assertEqual(False, mysqlConn.connect())
 
@@ -100,8 +97,7 @@ class MySqlConnector(unittest.TestCase):
 
 
     def test_insert_data_wrong_table(self):
-        getConfig(config_file_path, DEBUG, reload=True)
-        getConfig(config_file_path, DEBUG).set('General', 'batchsize', 1)
+        getConfig(config_file_path, DEBUG, reload=True).set('General', 'batchsize', 1)
 
         mysqlConn = MySqlDBConnector(config_file_path)
         self.assertEqual(True, mysqlConn.connect())
@@ -110,8 +106,7 @@ class MySqlConnector(unittest.TestCase):
 
 
     def test_negative_batchsize(self):
-        getConfig(config_file_path, DEBUG, reload=True)
-        getConfig(config_file_path, DEBUG).set('General', 'batchsize', -1)
+        getConfig(config_file_path, DEBUG, reload=True).set('General', 'batchsize', -1)
 
         mysqlConn = MySqlDBConnector(config_file_path)
 
@@ -121,8 +116,7 @@ class MySqlConnector(unittest.TestCase):
 
 
     def test_insert_data_not_enough_data(self):
-        getConfig(config_file_path, DEBUG, reload=True)
-        getConfig(config_file_path, DEBUG).set('General', 'batchsize', 1)
+        getConfig(config_file_path, DEBUG, reload=True).set('General', 'batchsize', 1)
 
         mysqlConn = MySqlDBConnector(config_file_path)
         self.assertEqual(True, mysqlConn.connect())
@@ -137,10 +131,9 @@ class MySqlConnector(unittest.TestCase):
 
 
     def test_streaming_insert(self):
-        self.assertEqual(True, utils.truncateTable(tableName))
+        self.assertEqual(True, utils.deleteElements(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True)
-        getConfig(config_file_path, DEBUG).set('General', 'batchsize', 1)
+        getConfig(config_file_path, DEBUG, reload=True).set('General', 'batchsize', 1)
 
         mysqlConn = MySqlDBConnector(config_file_path)
         self.assertEqual(True, mysqlConn.connect())
@@ -149,22 +142,21 @@ class MySqlConnector(unittest.TestCase):
         self.assertEqual(0, mysqlConn.conn.in_transaction)
         self.assertEqual(0, mysqlConn.commandsSent)
 
-        self.assertEqual(1, utils.countRowsInTable(tableName))
+        self.assertEqual(1, utils.countElements(tableName))
 
         self.assertEqual(MySqlDBConnector.SUCCESS_AND_COMMIT, mysqlConn.insertData(tableName, {'a': 5, 'b':6, 'c':7, 'd':8}))
         self.assertEqual(0, mysqlConn.conn.in_transaction)
         self.assertEqual(0, mysqlConn.commandsSent)
 
-        self.assertEqual(2, utils.countRowsInTable(tableName))
+        self.assertEqual(2, utils.countElements(tableName))
 
         self.assertEqual(True, mysqlConn.close())
 
 
     def test_batch_insert(self):
-        self.assertEqual(True, utils.truncateTable(tableName))
+        self.assertEqual(True, utils.deleteElements(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True)
-        getConfig(config_file_path, DEBUG).set('General', 'batchsize', 2)
+        getConfig(config_file_path, DEBUG, reload=True).set('General', 'batchsize', 2)
 
         mysqlConn = MySqlDBConnector(config_file_path)
         self.assertEqual(True, mysqlConn.connect())
@@ -173,22 +165,21 @@ class MySqlConnector(unittest.TestCase):
         self.assertEqual(1, mysqlConn.conn.in_transaction)
         self.assertEqual(1, mysqlConn.commandsSent)
 
-        self.assertEqual(0, utils.countRowsInTable(tableName))
+        self.assertEqual(0, utils.countElements(tableName))
 
         self.assertEqual(MySqlDBConnector.SUCCESS_AND_COMMIT, mysqlConn.insertData(tableName, {'a': 5, 'b':6, 'c':7, 'd':8}))
         self.assertEqual(0, mysqlConn.conn.in_transaction)
         self.assertEqual(0, mysqlConn.commandsSent)
 
-        self.assertEqual(2, utils.countRowsInTable(tableName))
+        self.assertEqual(2, utils.countElements(tableName))
 
         self.assertEqual(True, mysqlConn.close())
 
 
     def test_batch_closing_connection_before_finish(self):
-        self.assertEqual(True, utils.truncateTable(tableName))
+        self.assertEqual(True, utils.deleteElements(tableName))
 
-        getConfig(config_file_path, DEBUG, reload=True)
-        getConfig(config_file_path, DEBUG).set('General', 'batchsize', 2)
+        getConfig(config_file_path, DEBUG, reload=True).set('General', 'batchsize', 2)
 
         mysqlConn = MySqlDBConnector(config_file_path)
         self.assertEqual(True, mysqlConn.connect())
@@ -197,11 +188,11 @@ class MySqlConnector(unittest.TestCase):
         self.assertEqual(1, mysqlConn.conn.in_transaction)
         self.assertEqual(1, mysqlConn.commandsSent)
 
-        self.assertEqual(0, utils.countRowsInTable(tableName))
+        self.assertEqual(0, utils.countElements(tableName))
 
         self.assertEqual(True, mysqlConn.close())  # <--- committing on closing..
 
-        self.assertEqual(1, utils.countRowsInTable(tableName))
+        self.assertEqual(1, utils.countElements(tableName))
 
 
 

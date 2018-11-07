@@ -29,14 +29,14 @@ bool MySqlDBConnector::connect(Mutex* mux){
 
   try{
 
-    // mux->mutexLock();
+    mux->mutexLock();
     mySession = make_shared<Session>( SessionOption::HOST, hostname,
                                       SessionOption::PORT, 33060,
                                       SessionOption::USER, username,
                                       SessionOption::PWD, password,
                                       SessionOption::DB, database);
 
-                                      // mux->mutexUnlock();
+                                      mux->mutexUnlock();
     RowResult res = mySession->sql(query).execute();
     int c = res.count();
     if (c==0){

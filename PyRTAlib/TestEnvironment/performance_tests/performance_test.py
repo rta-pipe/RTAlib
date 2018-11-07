@@ -21,7 +21,7 @@
 from sys import path, argv
 from os.path import dirname, realpath
 
-from time import perf_counter, strftime
+from time import perf_counter, strftime, sleep
 from collections import namedtuple
 from statistics import mean, stdev
 
@@ -47,11 +47,20 @@ def getUtils(dbName, configurationFilePath):
 
 
 def simulate_evt3_data(numberOfEvents):
+    print("Simulating data...patience..")
     evt3data = []
     for i in range(int(numberOfEvents)):
         evt3data.append(RTA_DLTEST_DB.getRandomEvent())
     return evt3data
 
+def resetUniqueValue():
+    global UNIQUE_VALUE
+    UNIQUE_VALUE = 0
+
+def getUniqueValue():
+    global UNIQUE_VALUE
+    UNIQUE_VALUE += 1
+    return UNIQUE_VALUE
 
 def synchronous_performance_test(batchsize, numberofthreads, numberOfIterationPerTest, utilsObj):
 
@@ -66,13 +75,23 @@ def synchronous_performance_test(batchsize, numberofthreads, numberOfIterationPe
 
     for jj in range(numberOfIterationPerTest):
 
+        resetUniqueValue()
+
         # Delete data
         utilsObj.deleteElements(tableName)
+        elementsInserted = utils.countElements(tableName)
+        if elementsInserted != 0:
+            print("--> COUNT DATA CHECK FAILED!! Events in table: {}/0".format(elementsInserted))
+            exit()
+
+        sleep(1)
 
         RTA_DLTEST = RTA_DLTEST_DB(database)
 
         start_perf = perf_counter()
         for i in range(numberOfEvents):
+
+            evt3data[i][0] = getUniqueValue()
             RTA_DLTEST.insertEvent( *evt3data[i] )
 
         RTA_DLTEST.waitAndClose()
@@ -82,7 +101,7 @@ def synchronous_performance_test(batchsize, numberofthreads, numberOfIterationPe
         eventSec = numberOfEvents/executionTime
         eventSecList.append(eventSec)
         executionTimeList.append(executionTime)
-
+        print(".", end='', flush=True)
 
     Perf = namedtuple('res', ['avg', 'stddev'])
 
@@ -94,7 +113,7 @@ def synchronous_performance_test(batchsize, numberofthreads, numberOfIterationPe
     stddevET = stdev(executionTimeList)
     ET = Perf(avgET, stddevET)
 
-    print("{} +- {}\n{} +- {}".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
+    print("\n{} +- {}\n{} +- {}".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
     return ES
 
 def asynchronous_performance_test(batchsize, numberofthreads, numberOfIterationPerTest, utilsObj):
@@ -108,21 +127,31 @@ def asynchronous_performance_test(batchsize, numberofthreads, numberOfIterationP
     eventSecList = []
     executionTimeList = []
 
-    for jj in range(5):
+    for jj in range(numberOfIterationPerTest):
+
+        resetUniqueValue()
 
         # Delete data
         utilsObj.deleteElements(tableName)
+        elementsInserted = utils.countElements(tableName)
+        if elementsInserted != 0:
+            print("--> COUNT DATA CHECK FAILED!! Events in table: {}/0".format(elementsInserted))
+            exit()
+
+        sleep(1)
 
         RTA_DLTEST = RTA_DLTEST_DB(database, '')
 
         for i in range(int(numberOfEvents)):
+
+            evt3data[i][0] = getUniqueValue()
             RTA_DLTEST.insertEvent( *evt3data[i] )
 
         stats = RTA_DLTEST.waitAndClose()
 
         eventSecList.append(stats[2])
         executionTimeList.append(stats[1])
-
+        print(".", end='', flush=True)
 
     Perf = namedtuple('res', ['avg', 'stddev'])
 
@@ -134,7 +163,7 @@ def asynchronous_performance_test(batchsize, numberofthreads, numberOfIterationP
     stddevET = stdev(executionTimeList)
     ET = Perf(avgET, round(stddevET,2))
 
-    print("{} +- {}\n{} +- {}".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
+    print("\n{} +- {}\n{} +- {}".format(round(ES.avg,2), round(ES.stddev,2), round(ET.avg,2), round(ET.stddev,2)))
     return ES
 
 
@@ -155,19 +184,19 @@ if __name__ == '__main__':
     numberOfEvents = int(argv[2])
     numberOfIterationPerTest = int(argv[3])
     configurationFilePath = argv[4]
-    tableName = 'rtalib_dl_test_table'
+    tableName = 'evt3_for_data_rate_unique_key'
 
     utils = getUtils(database, configurationFilePath)
 
     # Test configuration
-    threads = [0, 1, 2]
-    batchsizes = [1, 100]#10, 50, 100, 200, 400, 800, 1600, 3200]
+    threads = [0, 10, 36, 50]
+    batchsizes = [1, 100, 1000]#10, 50, 100, 200, 400, 800, 1600, 3200]
 
     # Simulating data
-    numberOfElementsToInsert = len(threads)*len(batchsizes)*int(numberOfEvents)
-    evt3data = simulate_evt3_data(numberOfElementsToInsert)
+    # numberOfElementsToInsert = len(threads)*len(batchsizes)*int(numberOfEvents)
+    evt3data = simulate_evt3_data(numberOfEvents)
 
-
+    UNIQUE_VALUE = 0
 
 
     print("\n**************************\n******  START TEST  ******\n**************************\n")
@@ -181,6 +210,7 @@ if __name__ == '__main__':
     for idx_t, threadsNum in enumerate(threads):
 
         for idx_b, batchSize in enumerate(batchsizes):
+
 
             print("\n--> Number of threads: {}, Batch size: {}".format(threadsNum, batchSize))
             if threadsNum == 0:

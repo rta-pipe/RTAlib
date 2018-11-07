@@ -162,7 +162,7 @@ In order to run the executables, define the following environment variables:
   bash ~/RTAlib/CxxRTAlib/TestEnvironment/bin/perfTest <params>
 ```
 
-## Stand alone usage
+### Stand alone usage
 To execute CxxRTAlib simulation run:
 ```bash
   bash ~/RTAlib/CxxRTAlib/TestEnvironment/bin/rtaLibSim  mysql ../path/to/rtalibconfig  eventsNumber

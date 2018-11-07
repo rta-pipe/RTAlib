@@ -36,6 +36,11 @@ endif
 ifndef CTA_UTILS
 $(error CTA_UTILS is not set.)
 endif
+ifndef GTEST_DIR
+	$(error GTEST_DIR is not set.)
+endif
+
+
 
 # Utilities
 AR       = ar cqs
@@ -45,6 +50,7 @@ COPY     = cp -f -r
 COPY_FILE= $(COPY) -p
 COPY_DIR = $(COPY) -pR
 DEL_FILE = rm -f
+DEL_FOLDER = rm -r
 SYMLINK  = ln -sf
 DEL_DIR  = rm -rf
 MOVE     = mv -f
@@ -61,11 +67,17 @@ SYSTEM= $(shell gcc -dumpmachine)
 OBJECTS_DIR = CxxRTAlib/obj_cpp
 OBJECTS_DIR_C = CxxRTAlib/obj_c
 
+##### Source executables
+SOURCE_DIR_CXX_UNIT_TEST = TestEnvironment/src_cpp/UnitTest.cpp
+#SOURCE_DIR_CXX_PERF_TEST = TestEnvironment/src_cpp/PerfTest.cpp
+
+
 #### Source Cxx directories
 SOURCE_DIR_CXX_DBC = CxxRTAlib/DBConnectors/src_cpp
 SOURCE_DIR_CXX_DM = CxxRTAlib/DataModels/src_cpp
 SOURCE_DIR_CXX_RTA = CxxRTAlib/RTAInterface/src_cpp
 SOURCE_DIR_CXX_U = CxxRTAlib/Utils/src_cpp
+
 
 ### Include Cxx directories
 INCLUDE_DIR_CXX_DBC = CxxRTAlib/DBConnectors/include_cpp
@@ -83,12 +95,13 @@ INCLUDE_DIR_C_U = CxxRTAlib/Utils/include_c
 
 
 ### Output
-EXE_DESTDIR  = bin
-EXE = testRTAlib
+EXE_DESTDIR = bin
 
 LIB_DESTDIR = lib
 LIB_NAME = libCxxRTAlib.a
 
+UNITTEST_EXE_DESTDIR = TestEnvironment/bin
+UNITTEST_EXE = unitTest
 
 
 ####### 3) Compiler, tools and options
@@ -133,6 +146,24 @@ LIBS += -L$(REDIS) -lhiredis
 
 
 
+################# UNIT TESTING
+# All Google Test headers.  Usually you shouldn't change this
+# definition.
+GTEST_HEADERS = $(GTEST_DIR)/include/ \
+								-I$(GTEST_DIR)/include/gtest/internal/*.h
+
+# Flags passed to the preprocessor.
+# Set Google Test's header directory as a system directory, such that
+# the compiler doesn't generate warnings in Google Test headers.
+GTEST_SYSTEM += -isystem $(GTEST_DIR)/include
+
+CXXFLAGS += $(GTEST_SYSTEM)
+
+CXXFLAGS += -I$(GTEST_HEADERS)
+
+LIBS += -L$(GTEST_DIR)/lib64 -lgtest
+
+
 ############ 4) DEBUG CONFIGURATION
 ifeq ($(DEBUG),1)
 	CXXFLAGS += -DDEBUG
@@ -170,12 +201,13 @@ SOURCE_C+=$(foreach dir,$(SOURCE_DIR_C_U), $(wildcard $(dir)/*.c))
 
 OBJECTS_C=$(addsuffix .o, $(basename $(notdir $(SOURCE_C))))
 
-$(info $$INCLUDE_CXX is [${INCLUDE_CXX}])
-$(info $$SOURCE_CXX is [${SOURCE_CXX}])
-$(info $$OBJECTS is [${OBJECTS}])
+#$(info $$INCLUDE_CXX is [${INCLUDE_CXX}])
+#$(info $$SOURCE_CXX is [${SOURCE_CXX}])
 
-$(info $$INCLUDE_C is [${INCLUDE_C}])
-$(info $$SOURCE_C is [${SOURCE_C}])
+#$(info $$INCLUDE_C is [${INCLUDE_C}])
+#$(info $$SOURCE_C is [${SOURCE_C}])
+
+$(info $$OBJECTS is [${OBJECTS}])
 $(info $$OBJECTS_C is [${OBJECTS_C}])
 
 # Pattern rule
@@ -186,31 +218,35 @@ $(info $$OBJECTS_C is [${OBJECTS_C}])
 	$(C) $(CFLAGS) -c $< -o $(OBJECTS_DIR_C)/$@
 
 
-all: exe staticlib
-	#only if conf directory is present:
-	#$(SYMLINK) $(CONF_DIR) $(CONF_DEST_DIR)
+all: staticlib unittest
 
-exe: makeobjdir $(OBJECTS_C) $(OBJECTS)
-	test -d $(EXE_DESTDIR) || mkdir -p $(EXE_DESTDIR)
-	$(CXX) $(CXXFLAGS) -o $(EXE_DESTDIR)/$(EXE) $(OBJECTS_DIR)/*.o $(LIBS) $(OBJECTS_DIR_C)/*.o
-	# $(C) $(CFLAGS) -o $(EXE_DESTDIR)/$(EXE) $(LIBS) $(OBJECTS_DIR_C)/*.o
+#exe: makeobjdir $(OBJECTS_C) $(OBJECTS)
+	#test -d $(EXE_DESTDIR) || mkdir -p $(EXE_DESTDIR)
+	#$(CXX) $(CXXFLAGS) -o $(EXE_DESTDIR)/$(EXE) $(OBJECTS_DIR)/*.o $(LIBS) $(OBJECTS_DIR_C)/*.o
+	#$(C) $(CFLAGS) -o $(EXE_DESTDIR)/$(EXE) $(LIBS) $(OBJECTS_DIR_C)/*.o
 
 makeobjdir:
 	test -d $(OBJECTS_DIR) || mkdir -p $(OBJECTS_DIR)
 	test -d $(OBJECTS_DIR_C) || mkdir -p $(OBJECTS_DIR_C)
 
-staticlib: makelibdir makeobjdir $(OBJECTS_DIR) $(OBJECTS_DIR_C)
+makelibdir:
+	test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
+
+staticlib: makelibdir makeobjdir $(OBJECTS_C) $(OBJECTS)
 		test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
 		$(AR) $(LIB_DESTDIR)/$(LIB_NAME) $(OBJECTS_DIR)/*.o $(OBJECTS_DIR_C)/*.o
 
-makelibdir:
-	test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
+test: unittest
+
+unittest:
+	test -d $(UNITTEST_EXE_DESTDIR) || mkdir -p $(UNITTEST_EXE_DESTDIR)
+	$(CXX) $(SOURCE_DIR_CXX_UNIT_TEST) $(CXXFLAGS) -o $(UNITTEST_EXE_DESTDIR)/$(UNITTEST_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
 
 
 
 #clean: delete all files from the current directory that are normally created by building the program.
 clean:
 	$(DEL_FILE) $(OBJECTS_DIR)/*.o
-	# $(DEL_FILE) $(OBJECTS_DIR_C)/*.o
-	$(DEL_FILE) $(LIB_DESTDIR)/$(LIB_NAME)
-	$(DEL_FILE) $(EXE_DESTDIR)/*
+	$(DEL_FILE) $(OBJECTS_DIR_C)/*.o
+	$(DEL_FILE) $(LIB_DESTDIR)/*
+	$(DEL_FILE) $(UNITTEST_EXE_DESTDIR)/*

@@ -68,8 +68,9 @@ OBJECTS_DIR = CxxRTAlib/obj_cpp
 OBJECTS_DIR_C = CxxRTAlib/obj_c
 
 ##### Source executables
-SOURCE_DIR_CXX_UNIT_TEST = TestEnvironment/src_cpp/UnitTest.cpp
-#SOURCE_DIR_CXX_PERF_TEST = TestEnvironment/src_cpp/PerfTest.cpp
+SOURCE_DIR_CXX_UNIT_TEST = TestEnvironment/src_cpp/unitTest.cpp
+#SOURCE_DIR_CXX_PERF_TEST = TestEnvironment/src_cpp/perfTest.cpp
+SOURCE_DIR_CXX_SIM_TEST = TestEnvironment/src_cpp/rtaLibSim.cpp
 
 
 #### Source Cxx directories
@@ -102,7 +103,7 @@ LIB_NAME = libCxxRTAlib.a
 
 UNITTEST_EXE_DESTDIR = TestEnvironment/bin
 UNITTEST_EXE = unitTest
-
+SIMTEST_EXE = rtaLibSim
 
 ####### 3) Compiler, tools and options
 ######### C++ COMPILING
@@ -218,7 +219,7 @@ $(info $$OBJECTS_C is [${OBJECTS_C}])
 	$(C) $(CFLAGS) -c $< -o $(OBJECTS_DIR_C)/$@
 
 
-all: staticlib unittest
+all: staticlib tests
 
 #exe: makeobjdir $(OBJECTS_C) $(OBJECTS)
 	#test -d $(EXE_DESTDIR) || mkdir -p $(EXE_DESTDIR)
@@ -232,16 +233,21 @@ makeobjdir:
 makelibdir:
 	test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
 
+makeexedir:
+	test -d $(UNITTEST_EXE_DESTDIR) || mkdir -p $(UNITTEST_EXE_DESTDIR)
+
+
 staticlib: makelibdir makeobjdir $(OBJECTS_C) $(OBJECTS)
 		test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
 		$(AR) $(LIB_DESTDIR)/$(LIB_NAME) $(OBJECTS_DIR)/*.o $(OBJECTS_DIR_C)/*.o
 
-test: unittest
+tests: makeexedir unittest sim
 
 unittest:
-	test -d $(UNITTEST_EXE_DESTDIR) || mkdir -p $(UNITTEST_EXE_DESTDIR)
 	$(CXX) $(SOURCE_DIR_CXX_UNIT_TEST) $(CXXFLAGS) -o $(UNITTEST_EXE_DESTDIR)/$(UNITTEST_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
 
+sim:
+	$(CXX) $(SOURCE_DIR_CXX_SIM_TEST)  $(CXXFLAGS) -o $(UNITTEST_EXE_DESTDIR)/$(SIMTEST_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
 
 
 #clean: delete all files from the current directory that are normally created by building the program.

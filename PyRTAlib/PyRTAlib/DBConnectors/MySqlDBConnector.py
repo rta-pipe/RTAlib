@@ -57,6 +57,7 @@ class MySqlDBConnector(DBConnector):
         connConfig['password']   = self.config.get('MySql','password')
         connConfig['use_pure']   = False
         connConfig['autocommit'] = self.autocommit
+        #connConfig['pool_size'] = self.config.get('General','numberofthreads', 'int')
 
         try:
             self.conn = mysql.connector.connect(**connConfig)

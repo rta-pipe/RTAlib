@@ -155,7 +155,7 @@ if __name__ == '__main__':
     numberOfEvents = int(argv[2])
     numberOfIterationPerTest = int(argv[3])
     configurationFilePath = argv[4]
-    tableName = 'rtalib_dl_test_table'
+    tableName = 'evt3_performance'
 
     utils = getUtils(database, configurationFilePath)
 

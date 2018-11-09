@@ -22,6 +22,7 @@
 #include<map>
 #include<vector>
 #include <chrono>
+#include <iomanip>
 
 #include "RTA_DLTEST_DB.hpp"
 
@@ -33,9 +34,11 @@ using std::endl;
 using std::to_string;
 
 vector < map < string, string > > randomEventGenerator(int size);
-int performance_test(string database, string configFilePath, int numberOfIterationPerTest);
-// long int computeMean();
-// long int computeStandardDeviation();
+int performance_test(vector<int> threads, vector<int> batchsizes, int numberOfEvents, vector< std::chrono::duration<double> > &timesVector,vector<double> &evtRateVector, string database, string configFilePath, int numberOfIterationPerTest);
+double computeMeanTime(vector< std::chrono::duration<double> > & timesVector, int numberOfIterationPerTest, double mean);
+double computeStandardDeviationTime(vector< std::chrono::duration<double> > & timesVector);
+double computeMeanEvt(vector<double> &evtRateVector, int numberOfIterationPerTest, double mean);
+// double computeStandardDeviationEvt(vector< double > & timesVector);
 int count = 0;
 
 
@@ -68,100 +71,147 @@ vector < map < string, string > > randomEventGenerator(int numberOfEvents) {
   return events;
 }
 
-int performance_test(int numberOfEvents, string database, string configFilePath, int numberOfIterationPerTest){
+int performance_test(vector<int> threads, vector<int> batchsizes, int numberOfEvents, vector< std::chrono::duration<double> > & timesVector, vector< double> &evtRateVector, string database, string configFilePath, int numberOfIterationPerTest){
 
-  cout << configFilePath << endl;
+  // cout << configFilePath << endl;
 
   vector < map <string, string> > events = randomEventGenerator(numberOfEvents);
 
   RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
 
-  for( vector<int>::iterator it_t = threads.begin(); it_t != threads.end(); ++it_t ) {
 
-    for( vector<int>::iterator it_b = batchsizes.begin(); it_b != batchsizes.end(); ++it_b ) {
+    timesVector.clear();
 
-      int batchsizeValue = *it_b;
 
-      for( int i = 0; i < numberOfIterationPerTest; i++ ) {
+    #ifdef DEBUG
+    cout << "Inserting events...\n " <<endl;
+    #endif
 
-        #ifdef DEBUG
-        cout << "Inserting events...\n " <<endl;
-        #endif
+    rtaTestDb->start();
 
-        rtaTestDb->start();
+    auto start = std::chrono::system_clock::now();
 
-        auto start = std::chrono::system_clock::now();
+    for(vector < map <string, string> >::iterator it=events.begin(); it!=events.end(); it++) {
 
-        for(vector < map <string, string> >::iterator it=events.begin(); it!=events.end(); it++) {
+      map < string, string > currentEvent = *it;
 
-          map < string, string > currentEvent = *it;
-
-          count +=rtaTestDb->insertEvent(  currentEvent["eventidfits"],
-                                            currentEvent["timerealtt"],
-                                            currentEvent["ra_deg"],
-                                            currentEvent["dec_deg"],
-                                            currentEvent["energy"],
-                                            currentEvent["detx"],
-                                            currentEvent["dety"],
-                                            currentEvent["observationid"],
-                                            currentEvent["datarepositoryid"],
-                                            currentEvent["mcid"],
-                                            currentEvent["insert_time"],
-                                            currentEvent["status"] );
-        }
-
-        rtaTestDb->waitAndClose();
-
-        auto stop = std::chrono::system_clock::now();
-
-        cout << "\n"<< count <<" events inserted correctly."<< endl;
-
-        std::chrono::duration<double> diff;
-
-        diff = stop-start;
-
-        timesVector.push_back(diff);
-
-        cout << "Tempo impiegato per inserire " << numberOfEvents << " eventi = " << diff.count() << " s" << endl;
-
-        cout << "Event rate: " << numberOfEvents/diff.count() << endl;
-
-      }
-
+      count +=rtaTestDb->insertEvent(  currentEvent["eventidfits"],
+                                        currentEvent["timerealtt"],
+                                        currentEvent["ra_deg"],
+                                        currentEvent["dec_deg"],
+                                        currentEvent["energy"],
+                                        currentEvent["detx"],
+                                        currentEvent["dety"],
+                                        currentEvent["observationid"],
+                                        currentEvent["datarepositoryid"],
+                                        currentEvent["mcid"],
+                                        currentEvent["insert_time"],
+                                        currentEvent["status"] );
     }
 
-  }
+    rtaTestDb->waitAndClose();
+
+    auto stop = std::chrono::system_clock::now();
+
+    // cout << "\n"<< count <<" events inserted correctly."<< endl;
+
+    std::chrono::duration<double> diff;
+
+    diff = stop-start;
+
+    timesVector.push_back(diff);
+    // cout << "[performance_test] timesVector size: " << timesVector.size() << endl;
+    // cout << "Tempo impiegato per inserire " << numberOfEvents << " eventi = " << diff.count() << " s" << endl;
+    //
+    // cout << "Event rate: " << numberOfEvents/diff.count() << endl;
+    evtRateVector.push_back(numberOfEvents/diff.count());
 
 }
 
-// long int computeMean(){
-//
-//   for(vector < time_t >::iterator it=timesVector.begin(); it!=timesVector.end(); ++it) {
-//
-//     double currentTime = *it;
-//
-//     mean += currentTime;
-//
-//   }
-//
-//   return mean /= numberOfIterationPerTest;
-//
-// }
+double computeMeanTime(vector< std::chrono::duration<double> > & timesVector, int numberOfIterationPerTest){
 
-// long int computeStandardDeviation(){
-//
-//   for(vector < time_t >::iterator it=timesVector.begin(); it!=timesVector.end(); ++it) {
-//
-//     double currentTime = *it;
-//
-//     var += ( currentTime -mean ) * (currentTime - mean);
-//
-//   }
-//   var /= numberOfIterationPerTest;
-//   sd = sqrt(var);
-//
-//
-// }
+  double mean = 0;
+
+  for(vector< std::chrono::duration<double> > ::iterator it=timesVector.begin(); it!=timesVector.end(); ++it) {
+
+    auto currentTime = *it;
+    // cout << "[Compute mean] currentTime: " <<  currentTime.count()  << endl;
+
+    mean += currentTime.count();
+
+  }
+
+  // cout << "[Compute mean] main inside for: "<< std::fixed<< std::setprecision(5)  <<mean << endl;
+
+  return mean /= numberOfIterationPerTest;
+
+}
+
+
+double computeMeanEvt(vector< double > & evtRateVector, int numberOfIterationPerTest){
+
+  // cout<< "[Compute mean] timesvector size: " << timesVector.size() << endl;
+  double mean = 0;
+
+  for(vector< double > ::iterator it=evtRateVector.begin(); it!=evtRateVector.end(); ++it) {
+
+    auto currentEvtRate = *it;
+    // cout << "[Compute mean] currentTime: " <<  currentTime.count()  << endl;
+
+    mean += currentEvtRate;
+
+  }
+
+  // cout << "[Compute mean] main inside for: "<< std::fixed<< std::setprecision(5)  <<mean << endl;
+
+  return mean /= numberOfIterationPerTest;
+
+}
+
+double computeStandardDeviationTime(vector< std::chrono::duration<double> > & timesVector, int numberOfIterationPerTest, double mean){
+
+  double var= 0;
+  double sd = 0;
+
+  for(vector< std::chrono::duration<double> >::iterator it=timesVector.begin(); it!=timesVector.end(); ++it) {
+
+    auto currentTime = *it;
+    double ct = currentTime.count();
+
+    var += ( ct - mean ) * (ct - mean);
+
+  }
+  var /= numberOfIterationPerTest;
+  sd = sqrt(var);
+
+  // cout << "[compute std] std: " << sd << endl;
+
+  return sd;
+
+
+}
+
+double computeStandardDeviationEvt(vector< double > & evtRateVector, int numberOfIterationPerTest, double mean){
+
+  double var= 0;
+  double sd = 0;
+
+  for(vector <double >::iterator it=evtRateVector.begin(); it!=evtRateVector.end(); ++it) {
+
+    auto currentEvtRate = *it;
+
+    var += ( currentEvtRate - mean ) * (currentEvtRate - mean);
+
+  }
+  var /= numberOfIterationPerTest;
+  sd = sqrt(var);
+
+  // cout << "[compute std] std: " << sd << endl;
+
+  return sd;
+
+
+}
 
 int main(int argc, char * argv[]) {
 
@@ -185,23 +235,65 @@ int main(int argc, char * argv[]) {
   string configurationFilePath = argv[5];
 
   // Test configuration
-  const vector<int> threads({0, 1, 2 });
-  const vector<int> batchsizes({1, 100, 1000});
-  long int var = 0;
-  long int mean = 0;
+  vector<int> threads({ 1 });
+  vector<int> batchsizes({1});
+  double meanTime = 0;
+  double stdTime = 0;
+  double meanEvtRate = 0;
+  double stdEvtRate = 0;
+
   long int sd = 0;
   vector< std::chrono::duration<double> > timesVector;
-  vector< long int > meansvector;
-  vector< long int > meansVector;
-  vector< long int > sdVector;
+  vector< double> evtRateVector;
 
   cout << "\n**************************\n******  START TEST  ******\n**************************\n" << endl;
   cout << "Number of events: " << numberOfEvents << endl;
   cout << "--> Number of threads: x, Batch size: y" << endl;
   cout << "Events/sec, Execution time" << endl;
 
+  auto totalTimeStart = std::chrono::system_clock::now();
 
-  performance_test(numberOfEvents, database, configurationFilePath, numberOfIterationPerTest);
+  for( vector<int>::iterator it_t = threads.begin(); it_t != threads.end(); ++it_t ) {
+
+    int currentThread = *it_t;
+
+    for( vector<int>::iterator it_b = batchsizes.begin(); it_b != batchsizes.end(); ++it_b ) {
+
+      int currentBatchSize = *it_b;
+
+      for( int i = 0; i < numberOfIterationPerTest; i++ ) {
+
+        performance_test(threads, batchsizes, numberOfEvents, timesVector,evtRateVector, database, configurationFilePath, numberOfIterationPerTest);
+
+        meanTime = computeMeanTime(timesVector, numberOfIterationPerTest);
+
+        stdTime = computeStandardDeviationTime(timesVector, numberOfIterationPerTest, meanTime);
+
+        meanEvtRate = computeMeanEvt(evtRateVector, numberOfIterationPerTest);
+
+        stdEvtRate = computeStandardDeviationEvt(evtRateVector, numberOfIterationPerTest, meanEvtRate);
+
+      }
+
+        cout << "\n\n--> Number of threads: " <<  currentThread << " , Batch size: " << currentBatchSize << endl;
+        cout << meanEvtRate << " +- " << stdEvtRate << endl;
+        cout << meanTime << " +- " << stdTime << "\n\n" << endl;
+
+
+
+    }
+
+  }
+
+  auto totalTimeStop = std::chrono::system_clock::now();
+  std::chrono::duration<double> diffTotal;
+  diffTotal = totalTimeStop-totalTimeStart;
+
+  cout << "\n**************************\n******  END TEST  ******\n**************************\n" << endl;
+  cout << "Number of events: " << numberOfEvents << endl;
+  cout << "Number of iteration per test: " << numberOfIterationPerTest <<  endl;
+  cout << "Total execution time: " << diffTotal.count() << endl;
+  cout << "\n\n" << endl;
 
 
 

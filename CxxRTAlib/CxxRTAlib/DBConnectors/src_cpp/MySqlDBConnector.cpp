@@ -321,8 +321,6 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
 
 bool MySqlDBConnector::executeQuery(string query){
 
-  // try {
-
     RowResult res = mySession->sql(query).execute();
 
     Row row = res.fetchOne();
@@ -340,9 +338,6 @@ bool MySqlDBConnector::executeQuery(string query){
         cout << "\n";
     }
 
-  // }catch(){
-  //   return false;
-  // }
   return true;
 
 }

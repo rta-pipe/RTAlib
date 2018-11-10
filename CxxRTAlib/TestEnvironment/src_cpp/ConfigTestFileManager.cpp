@@ -25,7 +25,6 @@ ConfigTestFileManager::ConfigTestFileManager(){
 void ConfigTestFileManager::writeConfigFile(map < string, vector < map < string, string > > > input){
 
   Config * myConf;
-  // Config * writeConf = myConf;
 
   myConf = Config::getIstance("../../Configs/rtalibconfig_testing");
 
@@ -208,8 +207,6 @@ void ConfigTestFileManager::writeConfigFile(map < string, vector < map < string,
 
               ini.insert(sect);
 
-              check = false;
-
             }
 
             IniParser::store(ini, "./rtalibconfig", INI_UTF8_MODE_ALLOW, '=', ';');
@@ -217,14 +214,6 @@ void ConfigTestFileManager::writeConfigFile(map < string, vector < map < string,
 
 
       }
-      // myConf->deleteInstance();
-
 
     }
 }
-
-// void ConfigTestFileManager :: clearConfFile(string filepath) {
-//
-//   ini.clear();
-//
-// }

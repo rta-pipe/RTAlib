@@ -42,6 +42,8 @@ bool streamingInsert_c(redisContext *c, int idConnector,const char* modelName, c
 
 bool batchInsert_c(int rc_commandsSent, redisContext *c,int idConnector,const char * modelName, const char * score, const char * query, int batchsize);
 
+bool executeQuery_c(redisContext *c, int idConnector,const char *query);
+
 
 #ifdef __cplusplus
 }

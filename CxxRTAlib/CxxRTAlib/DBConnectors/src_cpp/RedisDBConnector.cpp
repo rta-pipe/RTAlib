@@ -189,8 +189,7 @@ string RedisDBConnector :: buildQuery( string modelName, int batchsize, map <str
   queryH += "}'";
 
   score = args[indexon_clean];
-
-
+  cout << query << endl;
 
   return queryH;
 }

@@ -46,6 +46,7 @@ public:
   virtual bool disconnect();
   virtual bool insertData(string modelName, map < string, string > args);
   virtual bool executeQuery(string query);
+  // virtual bool selectData(string query);
 
   Config * config;
 };

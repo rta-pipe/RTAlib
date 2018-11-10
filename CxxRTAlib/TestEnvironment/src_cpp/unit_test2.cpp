@@ -366,7 +366,6 @@ TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
 
 TEST(RTA_DL_DB, waitAndCloseMysqlTest) {
 
-  Mutex* mux = Mutex::getIstance();
   Config * myConf;
   myConf = Config::getIstance("./rtalibconfig");
 
@@ -384,7 +383,6 @@ TEST(RTA_DL_DB, waitAndCloseMysqlTest) {
 
 TEST(RTA_DL_DB, waitAndCloseRedisTest) {
 
-  Mutex* mux = Mutex::getIstance();
   Config * myConf;
   myConf = Config::getIstance("./rtalibconfig");
 
@@ -404,7 +402,6 @@ TEST(RTA_DL_DB, waitAndCloseRedisTest) {
 
 TEST(RTA_DL_DB, streamingSingleThreadRedisTest) {
 
-  Mutex* mux = Mutex::getIstance();
   Config * myConf;
   myConf = Config::getIstance("./rtalibconfig");
 
@@ -455,7 +452,6 @@ TEST(RTA_DL_DB, streamingSingleThreadRedisTest) {
 
 TEST(RTA_DL_DB, streamingSingleThreadMysqlTest) {
 
-  Mutex* mux = Mutex::getIstance();
   Config * myConf;
   myConf = Config::getIstance("./rtalibconfig");
 
@@ -506,7 +502,6 @@ TEST(RTA_DL_DB, streamingSingleThreadMysqlTest) {
 
 TEST(RTA_DL_DB, streamingMultiThreadMysqlTest) {
 
-  Mutex* mux = Mutex::getIstance();
   Config * myConf;
   myConf = Config::getIstance("./rtalibconfig");
 
@@ -557,7 +552,6 @@ TEST(RTA_DL_DB, streamingMultiThreadMysqlTest) {
 
 TEST(RTA_DL_DB, batchSingleThreadMysqlTest) {
 
-  Mutex* mux = Mutex::getIstance();
   Config * myConf;
   myConf = Config::getIstance("./rtalibconfig");
 
@@ -695,7 +689,6 @@ TEST(RTA_DL_DB, selectSingleThreadMysqlTest) {
 
 TEST(RTA_DL_DB, batchSingleThreadRedisTest) {
 
-  Mutex* mux = Mutex::getIstance();
   Config * myConf;
   myConf = Config::getIstance("./rtalibconfig");
 

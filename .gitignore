@@ -16,6 +16,8 @@ PyRTAlib/TestEnvironment/export_env_var.sh
 testRTAlib
 rtalibconfig
 
+CxxRTAlib/TestEnvironment/bin/
+
 __pycache__/
 
 # File in PyLibRTA package

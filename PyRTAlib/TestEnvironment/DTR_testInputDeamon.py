@@ -34,7 +34,7 @@ from PyRTAlib.Utils         import Config
 
 
 def sendMockData():
-    config = Config('./')
+    config = Config(configFilePath)
 
     redisConn = redis.Redis(
                                 host=config.get('Redis','host'),

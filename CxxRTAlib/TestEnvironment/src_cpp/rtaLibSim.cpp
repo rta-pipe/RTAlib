@@ -1,6 +1,5 @@
 /*
  ==========================================================================
-
  Copyright (C) 2018 Giancarlo Zollino
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -117,7 +116,7 @@ int main(int argc, char *argv[]) {
   cout << "Inserting events...\n " <<endl;
   #endif
 
-  for(vector < map <string, string> >::iterator it=events.begin(); it!=events.end(); it++) {
+  for(vector < map <string, string> >::iterator it=events.begin(); it!=events.end(); ++it) {
 
     map < string, string > currentEvent = *it;
 

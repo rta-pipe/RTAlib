@@ -29,14 +29,14 @@ bool MySqlDBConnector::connect(Mutex* mux){
 
   try{
 
-    // mux->mutexLock();
+    mux->mutexLock();
     mySession = make_shared<Session>( SessionOption::HOST, hostname,
                                       SessionOption::PORT, 33060,
                                       SessionOption::USER, username,
                                       SessionOption::PWD, password,
                                       SessionOption::DB, database);
 
-                                      // mux->mutexUnlock();
+                                      mux->mutexUnlock();
     RowResult res = mySession->sql(query).execute();
     int c = res.count();
     if (c==0){
@@ -106,7 +106,7 @@ string MySqlDBConnector::buildQuery(string modelName, int batchsize, map <string
 
   for (map<string,string>::iterator it=args.begin(); it!=args.end(); ++it) {
 
-    queryH += it->first + ",";
+    queryH += "`" + it->first + "`" + ",";
     queryV += it->second + ",";
 
   }
@@ -119,6 +119,10 @@ string MySqlDBConnector::buildQuery(string modelName, int batchsize, map <string
   queryV += ")";
 
   query = queryS + queryH + queryV;
+
+  #ifdef DEBUG
+  cout << "[MySqlDBConnector "<<  idConnector <<"] Query: \n" << query << endl;
+  #endif
 
   return query;
 

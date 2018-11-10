@@ -50,7 +50,7 @@ public:
 
   void start();
   shared_ptr<DBConnector> getConnector(int id,string databaseEngine, string configFilePath);
-  int _insertEvent(EVTbase *event);
+  bool _insertEvent(EVTbase *event);
   bool waitAndClose();
   int getNumberOfThreads();
 

@@ -69,9 +69,7 @@ bool MySqlDBConnector::disconnect() {
 
       try{
 
-
-      mySession->commit();
-
+        mySession->commit();
 
       }catch (const mysqlx::Error &err){
         cout <<"[MySqlDBConnector " <<idConnector << "] streaming ERROR: " << err <<endl;
@@ -322,5 +320,28 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
     return false;
 
   }
+
+}
+
+bool MySqlDBConnector::executeQuery(string query){
+
+    RowResult res = mySession->sql(query).execute();
+
+    Row row = res.fetchOne();
+    int col =res.getColumnCount();
+    int rows =res.count();
+
+    for(int j=0; j<rows; j++){
+      for(int i=0; i<col; i++ ){
+
+        cout << row[i] <<  " ";
+        if(i == col-1)
+          cout << "\n";
+      }
+      if(j == row-1)
+        cout << "\n";
+    }
+
+  return true;
 
 }

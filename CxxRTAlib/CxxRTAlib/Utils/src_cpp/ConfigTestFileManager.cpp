@@ -92,11 +92,11 @@ void ConfigTestFileManager::writeConfigFile(map < string, vector < map < string,
   Section["MySqlPipelineDatabase"] = MPDSection;
 
   inifileModel.push_back(Section);
-  bool check = false;
-  // cout << "CHECK INI: " << check << endl;
+
 
   if(input.size()!=0) {
   // cout << "INPUT DIVERSO DA ZERO!" << endl;
+  bool check = false;
 
   for(vector < map < string, vector < map < string, string > > > >::iterator vet_it=inifileModel.begin(); vet_it!=inifileModel.end(); ++vet_it ) {
 
@@ -169,8 +169,6 @@ void ConfigTestFileManager::writeConfigFile(map < string, vector < map < string,
     ini.clear();
   }
 
-  // myConf->deleteInstance();
-
   }else{
 
     // cout << "INPUT NULLO" << endl;
@@ -183,47 +181,33 @@ void ConfigTestFileManager::writeConfigFile(map < string, vector < map < string,
         string sectionName = map_it->first;
         IniSection sect(sectionName);
 
+        vector < map <string, string> > vect = map_it->second;
 
+        vector < map <string, string> >::iterator it;
+        for( it = vect.begin(); it!= vect.end(); ++it ) {
 
-          vector < map <string, string> > vect = map_it->second;
+            map < string, string> currentEntry = *it;
 
-          vector < map <string, string> >::iterator it;
-          for( it = vect.begin(); it!= vect.end(); ++it ) {
+            map < string, string >::iterator map_it;
 
-              map < string, string> currentEntry = *it;
+              for(map_it=currentEntry.begin(); map_it!=currentEntry.end(); ++map_it) {
 
-              map < string, string >::iterator map_it;
+                // cout  << map_it->first <<  " = " << map_it->second << endl;
+                string key = map_it->first;
+                string value = map_it->second;
+                IniEntry entry(key, value);
+                sect.insert(entry);
 
-                for(map_it=currentEntry.begin(); map_it!=currentEntry.end(); ++map_it) {
-
-                  // cout  << map_it->first <<  " = " << map_it->second << endl;
-                  string key = map_it->first;
-                  string value = map_it->second;
-                  IniEntry entry(key, value);
-                  sect.insert(entry);
-
-                }
               }
-
-              ini.insert(sect);
-
-              check = false;
-
             }
 
-            IniParser::store(ini, "./rtalibconfig", INI_UTF8_MODE_ALLOW, '=', ';');
-            ini.clear();
+            ini.insert(sect);
 
+          }
 
+          IniParser::store(ini, "./rtalibconfig", INI_UTF8_MODE_ALLOW, '=', ';');
+          ini.clear();
       }
-      // myConf->deleteInstance();
-
 
     }
 }
-
-// void ConfigTestFileManager :: clearConfFile(string filepath) {
-//
-//   ini.clear();
-//
-// }

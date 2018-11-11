@@ -198,9 +198,9 @@ bool executeQuery_c(redisContext *c, int idConnector,const char *query){
 
   redisReply * reply;
 
-  // #ifdef DEBUG
+  #ifdef DEBUG
   printf("[RedisDBConnector C %d] executeQuery_c(): %s\n", query);
-  // #endif
+  #endif
   reply = redisCommand(c, query);
 
   return checkRedisReply(c, reply, idConnector, "executeQuery");

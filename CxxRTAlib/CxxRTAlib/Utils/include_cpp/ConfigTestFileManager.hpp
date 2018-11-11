@@ -26,7 +26,7 @@ using std:: vector;
 
 class ConfigTestFileManager {
 public:
-  static void writeConfigFile(map < string, vector < map < string, string > > > ma = map < string, vector < map < string, string > > >());
+  static void writeConfigFile(string destinationPath, map < string, vector < map < string, string > > > ma = map < string, vector < map < string, string > > >());
   static void clearConfFile(string filepath);
 
 

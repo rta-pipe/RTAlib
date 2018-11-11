@@ -35,7 +35,7 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
-vector < map < string, string > > randomEventGenerator(int size);
+vector < map < string, string > > randomEventGenerator(int numberOfEvents);
 int performance_test(vector<int> threads, vector<int> batchsizes, int numberOfEvents, vector< std::chrono::duration<double> > &timesVector,vector<double> &evtRateVector, string database, string configFilePath, int numberOfIterationPerTest);
 double computeMeanTime(vector< std::chrono::duration<double> > & timesVector, int numberOfIterationPerTest, double mean);
 double computeStandardDeviationTime(vector< std::chrono::duration<double> > & timesVector);
@@ -140,7 +140,8 @@ double computeMeanTime(vector< std::chrono::duration<double> > & timesVector, in
 
   }
 
-  return mean /= numberOfIterationPerTest;
+  mean /= numberOfIterationPerTest;
+  return mean;
 
 }
 
@@ -159,8 +160,8 @@ double computeMeanEvt(vector< double > & evtRateVector, int numberOfIterationPer
   }
 
   // cout << "[Compute mean] main inside for: "<< std::fixed<< std::setprecision(5)  <<mean << endl;
-
-  return mean /= numberOfIterationPerTest;
+  mean /= numberOfIterationPerTest;
+  return mean;
 
 }
 

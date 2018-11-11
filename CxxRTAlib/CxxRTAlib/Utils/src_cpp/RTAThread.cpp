@@ -66,10 +66,10 @@ void *RTAThread::run()  {
 
     dbConnector->disconnect();
 
-//    #ifdef DEBUG
-    cout << "[Thread " << id<< "]: totalEvents inserted " << totalEvents << endl;
-  //  cout << "[Thread " << id<<"] Quitting.." << endl;
-//    #endif
+   #ifdef DEBUG
+   cout << "[Thread " << id<< "]: totalEvents inserted " << totalEvents << endl;
+   cout << "[Thread " << id<<"] Quitting.." << endl;
+   #endif
 
   }
 

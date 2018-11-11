@@ -29,14 +29,14 @@ bool MySqlDBConnector::connect(Mutex* mux){
 
   try{
 
-    mux->mutexLock();
+    // mux->mutexLock();
     mySession = make_shared<Session>( SessionOption::HOST, hostname,
                                       SessionOption::PORT, 33060,
                                       SessionOption::USER, username,
                                       SessionOption::PWD, password,
                                       SessionOption::DB, database);
 
-                                      mux->mutexUnlock();
+                                      // mux->mutexUnlock();
     RowResult res = mySession->sql(query).execute();
     int c = res.count();
     if (c==0){
@@ -326,22 +326,28 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
 bool MySqlDBConnector::executeQuery(string query){
 
     RowResult res = mySession->sql(query).execute();
+    // cout << "Query executed" << endl;
 
-    Row row = res.fetchOne();
-    int col =res.getColumnCount();
-    int rows =res.count();
+    // Row row = res.fetchOne();
+    // int cols =res.getColumnCount();
+    // cout << "Numero di colonne: " << cols <<endl;
+    // int rows =res.count();
+    // cout << "Numero di righe: " << rows;
+    //
+    // for(int j=0; j<rows; j++){
+    //   for(int i=0; i<cols; i++ ){
+    //
+    //     cout << row[i] <<  " ";
+    //     if(i == cols-1){
+    //       cout << "\n";
+    //     }
+    //   }
+    //   if(j == row-1){
+    //     cout << "\n";
+    //   }
+    // }
 
-    for(int j=0; j<rows; j++){
-      for(int i=0; i<col; i++ ){
-
-        cout << row[i] <<  " ";
-        if(i == col-1)
-          cout << "\n";
-      }
-      if(j == row-1)
-        cout << "\n";
-    }
-
+  // cout << "executeQuery quitting " << endl;
   return true;
 
 }

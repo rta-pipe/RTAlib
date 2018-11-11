@@ -54,7 +54,6 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
 
     // Multi threading mode
     eventBuffer = new CTABuffer("rta_dl_buffer",1000);
-    cout << "Number of threads: " << numberofthreads << endl;
 
 
     // for( int i = 0; i < numberofthreads; i++ ) {
@@ -174,9 +173,9 @@ bool RTA_DL_DB::waitAndClose() {
 
     for(int i=0; i < numberofthreads; i++ ) {
       thread_array[i]->join();
-      // #ifdef DEBUG
+      #ifdef DEBUG
       cout << "[RTA_DL_DB] thread "<< i << " joined" << endl;
-      // #endif
+      #endif
     }
 
     // cout << "[RTA_DL_DB] Collecting statistics.. " << endl;
@@ -199,6 +198,7 @@ bool RTA_DL_DB::waitAndClose() {
     }
 
   }
+
 
 }
 

@@ -26,6 +26,7 @@
 
 #include "RTA_DLTEST_DB.hpp"
 #include "ConfigTestFileManager.hpp"
+#include "UtilsPT.hpp"
 
 using std::string;
 using std::map;
@@ -34,7 +35,7 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
-vector < map < string, string > > randomEventGenerator(int size);
+vector < map < string, string > > randomEventGenerator(int numberOfEvents);
 int performance_test(vector<int> threads, vector<int> batchsizes, int numberOfEvents, vector< std::chrono::duration<double> > &timesVector,vector<double> &evtRateVector, string database, string configFilePath, int numberOfIterationPerTest);
 double computeMeanTime(vector< std::chrono::duration<double> > & timesVector, int numberOfIterationPerTest, double mean);
 double computeStandardDeviationTime(vector< std::chrono::duration<double> > & timesVector);
@@ -139,9 +140,8 @@ double computeMeanTime(vector< std::chrono::duration<double> > & timesVector, in
 
   }
 
-  // cout << "[Compute mean] main inside for: "<< std::fixed<< std::setprecision(5)  <<mean << endl;
-
-  return mean /= numberOfIterationPerTest;
+  mean /= numberOfIterationPerTest;
+  return mean;
 
 }
 
@@ -154,15 +154,14 @@ double computeMeanEvt(vector< double > & evtRateVector, int numberOfIterationPer
   for(vector< double > ::iterator it=evtRateVector.begin(); it!=evtRateVector.end(); ++it) {
 
     auto currentEvtRate = *it;
-    // cout << "[Compute mean] currentTime: " <<  currentTime.count()  << endl;
 
     mean += currentEvtRate;
 
   }
 
   // cout << "[Compute mean] main inside for: "<< std::fixed<< std::setprecision(5)  <<mean << endl;
-
-  return mean /= numberOfIterationPerTest;
+  mean /= numberOfIterationPerTest;
+  return mean;
 
 }
 
@@ -213,40 +212,45 @@ double computeStandardDeviationEvt(vector< double > & evtRateVector, int numberO
 
 int main(int argc, char * argv[]) {
 
-  if (argc != 6) {
+  if (argc != 7) {
 
     cout << "Please enter:\
                     \n - the database to be used (mysql or redis-basic)\
                     \n - the table name to be used\
                     \n - the number of events to be inserted\
                     \n - the number of times a test must be repeated (>1)\
-                    \n - the path to the configuration file" << endl;
+                    \n - the path to the configuration file \
+                    \n - the cleanerTrigger value ('1' to clean tables before start test, '0' otherwise)" << endl;
 
     exit(EXIT_FAILURE);
 
   }
+
 
   string database = argv[1];
   string tableName = argv[2];
   int numberOfEvents = atoi(argv[3]);
   int numberOfIterationPerTest = atoi(argv[4]);
   string configurationFilePath = argv[5];
+  bool cleanerTrigger = atoi(argv[6]);
 
   // Test configuration
-  vector<int> threads({ 1 });
-  vector<int> batchsizes({1});
+  vector<int> threads({ 1, 8 });
+  vector<int> batchsizes({1, 10});
   double meanTime = 0;
   double stdTime = 0;
   double meanEvtRate = 0;
   double stdEvtRate = 0;
 
-  long int sd = 0;
   vector< std::chrono::duration<double> > timesVector;
   vector< double> evtRateVector;
 
   map < string, string > kv;
   vector < map < string, string > > entry;
   map < string, vector < map < string, string > > > section;
+
+  string cmd = "cp " + configurationFilePath + " ./rtalibconfig";
+  std::system(cmd.c_str());
 
   cout << "\n**************************\n******  START TEST  ******\n**************************\n" << endl;
   cout << "Number of events: " << numberOfEvents << endl;
@@ -262,19 +266,34 @@ int main(int argc, char * argv[]) {
     for( vector<int>::iterator it_b = batchsizes.begin(); it_b != batchsizes.end(); ++it_b ) {
 
       int currentBatchSize = *it_b;
+
+      Config * myConf;
+      myConf = Config::getIstance("./rtalibconfig");
       kv["modelname"]= tableName;
       kv["mjdref"]= myConf->file["General"]["mjdref"].getString();
       kv["debug"]= myConf->file["General"]["debug"].getString();
-      kv["batchsize"]= currentBatchSize;
-      kv["numberofthreads"]= currentThread;
+      kv["numberofthreads"]= to_string(currentThread);
+      kv["batchsize"]= to_string(currentBatchSize);
       entry.push_back(kv);
       section["General"] = entry;
 
-      ConfigTestFileManager::writeConfigFile(section);
+      ConfigTestFileManager::writeConfigFile("./rtalibconfig", section);
+      myConf->deleteInstance();
+
+
+
 
       for( int i = 0; i < numberOfIterationPerTest; i++ ) {
 
-        performance_test(threads, batchsizes, numberOfEvents, timesVector,evtRateVector, database, configurationFilePath, numberOfIterationPerTest);
+        if(cleanerTrigger) {
+          if(database.compare("mysql") == 0 )
+            UtilsPT::mysqlDeleteElements("./rtalibconfig", tableName);
+          else
+            UtilsPT::redislDeleteElements("./rtalibconfig", tableName);
+        }
+
+
+        performance_test(threads, batchsizes, numberOfEvents, timesVector,evtRateVector, database, "./rtalibconfig", numberOfIterationPerTest);
 
         meanTime = computeMeanTime(timesVector, numberOfIterationPerTest);
 
@@ -287,12 +306,17 @@ int main(int argc, char * argv[]) {
       }
 
         cout << "\n\n--> Number of threads: " <<  currentThread << " , Batch size: " << currentBatchSize << endl;
-        cout << meanEvtRate << " +- " << stdEvtRate << endl;
-        cout << meanTime << " +- " << stdTime << "\n\n" << endl;
+        cout << std::fixed<< std::setprecision(2) << meanEvtRate << " +- " << stdEvtRate << endl;
+        cout << std::fixed<< std::setprecision(2) << meanTime << " +- " << stdTime << "\n\n" << endl;
 
+        timesVector.clear();
+        evtRateVector.clear();
+        entry.clear();
 
 
     }
+
+
 
   }
 
@@ -303,7 +327,7 @@ int main(int argc, char * argv[]) {
   cout << "\n**************************\n******  END TEST  ******\n**************************\n" << endl;
   cout << "Number of events: " << numberOfEvents << endl;
   cout << "Number of iteration per test: " << numberOfIterationPerTest <<  endl;
-  cout << "Total execution time: " << diffTotal.count() << endl;
+  cout << "Total execution time: " << std::fixed<< std::setprecision(2) << diffTotal.count() << " s" <<  endl;
   cout << "\n\n" << endl;
 
 

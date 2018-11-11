@@ -193,3 +193,16 @@ bool batchInsert_c(int rc_commandsSent, redisContext *c, int idConnector,const c
   return true;
 
 }
+
+bool executeQuery_c(redisContext *c, int idConnector,const char *query){
+
+  redisReply * reply;
+
+  #ifdef DEBUG
+  printf("[RedisDBConnector C %d] executeQuery_c(): %s\n", idConnector, query);
+  #endif
+  reply = redisCommand(c, query);
+
+  return checkRedisReply(c, reply, idConnector, "executeQuery");
+
+}

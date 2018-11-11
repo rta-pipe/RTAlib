@@ -140,8 +140,6 @@ double computeMeanTime(vector< std::chrono::duration<double> > & timesVector, in
 
   }
 
-  // cout << "[Compute mean] main inside for: "<< std::fixed<< std::setprecision(5)  <<mean << endl;
-
   return mean /= numberOfIterationPerTest;
 
 }
@@ -243,7 +241,6 @@ int main(int argc, char * argv[]) {
   double meanEvtRate = 0;
   double stdEvtRate = 0;
 
-  long int sd = 0;
   vector< std::chrono::duration<double> > timesVector;
   vector< double> evtRateVector;
 

@@ -184,7 +184,8 @@ if __name__ == '__main__':
     numberOfEvents = int(argv[2])
     numberOfIterationPerTest = int(argv[3])
     configurationFilePath = argv[4]
-    tableName = 'evt3_for_data_rate_unique_key'
+    tableName = 'evt3_performance'
+
 
     utils = getUtils(database, configurationFilePath)
 

@@ -22,7 +22,7 @@ ConfigTestFileManager::ConfigTestFileManager(){
 
 }
 
-void ConfigTestFileManager::writeConfigFile(map < string, vector < map < string, string > > > input){
+void ConfigTestFileManager::writeConfigFile(string destinationPath, map < string, vector < map < string, string > > > input){
 
   Config * myConf;
 
@@ -165,7 +165,7 @@ void ConfigTestFileManager::writeConfigFile(map < string, vector < map < string,
 
     }
 
-    IniParser::store(ini, "./rtalibconfig", INI_UTF8_MODE_ALLOW, '=', ';');
+    IniParser::store(ini, destinationPath, INI_UTF8_MODE_ALLOW, '=', ';');
     ini.clear();
   }
 
@@ -205,7 +205,7 @@ void ConfigTestFileManager::writeConfigFile(map < string, vector < map < string,
 
           }
 
-          IniParser::store(ini, "./rtalibconfig", INI_UTF8_MODE_ALLOW, '=', ';');
+          IniParser::store(ini, destinationPath, INI_UTF8_MODE_ALLOW, '=', ';');
           ini.clear();
       }
 

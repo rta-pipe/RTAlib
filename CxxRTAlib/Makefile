@@ -78,7 +78,7 @@ SYSTEM= $(shell gcc -dumpmachine)
 #
 SOURCE_DIR_CXX_SIM_TEST = TestEnvironment/src_cpp/rtaLibSim.cpp
 SOURCE_DIR_CXX_UNIT_TEST = TestEnvironment/src_cpp/unitTest.cpp
-#SOURCE_DIR_CXX_PERF_TEST = TestEnvironment/src_cpp/perfTest.cpp
+SOURCE_DIR_CXX_PERF_TEST = TestEnvironment/src_cpp/performanceTest.cpp
 
 
 ################################################################################
@@ -130,6 +130,7 @@ LIB_NAME = libcxxrtalib.a
 UNITTEST_EXE_DESTDIR = TestEnvironment/bin
 UNITTEST_EXE = unitTest
 SIMTEST_EXE = rtaLibSim
+PERFORMANCE_EXE = performanceTest
 
 
 ################################################################################
@@ -179,7 +180,7 @@ CFLAGS += -I$(REDIS)
 ################################################################################
 # Linking
 #
-LIBS += -L$(MYSQL_CXX_CNT)/lib64/debug -lmysqlcppconn8
+LIBS += -L$(MYSQL_CXX_CNT)/lib64/ -lmysqlcppconn8
 
 LIBS += -L$(REDIS)/ -lhiredis
 
@@ -279,13 +280,16 @@ staticlib: makelibdir makeobjdir $(OBJECTS_C) $(OBJECTS)
 		test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
 		$(AR) $(LIB_DESTDIR)/$(LIB_NAME) $(OBJECTS_DIR)/*.o $(OBJECTS_DIR_C)/*.o
 
-tests: makeexedir unittest sim
+tests: makeexedir unittest sim performancetest
 
 unittest:
 	$(CXX) $(SOURCE_DIR_CXX_UNIT_TEST) $(CXXFLAGS) -o $(UNITTEST_EXE_DESTDIR)/$(UNITTEST_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
 
 sim:
 	$(CXX) $(SOURCE_DIR_CXX_SIM_TEST)  $(CXXFLAGS) -o $(UNITTEST_EXE_DESTDIR)/$(SIMTEST_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
+
+performancetest:
+	$(CXX) $(SOURCE_DIR_CXX_PERF_TEST) $(CXXFLAGS) -o $(UNITTEST_EXE_DESTDIR)/$(PERFORMANCE_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
 
 clean:
 	$(DEL_FILE) $(OBJECTS_DIR)/*.o

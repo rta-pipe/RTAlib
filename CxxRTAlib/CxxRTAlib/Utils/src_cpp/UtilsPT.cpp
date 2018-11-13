@@ -15,23 +15,36 @@
  ==========================================================================
 */
 
-#ifndef CONFI_TEST_FILE_MANAGER_H
-#define CONFI_TEST_FILE_MANAGER_H
+#include "UtilsPT.hpp"
 
-#include "Config.hpp"
-#include "IniParser.hpp"
-#include <vector>
+UtilsPT::UtilsPT(){
 
-using std:: vector;
+}
 
-class ConfigTestFileManager {
-public:
-  static void writeConfigFile(string destinationPath, map < string, vector < map < string, string > > > ma = map < string, vector < map < string, string > > >());
-  static void clearConfFile(string filepath);
+void UtilsPT::mysqlDeleteElements(string configFilePath, string tableName){
 
+  Mutex* mux = Mutex::getIstance();
 
-private:
-  ConfigTestFileManager();
+  MySqlDBConnector mysql(0, configFilePath);
 
-};
-#endif
+  mysql.connect(mux);
+
+  mysql.executeQuery("DELETE FROM "+ tableName);
+
+  mysql.disconnect();
+
+}
+
+void UtilsPT::redislDeleteElements(string configFilePath, string tableName){
+
+  Mutex* mux = Mutex::getIstance();
+
+  RedisDBConnector redis(0, configFilePath);
+
+  redis.connect(mux);
+
+  redis.executeQuery("DEL "+ tableName);
+
+  redis.disconnect();
+
+}

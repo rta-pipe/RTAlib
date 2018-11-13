@@ -15,23 +15,18 @@
  ==========================================================================
 */
 
-#ifndef CONFI_TEST_FILE_MANAGER_H
-#define CONFI_TEST_FILE_MANAGER_H
+#ifndef UTILS_PT_H
+#define UTILS_PT_H
 
-#include "Config.hpp"
-#include "IniParser.hpp"
-#include <vector>
+#include "MySqlDBConnector.hpp"
+#include "RedisDBConnector.hpp"
 
-using std:: vector;
-
-class ConfigTestFileManager {
+class UtilsPT {
 public:
-  static void writeConfigFile(string destinationPath, map < string, vector < map < string, string > > > ma = map < string, vector < map < string, string > > >());
-  static void clearConfFile(string filepath);
-
-
-private:
-  ConfigTestFileManager();
+  UtilsPT();
+  static void mysqlDeleteElements(string configFilePath, string tableName);
+  static void redislDeleteElements(string configFilePath, string tableName);
 
 };
+
 #endif

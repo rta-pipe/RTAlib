@@ -193,3 +193,9 @@ string RedisDBConnector :: buildQuery( string modelName, int batchsize, map <str
 
   return queryH;
 }
+
+bool RedisDBConnector::executeQuery(string query){
+
+  executeQuery_c(c, idConnector, query.c_str());
+
+}

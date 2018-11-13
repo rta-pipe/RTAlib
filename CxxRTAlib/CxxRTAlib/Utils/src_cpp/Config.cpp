@@ -48,7 +48,7 @@ Config::Config(string filepath){
 
   } catch (IniParser::ParserException &e) {
 
-    std::cerr << "Error while loading file!\n";
+    std::cerr << "[Config] Error while loading the rtalibconfig configuration file! Filepath: " << filepath << endl;
 
     exit(EXIT_FAILURE);
 
@@ -113,7 +113,7 @@ Config* Config::getIstance(string filepath){
 //
 //   }catch(IniParser::ParserException &e) {
 //
-//     std::cerr << "Error while loading file!\n";
+//      std::cerr << "[Config] Error while loading file! Filepath: " << filepath << endl;
 //
 //   }
 //

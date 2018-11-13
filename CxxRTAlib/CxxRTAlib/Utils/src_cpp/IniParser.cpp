@@ -38,7 +38,7 @@ IniFile &IniParser::load(std::string path, enum ini_utf8_mode utf8_mode,
   error = ini_read_file(path.c_str(), IniParser::callback, ini, comment, equals,
                         utf8_mode);
   if (error < 0)
-    error = READ_ERROR;
+    error = INIP_READ_ERROR;
 
   if (error != 0)
     throw parser_exception;
@@ -69,14 +69,14 @@ void IniParser::store(IniFile ini, std::string path,
   struct ini_file file;
 
   if (!ini_open_file(&file, path.c_str(), equals, comment, utf8_mode)) {
-    error = WRITE_ERROR;
+    error = INIP_WRITE_ERROR;
     throw parser_exception;
   }
 
 
   if (ini.getComment() != "") {
     if (!ini_write_comment(&file, ini.getComment().c_str())) {
-      error = WRITE_ERROR;
+      error = INIP_WRITE_ERROR;
       throw parser_exception;
     }
   }
@@ -85,13 +85,13 @@ void IniParser::store(IniFile ini, std::string path,
   for (IniSection section : ini.getAllSections()) {
     if (section.getComment() != "") {
       if (!ini_write_comment(&file, section.getComment().c_str())) {
-        error = WRITE_ERROR;
+        error = INIP_WRITE_ERROR;
         throw parser_exception;
       }
     }
     if (section.getName() != "") {
       if (!ini_write_section(&file, section.getName().c_str())) {
-        error = WRITE_ERROR;
+        error = INIP_WRITE_ERROR;
         throw parser_exception;
       }
     }
@@ -99,20 +99,20 @@ void IniParser::store(IniFile ini, std::string path,
     for (IniEntry entry : section.getAllEntries()) {
       if (entry.getComment() != "") {
         if (!ini_write_comment(&file, entry.getComment().c_str())) {
-          error = WRITE_ERROR;
+          error = INIP_WRITE_ERROR;
           throw parser_exception;
         }
       }
       if (!ini_write_name_value(&file, entry.getKey().c_str(),
                                 entry.getString().c_str())) {
-        error = WRITE_ERROR;
+        error = INIP_WRITE_ERROR;
         throw parser_exception;
       }
     }
   }
 
   if (!ini_close_file(&file)) {
-    error = WRITE_ERROR;
+    error = INIP_WRITE_ERROR;
     throw parser_exception;
   }
 }
@@ -131,13 +131,13 @@ int IniParser::getError() { return error; }
  * @throws might throw exceptions (see std::string construtor)
  */
 std::string IniParser::getErrorString(int error) {
-  if (error == WRITE_ERROR)
+  if (error == INIP_WRITE_ERROR)
     return std::string("Error while writing file: ") + path + std::string("!");
-  else if (error == READ_ERROR)
+  else if (error == INIP_READ_ERROR)
     return std::string("Error while reading file: ") + path + std::string("!");
-  else if (error == NO_ERROR)
+  else if (error == INIP_NO_ERROR)
     return std::string("No errors detected.");
-  else if (error == INVALID_STRING_ERROR)
+  else if (error == INIP_INVALID_STRING_ERROR)
     return std::string("Invalid string found!");
   else
     return std::string("Error in file ") + path + std::string(" on line ") +

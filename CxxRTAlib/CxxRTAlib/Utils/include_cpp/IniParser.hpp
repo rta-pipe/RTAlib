@@ -73,10 +73,10 @@ public:
   /**
    * Constants representing the error state.
    */
-  const static int NO_ERROR = 0;
-  const static int READ_ERROR = -1;
-  const static int WRITE_ERROR = -2;
-  const static int INVALID_STRING_ERROR = -3;
+  const static int INIP_NO_ERROR = 0;
+  const static int INIP_READ_ERROR = -1;
+  const static int INIP_WRITE_ERROR = -2;
+  const static int INIP_INVALID_STRING_ERROR = -3;
 
   /**
    * Class for parser exceptions.

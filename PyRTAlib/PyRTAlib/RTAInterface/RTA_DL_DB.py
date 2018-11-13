@@ -32,6 +32,8 @@ class RTA_DL_DB(ABC):
 
     def __init__(self, database, configFilePath = ''):
 
+        print("[RTAlib] loading..")
+
         if database != 'mysql' and database != 'redis-basic': # pragma: no cover
             print("[RTA_DL_DB] Error! Database '{}' is not supported. Supported databases: \n- {}\n- {}".format(database,'mysql','redis-basic'))
             exit()

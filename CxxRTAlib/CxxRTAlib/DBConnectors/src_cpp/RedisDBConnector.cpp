@@ -95,7 +95,7 @@ bool RedisDBConnector::insertData(string modelname, map < string, string > args)
       cout << "\n[RedisDBConnectorC++ " <<idConnector << "] event inserted." << endl;
       #endif
     } else {
-      cout << "\n[RedisDBConnectorC++ " <<idConnector << "] Error: event NOT inserted." << endl;
+      cout << "\n[RedisDBConnectorC++ " <<idConnector << "] Error: event NOT inserted. Query: " << query << endl;
     }
 
     #ifdef DEBUG
@@ -113,7 +113,7 @@ bool RedisDBConnector::insertData(string modelname, map < string, string > args)
        cout << "\n[RedisDBConnectorC++ " << idConnector << "] event inserted." << endl;
        #endif
     } else {
-       cout << "\n[RedisDBConnectorC++ " << idConnector << "] Error: event NOT inserted." << endl;
+       cout << "\n[RedisDBConnectorC++ " << idConnector << "] Error: event NOT inserted. Query: " << query << endl;
     }
 
   }else{

@@ -284,7 +284,7 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
       cout << "\n[MySqlDBConnector " <<idConnector << "] event iserted." << endl;
       #endif
     } else {
-      cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted." << endl;
+      cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted. Query: " << query <<endl;
     }
 
   }else if(batchsize > 1){
@@ -298,7 +298,7 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
       cout << "\n[MySqlDBConnector " <<idConnector << "] event iserted." << endl;
       #endif
     } else {
-      cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted." << endl;
+      cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted. Query: " << query <<endl;
     }
 
   }else{

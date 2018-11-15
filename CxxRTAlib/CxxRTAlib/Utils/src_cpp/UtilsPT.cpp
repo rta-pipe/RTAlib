@@ -35,6 +35,25 @@ void UtilsPT::mysqlDeleteElements(string configFilePath, string tableName){
 
 }
 
+double UtilsPT::getRowSize(string configFilePath, string tableName){
+
+  Mutex* mux = Mutex::getIstance();
+
+  MySqlDBConnector mysql(0, configFilePath);
+
+  mysql.connect(mux);
+
+  double size =mysql.getRowSize("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"+ tableName +"'");
+  // mysql.executeQuery("SELECT * FROM sys.types");
+  // cout << "UtilsPT size " << size << endl;
+
+
+  mysql.disconnect();
+
+  return size;
+
+}
+
 void UtilsPT::redislDeleteElements(string configFilePath, string tableName){
 
   Mutex* mux = Mutex::getIstance();

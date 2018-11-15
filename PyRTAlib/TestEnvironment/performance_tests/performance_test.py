@@ -190,8 +190,8 @@ if __name__ == '__main__':
     utils = getUtils(database, configurationFilePath)
 
     # Test configuration
-    threads = [0, 10, 36, 50]
-    batchsizes = [1, 100, 1000]#10, 50, 100, 200, 400, 800, 1600, 3200]
+    threads = [0, 10]#, 36, 50
+    batchsizes = [1, 100]#10, 50, 100, 200, 400, 800, 1600, 3200]
 
     # Simulating data
     # numberOfElementsToInsert = len(threads)*len(batchsizes)*int(numberOfEvents)

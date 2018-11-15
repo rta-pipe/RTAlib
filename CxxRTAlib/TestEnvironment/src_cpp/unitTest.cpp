@@ -38,6 +38,8 @@ const char* startString = {
 "###               - RTAlib/CXXRTAlib/UnitTest -              ###"
 };
 
+string confTestFilePath = "";
+string localConfFileTestPath = "";
 vector < map <string, string> > randomEventsGenerator(int size);
 
 /*
@@ -52,18 +54,19 @@ TEST(MySqlDBConnector, CorrectConnection) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
   map < string, string>  kv;
 
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
 
   EXPECT_TRUE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  cout << "local test path: " << localConfFileTestPath << endl;
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -72,7 +75,7 @@ TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
@@ -86,15 +89,15 @@ TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
   section["MySql"] = entry;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig",section);
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath,section);
   myConf->deleteInstance();
 
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
 
   EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -102,7 +105,7 @@ TEST(MySqlDBConnector, FailedConnectionWrongUserName) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
@@ -116,15 +119,15 @@ TEST(MySqlDBConnector, FailedConnectionWrongUserName) {
   section["MySql"] = entry;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig", section);
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
   myConf->deleteInstance();
 
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
 
   EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -132,7 +135,7 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
@@ -146,61 +149,61 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
   section["MySql"] = entry;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig", section);
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
   myConf->deleteInstance();
 
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
   EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
-// TEST(MySqlDBConnector, SelectRowsTestTable) {
-//
-//   Mutex* mux = Mutex::getIstance();
-//   Config * myConf;
-//   myConf = Config::getIstance("./rtalibconfig");
-//
-//   map < string, vector < map < string, string > > > section;
-//   vector < map < string, string > > entry;
-//   map < string, string>  kv;
-//
-//   kv["host"]= myConf->file["MySql"]["host"].getString();
-//   kv["password"]= myConf->file["MySql"]["password"].getString();
-//   kv["username"]= myConf->file["MySql"]["username"].getString();
-//   kv["dbname"]= myConf->file["MySql"]["dbname"].getString();
-//   entry.push_back(kv);
-//   section["MySql"] = entry;
-//
-//   myConf->deleteInstance();
-//   ConfigTestFileManager::writeConfigFile(section);
-//   myConf->deleteInstance();
-//
-//   auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
-//   mySqlDBTest->connect(mux);
-//   EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
-//
-//   myConf->deleteInstance();
-//   ConfigTestFileManager::writeConfigFile();
-//
-// }
+TEST(MySqlDBConnector, SelectRowsTestTable) {
+
+  Mutex* mux = Mutex::getIstance();
+  Config * myConf;
+  myConf = Config::getIstance(localConfFileTestPath);
+
+  map < string, vector < map < string, string > > > section;
+  vector < map < string, string > > entry;
+  map < string, string>  kv;
+
+  kv["host"]= myConf->file["MySql"]["host"].getString();
+  kv["password"]= myConf->file["MySql"]["password"].getString();
+  kv["username"]= myConf->file["MySql"]["username"].getString();
+  kv["dbname"]= myConf->file["MySql"]["dbname"].getString();
+  entry.push_back(kv);
+  section["MySql"] = entry;
+
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
+  myConf->deleteInstance();
+
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
+  mySqlDBTest->connect(mux);
+  EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
+
+  myConf->deleteInstance();
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
+
+}
 
 TEST(MySqlDBConnector, WriteWrongTable) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
   map < string, string>  kv;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
 
   mySqlDBTest->connect(mux);
 
@@ -212,7 +215,7 @@ TEST(MySqlDBConnector, WriteWrongTable) {
 
   EXPECT_FALSE( mySqlDBTest->insertData("lest_fable", args) );
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -220,16 +223,16 @@ TEST(MySqlDBConnector, InsertDataSuccefully) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
   map < string, string>  kv;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
 
   mySqlDBTest->connect(mux);
 
@@ -242,7 +245,7 @@ TEST(MySqlDBConnector, InsertDataSuccefully) {
   EXPECT_TRUE( mySqlDBTest->insertData("rtalib_test_table", args) );
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -260,18 +263,18 @@ TEST(RedisDBConnector, CorrectConnection) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
   map < string, string>  kv;
 
-  auto redisDBTest = make_shared<RedisDBConnector>(0,"./rtalibconfig");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,localConfFileTestPath);
 
   EXPECT_TRUE(redisDBTest->connect(mux));
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -280,13 +283,13 @@ TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
   map < string, string>  kv;
 
-  auto redisDBTest = make_shared<RedisDBConnector>(0,"./rtalibconfig");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,localConfFileTestPath);
   redisDBTest->connect(mux);
 
   map <string, string > args;
@@ -298,7 +301,7 @@ TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -307,13 +310,13 @@ TEST(RedisDBConnector, InsertDataSuccIndexonMiddle) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
   map < string, string>  kv;
 
-  auto redisDBTest = make_shared<RedisDBConnector>(0,"./rtalibconfig");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,localConfFileTestPath);
 
   redisDBTest->connect(mux);
 
@@ -326,7 +329,7 @@ TEST(RedisDBConnector, InsertDataSuccIndexonMiddle) {
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -334,13 +337,13 @@ TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
   map < string, string>  kv;
 
-  auto redisDBTest = make_shared<RedisDBConnector>(0,"./rtalibconfig");
+  auto redisDBTest = make_shared<RedisDBConnector>(0,localConfFileTestPath);
 
   redisDBTest->connect(mux);
 
@@ -353,7 +356,7 @@ TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 }
 
 /*
@@ -367,35 +370,35 @@ TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
 TEST(RTA_DL_DB, waitAndCloseMysqlTest) {
 
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
   map < string, string>  kv;
 
-  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", "./rtalibconfig");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", localConfFileTestPath);
 
   EXPECT_TRUE( rtaTestDb->waitAndClose() );
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 }
 
 TEST(RTA_DL_DB, waitAndCloseRedisTest) {
 
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
   map < string, string>  kv;
 
-  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./rtalibconfig");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", localConfFileTestPath);
 
   EXPECT_TRUE( rtaTestDb->waitAndClose() );
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -403,7 +406,7 @@ TEST(RTA_DL_DB, waitAndCloseRedisTest) {
 TEST(RTA_DL_DB, streamingSingleThreadRedisTest) {
 
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
@@ -418,10 +421,10 @@ TEST(RTA_DL_DB, streamingSingleThreadRedisTest) {
   section["General"] = entry;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig", section);
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
   myConf->deleteInstance();
 
-  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./rtalibconfig");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", localConfFileTestPath);
 
   vector < map < string, string > > events = randomEventsGenerator(1);
 
@@ -446,14 +449,14 @@ TEST(RTA_DL_DB, streamingSingleThreadRedisTest) {
   rtaTestDb->waitAndClose();
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
 TEST(RTA_DL_DB, streamingSingleThreadMysqlTest) {
 
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
@@ -468,10 +471,10 @@ TEST(RTA_DL_DB, streamingSingleThreadMysqlTest) {
   section["General"] = entry;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig", section);
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
   myConf->deleteInstance();
 
-  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", "./rtalibconfig");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", localConfFileTestPath);
 
   vector < map < string, string > > events = randomEventsGenerator(1);
 
@@ -496,14 +499,14 @@ TEST(RTA_DL_DB, streamingSingleThreadMysqlTest) {
   rtaTestDb->waitAndClose();
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
 TEST(RTA_DL_DB, streamingMultiThreadMysqlTest) {
 
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
@@ -518,10 +521,10 @@ TEST(RTA_DL_DB, streamingMultiThreadMysqlTest) {
   section["General"] = entry;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig", section);
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
   myConf->deleteInstance();
 
-  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", "./rtalibconfig");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", localConfFileTestPath);
 
   vector < map < string, string > > events = randomEventsGenerator(4);
 
@@ -546,14 +549,14 @@ TEST(RTA_DL_DB, streamingMultiThreadMysqlTest) {
   rtaTestDb->waitAndClose();
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
 TEST(RTA_DL_DB, batchSingleThreadMysqlTest) {
 
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
@@ -568,10 +571,10 @@ TEST(RTA_DL_DB, batchSingleThreadMysqlTest) {
   section["General"] = entry;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig", section);
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
   myConf->deleteInstance();
 
-  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./rtalibconfig");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", localConfFileTestPath);
 
   vector < map < string, string > > events = randomEventsGenerator(4);
 
@@ -595,7 +598,7 @@ TEST(RTA_DL_DB, batchSingleThreadMysqlTest) {
 
   rtaTestDb->waitAndClose();
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -603,7 +606,7 @@ TEST(RTA_DL_DB, selectSingleThreadMysqlTest) {
 
   Mutex* mux = Mutex::getIstance();
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
@@ -618,10 +621,10 @@ TEST(RTA_DL_DB, selectSingleThreadMysqlTest) {
   section["General"] = entry;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig", section);
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
   myConf->deleteInstance();
 
-  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,"./rtalibconfig");
+  auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
 
   mySqlDBTest->connect(mux);
   string query = "SELECT * FROM " + kv["modelname"];
@@ -629,7 +632,7 @@ TEST(RTA_DL_DB, selectSingleThreadMysqlTest) {
   mySqlDBTest->executeQuery(query);
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -637,7 +640,7 @@ TEST(RTA_DL_DB, selectSingleThreadMysqlTest) {
 //
 //   Mutex* mux = Mutex::getIstance();
 //   Config * myConf;
-//   myConf = Config::getIstance("./rtalibconfig");
+//   myConf = Config::getIstance(localConfFileTestPath);
 //
 //   map < string, vector < map < string, string > > > section;
 //   vector < map < string, string > > entry;
@@ -655,7 +658,7 @@ TEST(RTA_DL_DB, selectSingleThreadMysqlTest) {
 //   ConfigTestFileManager::writeConfigFile(section);
 //   myConf->deleteInstance();
 //
-//   auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", "./rtalibconfig");
+//   auto rtaTestDb = make_shared<RTA_DLTEST_DB>("mysql", localConfFileTestPath);
 //
 //   vector < map < string, string > > events = randomEventsGenerator(5);
 //
@@ -690,7 +693,7 @@ TEST(RTA_DL_DB, selectSingleThreadMysqlTest) {
 TEST(RTA_DL_DB, batchSingleThreadRedisTest) {
 
   Config * myConf;
-  myConf = Config::getIstance("./rtalibconfig");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, vector < map < string, string > > > section;
   vector < map < string, string > > entry;
@@ -705,10 +708,10 @@ TEST(RTA_DL_DB, batchSingleThreadRedisTest) {
   section["General"] = entry;
 
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig", section);
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
   myConf->deleteInstance();
 
-  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", "./rtalibconfig");
+  auto rtaTestDb = make_shared<RTA_DLTEST_DB>("redis-basic", localConfFileTestPath);
 
   vector < map < string, string > > events = randomEventsGenerator(4);
 
@@ -732,7 +735,7 @@ TEST(RTA_DL_DB, batchSingleThreadRedisTest) {
 
   rtaTestDb->waitAndClose();
   myConf->deleteInstance();
-  ConfigTestFileManager::writeConfigFile("./rtalibconfig");
+  ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
 }
 
@@ -773,7 +776,15 @@ int main(int argc, char **argv) {
 
   cout << startString<< endl;
 
-  std::system("cp ../../Configs/rtalibconfig_testing ./rtalibconfig");
+  char * val = getenv( "RTALIBDIR" );
+  string envVar(val);
+
+  confTestFilePath = envVar + "/Configs/rtalibconfig_testing ";
+  localConfFileTestPath = envVar + "/CxxRTAlib/TestEnvironment/rtalibconfigUTest";
+
+  string cmd = "cp " + confTestFilePath + localConfFileTestPath ;
+
+  std::system(cmd.c_str());
 
   return RUN_ALL_TESTS();
 

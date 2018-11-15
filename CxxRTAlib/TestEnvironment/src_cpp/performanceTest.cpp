@@ -22,11 +22,13 @@
 #include<map>
 #include<vector>
 #include <chrono>
+#include <ctime>
 #include <iomanip>
 
 #include "RTA_DLTEST_DB.hpp"
 #include "ConfigTestFileManager.hpp"
 #include "UtilsPT.hpp"
+#include "FileWriter.hpp"
 
 using std::string;
 using std::map;
@@ -35,7 +37,7 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
-vector < map < string, string > > randomEventGenerator(int numberOfEvents);
+vector < map < string, double > > randomEventGenerator(int numberOfEvents);
 int performance_test(vector<int> threads, vector<int> batchsizes, int numberOfEvents, vector< std::chrono::duration<double> > &timesVector,vector<double> &evtRateVector, string database, string configFilePath, int numberOfIterationPerTest);
 double computeMeanTime(vector< std::chrono::duration<double> > & timesVector, int numberOfIterationPerTest, double mean);
 double computeStandardDeviationTime(vector< std::chrono::duration<double> > & timesVector);
@@ -44,26 +46,26 @@ int count = 0;
 
 
 
-vector < map < string, string > > randomEventGenerator(int numberOfEvents) {
+vector < map < string, double > > randomEventGenerator(int numberOfEvents) {
 
-  map <string, string> args;
+  map <string, double> args;
 
-  vector < map <string, string> > events;
+  vector < map <string, double> > events;
 
   /*  CREAZIONE EVENTI RANDOM  */
   for(int i=0; i<numberOfEvents; i++){
-    args["eventidfits"] =to_string(rand());
-    args["timerealtt"] =to_string(rand());
-    args["ra_deg"] =to_string(rand());
-    args["dec_deg"] =to_string(rand());
-    args["energy"] =to_string(rand());
-    args["detx"] =to_string(rand());
-    args["dety"] =to_string(rand());
-    args["observationid"] =to_string(rand());
-    args["datarepositoryid"] =to_string(rand());
-    args["status"] =to_string(1);
-    args["mcid"] =to_string(1);
-    args["insert_time"] =to_string(rand());
+    args["eventidfits"] = rand();
+    args["timerealtt"] =rand();
+    args["ra_deg"] =rand();
+    args["dec_deg"] =rand();
+    args["energy"] =rand();
+    args["detx"] =rand();
+    args["dety"] =rand();
+    args["observationid"] =rand();
+    args["datarepositoryid"] =rand();
+    args["status"] =1;
+    args["mcid"] =1;
+    args["insert_time"] =rand();
 
     events.push_back(args);
 
@@ -74,7 +76,7 @@ vector < map < string, string > > randomEventGenerator(int numberOfEvents) {
 
 int performance_test(vector<int> threads, vector<int> batchsizes, int numberOfEvents, vector< std::chrono::duration<double> > & timesVector, vector< double> &evtRateVector, string database, string configFilePath, int numberOfIterationPerTest){
 
-  vector < map <string, string> > events = randomEventGenerator(numberOfEvents);
+  vector < map <string, double> > events = randomEventGenerator(numberOfEvents);
 
   RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
 
@@ -90,40 +92,41 @@ int performance_test(vector<int> threads, vector<int> batchsizes, int numberOfEv
 
   auto start = std::chrono::system_clock::now();
 
-  for(vector < map <string, string> >::iterator it=events.begin(); it!=events.end(); it++) {
+  for(vector < map <string, double> >::iterator it=events.begin(); it!=events.end(); it++) {
 
-    map < string, string > currentEvent = *it;
+    map < string, double > currentEvent = *it;
 
-    count +=rtaTestDb->insertEvent(  currentEvent["eventidfits"],
-                                      currentEvent["timerealtt"],
-                                      currentEvent["ra_deg"],
-                                      currentEvent["dec_deg"],
-                                      currentEvent["energy"],
-                                      currentEvent["detx"],
-                                      currentEvent["dety"],
-                                      currentEvent["observationid"],
-                                      currentEvent["datarepositoryid"],
-                                      currentEvent["mcid"],
-                                      currentEvent["insert_time"],
-                                      currentEvent["status"] );
+    count +=rtaTestDb->insertEvent(   to_string(currentEvent["eventidfits"]),
+                                      to_string(currentEvent["timerealtt"]),
+                                      to_string(currentEvent["ra_deg"]),
+                                      to_string(currentEvent["dec_deg"]),
+                                      to_string(currentEvent["energy"]),
+                                      to_string(currentEvent["detx"]),
+                                      to_string(currentEvent["dety"]),
+                                      to_string(currentEvent["observationid"]),
+                                      to_string(currentEvent["datarepositoryid"]),
+                                      to_string(currentEvent["mcid"]),
+                                      to_string(currentEvent["insert_time"]),
+                                      to_string(currentEvent["status"]) );
+
   }
 
   rtaTestDb->waitAndClose();
 
   auto stop = std::chrono::system_clock::now();
 
-  // cout << "\n"<< count <<" events inserted correctly."<< endl;
-
   std::chrono::duration<double> diff;
 
   diff = stop-start;
 
   timesVector.push_back(diff);
-  // cout << "[performance_test] timesVector size: " << timesVector.size() << endl;
-  // cout << "Tempo impiegato per inserire " << numberOfEvents << " eventi = " << diff.count() << " s" << endl;
-  //
-  // cout << "Event rate: " << numberOfEvents/diff.count() << endl;
+
   evtRateVector.push_back(numberOfEvents/diff.count());
+  #ifdef DEBUG
+  cout << "\n"<< count <<" events inserted correctly."<< endl;
+  cout << "Tempo impiegato per inserire " << numberOfEvents << " eventi = " << diff.count() << " s" << endl;
+  cout << "Event rate: " << numberOfEvents/diff.count() << endl;
+  #endif
 
 }
 
@@ -159,7 +162,6 @@ double computeMeanEvt(vector< double > & evtRateVector, int numberOfIterationPer
 
   }
 
-  // cout << "[Compute mean] main inside for: "<< std::fixed<< std::setprecision(5)  <<mean << endl;
   mean /= numberOfIterationPerTest;
   return mean;
 
@@ -241,6 +243,7 @@ int main(int argc, char * argv[]) {
   double stdTime = 0;
   double meanEvtRate = 0;
   double stdEvtRate = 0;
+  double dataRate = 0;
 
   vector< std::chrono::duration<double> > timesVector;
   vector< double> evtRateVector;
@@ -249,8 +252,14 @@ int main(int argc, char * argv[]) {
   vector < map < string, string > > entry;
   map < string, vector < map < string, string > > > section;
 
-  string cmd = "cp " + configurationFilePath + " ./rtalibconfig";
+  char * val = getenv( "RTALIBDIR" );
+  string envVar(val);
+  string localConfFileTestPath = envVar + "/CxxRTAlib/TestEnvironment/rtalibconfigPTest";
+  string cmd = "cp " + configurationFilePath + " " + localConfFileTestPath;
   std::system(cmd.c_str());
+
+  string json = "[\n";
+  string jsn;
 
   cout << "\n**************************\n******  START TEST  ******\n**************************\n" << endl;
   cout << "Number of events: " << numberOfEvents << endl;
@@ -268,7 +277,7 @@ int main(int argc, char * argv[]) {
       int currentBatchSize = *it_b;
 
       Config * myConf;
-      myConf = Config::getIstance("./rtalibconfig");
+      myConf = Config::getIstance(localConfFileTestPath);
       kv["modelname"]= tableName;
       kv["mjdref"]= myConf->file["General"]["mjdref"].getString();
       kv["debug"]= myConf->file["General"]["debug"].getString();
@@ -277,23 +286,22 @@ int main(int argc, char * argv[]) {
       entry.push_back(kv);
       section["General"] = entry;
 
-      ConfigTestFileManager::writeConfigFile("./rtalibconfig", section);
+      ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
       myConf->deleteInstance();
 
-
-
+      double size = UtilsPT::getRowSize(localConfFileTestPath, tableName);
 
       for( int i = 0; i < numberOfIterationPerTest; i++ ) {
 
         if(cleanerTrigger) {
           if(database.compare("mysql") == 0 )
-            UtilsPT::mysqlDeleteElements("./rtalibconfig", tableName);
+            UtilsPT::mysqlDeleteElements(localConfFileTestPath, tableName);
           else
-            UtilsPT::redislDeleteElements("./rtalibconfig", tableName);
+            UtilsPT::redislDeleteElements(localConfFileTestPath, tableName);
         }
 
 
-        performance_test(threads, batchsizes, numberOfEvents, timesVector,evtRateVector, database, "./rtalibconfig", numberOfIterationPerTest);
+        performance_test(threads, batchsizes, numberOfEvents, timesVector,evtRateVector, database, localConfFileTestPath, numberOfIterationPerTest);
 
         meanTime = computeMeanTime(timesVector, numberOfIterationPerTest);
 
@@ -306,8 +314,15 @@ int main(int argc, char * argv[]) {
       }
 
         cout << "\n\n--> Number of threads: " <<  currentThread << " , Batch size: " << currentBatchSize << endl;
-        cout << std::fixed<< std::setprecision(2) << meanEvtRate << " +- " << stdEvtRate << endl;
-        cout << std::fixed<< std::setprecision(2) << meanTime << " +- " << stdTime << "\n\n" << endl;
+        cout << std::fixed<< std::setprecision(2) << meanEvtRate << " +- " << stdEvtRate << " Hz" << endl;
+        cout << std::fixed<< std::setprecision(2) << meanTime << " +- " << stdTime  << " s" << endl;
+        dataRate = meanEvtRate*size/1024/1024;
+        cout << dataRate << " MB/s\n\n"<< endl;
+
+        json += " { numberOfEvents : " + to_string(numberOfEvents) +", numberofthreads : " + to_string(currentThread) + " , batchsize : " + to_string(currentBatchSize) + " , eventRate : " + to_string(meanEvtRate) + ", evt_error : " +to_string(stdEvtRate)+", time : " +to_string(meanTime)+ ", time_error :"+ to_string(stdTime)+ ", dataRate : " + to_string(dataRate)+ " },\n ";
+
+        jsn = json.substr(0, json.size()-3);
+
 
         timesVector.clear();
         evtRateVector.clear();
@@ -316,7 +331,7 @@ int main(int argc, char * argv[]) {
 
     }
 
-
+    jsn += "\n]";
 
   }
 
@@ -328,6 +343,20 @@ int main(int argc, char * argv[]) {
   cout << "Number of events: " << numberOfEvents << endl;
   cout << "Number of iteration per test: " << numberOfIterationPerTest <<  endl;
   cout << "Total execution time: " << std::fixed<< std::setprecision(2) << diffTotal.count() << " s" <<  endl;
+  cout << "\n\n" << endl;
+
+  // current date/time based on current system
+  time_t now = time(0);
+
+  // convert now to string form
+  string dt = ctime(&now);
+  dt.erase(remove_if(dt.begin(), dt.end(), isspace), dt.end());
+
+
+  string outJSONPath = envVar + "/CxxRTAlib/TestEnvironment/";
+  string outJSONNAme = outJSONPath + "jsonPerfTest"+dt;
+  FileWriter::write2File(outJSONNAme,jsn);
+  cout << jsn << endl;
   cout << "\n\n" << endl;
 
 

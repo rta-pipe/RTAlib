@@ -174,24 +174,21 @@ bool RedisDBConnector::batchInsert(string query, int batchsize){
 
 string RedisDBConnector :: buildQuery( string modelName, int batchsize, map <string,string> args){
 
-
-
-  string query;
-
-  string queryH = "'{";
+  string query = "'{";
 
   for (map<string,string>::iterator it=args.begin(); it!=args.end(); ++it) {
 
-    queryH += it->first + " : " + it->second + ", ";
+    query += it->first + " : " + it->second + ", ";
 
   }
+  string finalQuery = query.substr(0,query.size()-2);
 
-  queryH += "}'";
+  finalQuery += " }'";
 
   score = args[indexon_clean];
-  cout << query << endl;
+  // cout << queryH << endl;
 
-  return queryH;
+  return finalQuery;
 }
 
 bool RedisDBConnector::executeQuery(string query){

@@ -23,6 +23,7 @@
 #include "RedisDBConnector.hpp"
 #include "RTAThread.hpp"
 #include <memory>
+#include <chrono>
 
 using std::cout;
 using std::endl;
@@ -44,6 +45,13 @@ public:
 
   int numberofthreads;
   string modelname;
+
+  typedef std::chrono::high_resolution_clock Clock;
+  Clock::time_point starttime;
+
+  // int countevts;
+  //size_t querysize = 0;
+
 
   std::vector< shared_ptr < Thread > > thread_array;
   // std::vector<ThreadStatistic*> thread_statistics_array;

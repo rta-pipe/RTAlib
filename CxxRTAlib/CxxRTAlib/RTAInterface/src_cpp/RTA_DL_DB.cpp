@@ -36,6 +36,7 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
   modelname = config->file["General"]["modelname"].getString();
   Mutex* mux = Mutex::getIstance();
 
+  //countevts = 0;
 
   if( numberofthreads == 1 ) {
 
@@ -79,6 +80,8 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
 }
 
 void RTA_DL_DB::start() {
+
+
   if( numberofthreads == 1 ) {
 
   }else {
@@ -90,6 +93,9 @@ void RTA_DL_DB::start() {
       thread_array[i]->start();
     }
   }
+
+  starttime = Clock::now();
+
 }
 
 
@@ -112,6 +118,8 @@ shared_ptr<DBConnector> RTA_DL_DB::getConnector(int id,string databaseEngine, st
 }
 
 bool RTA_DL_DB::_insertEvent( EVTbase *event ) {
+
+  // countevts++;
 
   string modelname = config->file["General"]["modelname"].getString();
 
@@ -173,6 +181,10 @@ bool RTA_DL_DB::waitAndClose() {
 
     for(int i=0; i < numberofthreads; i++ ) {
       thread_array[i]->join();
+      //endtime = std::chrono::system_clock::now();
+      //std::chrono::duration<double> diff = endtime - starttime;
+      //std::cout << "Took time: "<< diff.count() << " s\n";
+
       #ifdef DEBUG
       cout << "[RTA_DL_DB] thread "<< i << " joined" << endl;
       #endif
@@ -185,21 +197,19 @@ bool RTA_DL_DB::waitAndClose() {
 
   }else{
 
+    //endtime = std::chrono::system_clock::now();
+    //std::chrono::duration<double> diff = endtime -starttime;
+    //std::cout << "Took time: "<< diff.count() << " s\n";
+    auto elapsed = Clock::now() - starttime;
+    cout <<"[RTAlib] took: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << "ms" << endl;
+
     if ( dbConnector->disconnect() == true ) {
-      #ifdef DEBUG
-      cout << "[RTA_DL_DB] disconnect" << endl;
-      #endif
+      cout << "[RTA_DL_DB] disconnected" << endl;
       return true;
-
     }else {
-
       return false;
-
     }
-
   }
-
-
 }
 
 int RTA_DL_DB::getNumberOfThreads() {

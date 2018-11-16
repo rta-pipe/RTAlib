@@ -105,7 +105,8 @@ string MySqlDBConnector::buildQuery(string modelName, int batchsize, map <string
   for (map<string,string>::iterator it=args.begin(); it!=args.end(); ++it) {
 
     queryH += "`" + it->first + "`" + ",";
-    queryV += it->second + ",";
+
+    queryV += "'" + it->second + "',";
 
   }
 
@@ -284,7 +285,7 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
       cout << "\n[MySqlDBConnector " <<idConnector << "] event iserted." << endl;
       #endif
     } else {
-      cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted." << endl;
+      cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted. Query: " << query <<endl;
     }
 
   }else if(batchsize > 1){
@@ -298,7 +299,7 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
       cout << "\n[MySqlDBConnector " <<idConnector << "] event iserted." << endl;
       #endif
     } else {
-      cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted." << endl;
+      cout << "\n[MySqlDBConnector " <<idConnector << "] event NOT iserted. Query: " << query <<endl;
     }
 
   }else{

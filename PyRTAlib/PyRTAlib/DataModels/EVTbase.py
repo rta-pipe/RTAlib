@@ -18,6 +18,7 @@
 #
 # ==========================================================================
 from ..Utils import Config
+from math import isnan
 
 class EVTbase:
     def __init__(self): # pragma: no cover
@@ -26,3 +27,18 @@ class EVTbase:
         NEVER PUT CLASS ATTRIBUTES (they will be inherited by subclasses and added to the dict representation)
         """
         pass
+
+
+    def getData(self):
+        """Return the 'dictionary' representation of the object.
+        """
+        dictData = vars(self)
+        for key,val in dictData.items():
+            if val == None:
+                dictData[key] = 'NULL'
+            elif isnan(val):
+                print("VAl is Nan. ",key,"=", val)
+                dictData[key] = 'NULL'
+
+
+        return vars(self)

@@ -24,7 +24,7 @@ Config::Config(string filepath){
 
   char* pPath;
 
-  pPath = getenv("RTACONFIGFILE");
+  pPath = getenv("RTALIBCONFIGFILE");
 
   if (pPath!=NULL){
 
@@ -32,7 +32,7 @@ Config::Config(string filepath){
 
   }else if(filepath==""){
 
-    cout << "[Config] Cant configure. Neither the filepath parameter or the RTACONFIGFILE environment variable have been provided." << endl;
+    cout << "[Config] Cant configure. Neither the filepath parameter or the RTALIBCONFIGFILE environment variable have been provided." << endl;
 
   }
 

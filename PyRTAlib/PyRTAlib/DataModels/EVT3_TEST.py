@@ -46,10 +46,6 @@ class EVT3_TEST(EVTbase):
         self.status = int(status)
 
 
-    def getData(self):
-        """Return the 'dictionary' representation of the object.
-        """
-        return vars(self)
 
     @staticmethod
     def getRandomEvent(): # pragma: no cover

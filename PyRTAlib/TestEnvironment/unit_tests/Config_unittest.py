@@ -53,8 +53,8 @@ class ConfigFile(unittest.TestCase):
 
 
     def test_no_path_no_env_var_provided(self):
-        if 'RTACONFIGFILE' in environ:
-            del environ['RTACONFIGFILE']
+        if 'RTALIBCONFIGFILE' in environ:
+            del environ['RTALIBCONFIGFILE']
         config = Config('', False)
         self.assertRaises(Exception, config.parseConfigFile, '')
 
@@ -65,7 +65,7 @@ class ConfigFile(unittest.TestCase):
 
 
     def test_file_not_found_wrong_env_var_path(self):
-        environ['RTACONFIGFILE'] = '../wrong/path/Configs/rtalibconfig_testing'
+        environ['RTALIBCONFIGFILE'] = '../wrong/path/Configs/rtalibconfig_testing'
         config = Config('', False)
         self.assertRaises(FileNotFoundError, config.parseConfigFile, '')
 
@@ -76,13 +76,13 @@ class ConfigFile(unittest.TestCase):
 
 
     def test_file_found_with_environment_variable(self):
-        environ['RTACONFIGFILE'] = config_file_path
+        environ['RTALIBCONFIGFILE'] = config_file_path
         config = Config()
         self.assertEqual(True, bool(config.get()))
 
 
     def test_priority_to_env_var(self):
-        environ['RTACONFIGFILE'] = config_file_path
+        environ['RTALIBCONFIGFILE'] = config_file_path
         config = Config('../../../Configs/wrongconfigfile')
         self.assertEqual(True, bool(config.get()))
 

@@ -26,6 +26,7 @@ public:
   UtilsPT();
   static void mysqlDeleteElements(string configFilePath, string tableName);
   static void redislDeleteElements(string configFilePath, string tableName);
+  static double getRowSize(string configFilePath, string tableName);
 
 };
 

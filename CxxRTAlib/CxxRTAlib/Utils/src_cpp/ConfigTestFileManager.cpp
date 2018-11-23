@@ -24,9 +24,13 @@ ConfigTestFileManager::ConfigTestFileManager(){
 
 void ConfigTestFileManager::writeConfigFile(string destinationPath, map < string, vector < map < string, string > > > input){
 
+  char * val = getenv( "RTALIBDIR" );
+  string envVar(val);
+  string localConfFileTestPath = envVar + "/Configs/rtalibconfig_testing";
+
   Config * myConf;
 
-  myConf = Config::getIstance("../../Configs/rtalibconfig_testing");
+  myConf = Config::getIstance(localConfFileTestPath);
 
   map < string, string > Gentries;
 

@@ -10,6 +10,7 @@ rtalibconfig_default
 rtalibconfig_testing
 rtalibconfig_test
 PyRTAlib/rtalibconfig
+/PyRTAlib/PyRTAlib/Utils/PerformancePlot.py
 PyRTAlib/TestEnvironment/rtalibconfig
 PyRTAlib/TestEnvironment/export_env_var.sh
 rtalibconfig
@@ -18,6 +19,10 @@ PyRTAlib/dist/
 
 # Files in CxxRATlib
 CxxRTAlib/CxxRTAlib/bin/testRTAlib
+CxxRTAlib/TestEnvironment/rtalibconfigUTest
+/CxxRTAlib/TestEnvironment/rtalibconfigPTest
+/CxxRTAlib/TestEnvironment/jsonPerfTest*
+rtalibconfigPTest/CxxRTAlib/TestEnvironment/
 
 testRTAlib
 rtalibconfig

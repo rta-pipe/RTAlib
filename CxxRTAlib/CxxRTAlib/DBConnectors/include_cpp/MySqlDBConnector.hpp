@@ -38,7 +38,10 @@ using mysqlx::Client;
 using mysqlx::SessionSettings;
 using mysqlx::SessionOption;
 using mysqlx::Row;
-using mysqlx::Value;
+using mysqlx::Columns;
+using mysqlx::Type;
+using mysqlx::row_count_t;
+using mysqlx::col_count_t;
 
 class MySqlDBConnector : public DBConnector {
 public:
@@ -65,6 +68,7 @@ public:
   bool streamingInsert(string query);
   bool batchInsert(string query, int batchsize);
   bool executeQuery(string query);
+  double getRowSize(string query);
 
   shared_ptr<Session> mySession;
 

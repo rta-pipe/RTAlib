@@ -29,14 +29,14 @@ bool MySqlDBConnector::connect(Mutex* mux){
 
   try{
 
-    // mux->mutexLock();
+    mux->mutexLock();
     mySession = make_shared<Session>( SessionOption::HOST, hostname,
                                       SessionOption::PORT, 33060,
                                       SessionOption::USER, username,
                                       SessionOption::PWD, password,
                                       SessionOption::DB, database);
 
-                                      // mux->mutexUnlock();
+                                      mux->mutexUnlock();
     RowResult res = mySession->sql(query).execute();
     int c = res.count();
     if (c==0){
@@ -326,29 +326,43 @@ bool MySqlDBConnector::insertData(string modelName, map < string, string > args)
 
 bool MySqlDBConnector::executeQuery(string query){
 
-    RowResult res = mySession->sql(query).execute();
-    // cout << "Query executed" << endl;
+  RowResult res = mySession->sql(query).execute();
 
-    // Row row = res.fetchOne();
-    // int cols =res.getColumnCount();
-    // cout << "Numero di colonne: " << cols <<endl;
-    // int rows =res.count();
-    // cout << "Numero di righe: " << rows;
-    //
-    // for(int j=0; j<rows; j++){
-    //   for(int i=0; i<cols; i++ ){
-    //
-    //     cout << row[i] <<  " ";
-    //     if(i == cols-1){
-    //       cout << "\n";
-    //     }
-    //   }
-    //   if(j == row-1){
-    //     cout << "\n";
-    //   }
-    // }
+  std::list<Row> rows = res.fetchAll();
+  // for (Row row : rows) {
+  //   for(col_count_t i=0; i<res.getColumnCount(); i++ ){
+  //   cout << row[i] << endl;
+  //   }
+  // }
 
-  // cout << "executeQuery quitting " << endl;
   return true;
+
+}
+
+double MySqlDBConnector::getRowSize(string query){
+
+  vector <string> type;
+  double size = 0;
+  RowResult res = mySession->sql(query).execute();
+
+  std::list<Row> rows = res.fetchAll();
+  for (Row row : rows) {
+    for(col_count_t i=0; i<res.getColumnCount(); i++ ){
+    // cout << row[i] << endl;
+    type.push_back(row[i]);
+    }
+  }
+
+  for(vector<string>::iterator it = type.begin(); it!=type.end(); ++it) {
+    string t = *it;
+    if(t == "int") {
+      size += 4;
+    }
+    else if(t == "double"){
+      size += 8;
+    }
+  }
+
+  return size;
 
 }

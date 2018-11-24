@@ -16,6 +16,7 @@ PyRTAlib/TestEnvironment/export_env_var.sh
 rtalibconfig
 PyRTAlib/UNKNOWN.egg-info/
 PyRTAlib/dist/
+dtr_conf.ini
 
 # Files in CxxRATlib
 CxxRTAlib/CxxRTAlib/bin/testRTAlib

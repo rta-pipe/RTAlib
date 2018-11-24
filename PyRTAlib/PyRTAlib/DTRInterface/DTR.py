@@ -18,39 +18,32 @@
 #
 # ==========================================================================
 
-#from abc import ABC, abstractmethod
 import redis
 import threading
 from collections import deque
 import json
-from ast import literal_eval # to convert string into dictionary
-
-from ..Utils import Config
-
+from ast import literal_eval
+import configparser
 
 class DTR():
-
     def __init__(self, configFilePath=''):
-
-
-        self.config = Config(configFilePath)
-
-        self.DEBUG = False
-        if self.config.get('Dtr','debug', 'bool'):
-            self.DEBUG = True
-
         print("[DTR] DTR system started!")
+
+        self.config = configparser.ConfigParser()
+        self.config.read(configFilePath)
+
+        self.DEBUG = self.config.getboolean('General','debug')
 
         self.transformers = []
 
         self.redisConn = redis.Redis(
-                                        host=self.config.get('Redis','host'),
-                                        port=6379,
-                                        db=self.config.get('Redis','dbname'),
-                                        password=self.config.get('Redis','password')
+                                        host=self.config['Redis']['host'],
+                                        port=self.config['Redis']['port'],
+                                        db=self.config['Redis']['dbname'],
+                                        password=self.config['Redis']['password']
                                     )
 
-        self.guiName = self.config.get('Dtr','guiname')
+        self.guiName = self.config.get('General','guiname')
 
         self.workingQueue = deque([])
 
@@ -71,7 +64,7 @@ class DTR():
 
     def start(self):
 
-        inputChannel = self.config.get('Dtr','inputchannel')
+        inputChannel = self.config.get('General','inputchannel')
 
         pubsub = self.redisConn.pubsub()
         pubsub.subscribe(inputChannel)
@@ -126,7 +119,7 @@ class DTR():
 
                     transformerName = dataTransformer.getName()
                     dataType = dataTransformer.getDataType()
-                    indexData = dataTransformer.getIndexForData()
+                    indexData = dataTransformer.getIndexForRedisZSET()
                     transformedData = dataTransformer.transformData(eventData)
                     outputChannel = dataTransformer.getOutputChannel(eventData)
                     storeLocationKey = dataTransformer.getStoreLocationKey(eventData)

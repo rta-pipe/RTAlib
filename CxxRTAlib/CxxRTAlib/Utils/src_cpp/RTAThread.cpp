@@ -50,6 +50,11 @@ void *RTAThread::run()  {
 
         map < string, string > fetchData = currentEvent->getData();
         dbConnector->insertData( modelname, fetchData);
+
+        if(BoolDTRactive){
+          redisPub->Publish(DTRinChannel, fetchData);
+        }
+
         delete currentEvent;
         totalEvents++;
         // threadStatistic->addEvent();

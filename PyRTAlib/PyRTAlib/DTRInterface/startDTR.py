@@ -18,20 +18,22 @@
 #
 # ==========================================================================
 
-import sys
+from sys import argv
 from DTR import DTR
+
+from DTR_DQHisto_Transformer import DTR_DQHisto_Transformer
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 2:
+    if len(argv) < 2:
         print("Please enter the path to the DTR configuration file")
         exit()
 
-    configFilePath = sys.argv[1]
+    configFilePath = argv[1]
 
     dtr = DTR(configFilePath)
 
-    # dtr.addTransformer(...)
-    # dtr.addTransformer(...)
+    dtr.addTransformer(DTR_CUSTOM_Transformer())
+    #dtr.addTransformer(..)
 
     dtr.start()

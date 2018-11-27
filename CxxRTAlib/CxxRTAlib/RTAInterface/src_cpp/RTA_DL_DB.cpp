@@ -15,6 +15,7 @@
  ==========================================================================
 */
 
+
 #include"RTA_DL_DB.hpp"
 
 RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
@@ -34,9 +35,19 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
 
   numberofthreads = config->file["General"]["numberofthreads"].getInt();
   modelname = config->file["General"]["modelname"].getString();
+  DTRinChannel = config->file["Dtr"]["inputchannel"].getString();
   Mutex* mux = Mutex::getIstance();
 
   //countevts = 0;
+
+  // DTR Configuratoion
+  DTRactive = config->file["DTR"]["active"].getString();
+  if ( DTRactive.compare("yes") ){
+    BoolDTRactive = true;
+    cout << "DTR attivo" << endl;
+    redisPub = make_shared<RedisPublisher>(configFilePath);
+  }
+
 
   if( numberofthreads == 1 ) {
 
@@ -68,7 +79,7 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
       // ThreadStatistic * ts = thread_statistics_array[i];
       // ts->printThreadId();
 
-      auto t = make_shared<RTAThread>(i, mux, modelname, dbConnector, eventBuffer);
+      auto t = make_shared<RTAThread>(i, mux, modelname, dbConnector, eventBuffer, redisPub, BoolDTRactive, DTRinChannel);
       thread_array.push_back(t);
 
     }
@@ -123,12 +134,12 @@ bool RTA_DL_DB::_insertEvent( EVTbase *event ) {
 
   string modelname = config->file["General"]["modelname"].getString();
 
-  // Transform data for visualization and notify GUIs
-  //  TODO
+
 
   if( numberofthreads == 1 ) {
 
     map < string, string > eventData =  event->getData();
+
 
     // #ifdef DEBUG
     // cout << "DEBUG event print in RTA_DL_DB" << " \n" <<
@@ -148,7 +159,18 @@ bool RTA_DL_DB::_insertEvent( EVTbase *event ) {
 
     // Synchronous (master thread)
     delete event;
-    return dbConnector->insertData(modelname, eventData);
+    bool ok = dbConnector->insertData(modelname, eventData);
+
+    #ifdef DEBUG
+    cout << "BoolDTRactive value: " << BoolDTRactive << endl;
+    #endif
+
+    // Transform data for visualization and notify GUIs
+    if(BoolDTRactive){
+      redisPub->Publish(DTRinChannel, eventData);
+    }
+
+    return ok;
 
 
   }else if( numberofthreads > 1 ){

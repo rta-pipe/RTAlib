@@ -22,6 +22,7 @@
 #include "MySqlDBConnector.hpp"
 #include "RedisDBConnector.hpp"
 #include "RTAThread.hpp"
+#include "RedisPublisher.hpp"
 #include <memory>
 #include <chrono>
 
@@ -38,6 +39,7 @@ public:
   RTA_DL_DB(string database, string configFilePath = "");
 
   shared_ptr<DBConnector> dbConnector;
+  shared_ptr<RedisPublisher> redisPub;
   Config * config;
   CTABuffer * eventBuffer;
   bool pure_multithreading;
@@ -45,6 +47,9 @@ public:
 
   int numberofthreads;
   string modelname;
+  string DTRactive;
+  string DTRinChannel;
+  bool BoolDTRactive;
 
   typedef std::chrono::high_resolution_clock Clock;
   Clock::time_point starttime;

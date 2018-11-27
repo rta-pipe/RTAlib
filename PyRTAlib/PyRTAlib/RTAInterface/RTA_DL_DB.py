@@ -142,6 +142,7 @@ class RTA_DL_DB(ABC):
             self.redisPub.publish(self.config.get('Dtr','inputchannel'), eventData)
             eventData.pop('dataType', None)
 
+
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\
         if not self.multithreading:
             return self.dbConnector.insertData(self.config.get('General','modelname'), eventData)

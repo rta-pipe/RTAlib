@@ -43,7 +43,6 @@ class DTR():
                                         password=self.config['Redis']['password']
                                     )
 
-        self.guiName = self.config.get('General','guiname')
 
         self.workingQueue = deque([])
 
@@ -58,11 +57,10 @@ class DTR():
 
     def getAllowedTransformers(self, eventData):
         validated = ( t for t in self.transformers if t.getDataType()==eventData['dataType'] )
-        if self.DEBUG:
-            print("-->[DTR thread] Allowed transformers for eventData => ", validated)
-        return validated
+        return list(validated)
 
     def start(self):
+        msgNum = 0
 
         inputChannel = self.config.get('General','inputchannel')
 
@@ -75,8 +73,10 @@ class DTR():
 
             if message['type'] != 'subscribe' and message['type'] != 'unsubscribe':
 
+                msgNum += 1
+
                 if self.DEBUG:
-                    print('[DTR] New message arrived!')# Message: {}".format(message))
+                    print('[DTR] New message arrived! ({})'.format(msgNum))# Message: {}".format(message))
 
                 if message['data'].decode('utf-8') == 'STOP':
                     if self.DEBUG:
@@ -85,7 +85,7 @@ class DTR():
                     pubsub.unsubscribe()
                     self.senderWorker.join()
 
-                elif message['type'] != 'subscribe' and message['type'] != 'unsubscribe':
+                else:
                     payload = message['data'].decode('utf-8')
                     self.workingQueue.append(payload)
 
@@ -114,8 +114,16 @@ class DTR():
                 if self.DEBUG:
                     print("-->[DTR thread] Transforming data..")
 
+                transformers = self.getAllowedTransformers(eventData)
+
+                if self.DEBUG:
+                    print("-->[DTR thread] Allowed transformers ({}) for eventData: ".format(len(list(transformers))))
+                    for t in transformers:
+                        print("--> {}".format(t.getName()))
+
+
                 # Transform data
-                for dataTransformer in self.getAllowedTransformers(eventData):
+                for dataTransformer in transformers:
 
                     transformerName = dataTransformer.getName()
                     dataType = dataTransformer.getDataType()
@@ -124,12 +132,12 @@ class DTR():
                     outputChannel = dataTransformer.getOutputChannel(eventData)
                     storeLocationKey = dataTransformer.getStoreLocationKey(eventData)
 
-                    if self.DEBUG:
-                        print("-->[DTR thread] Data transformer ",transformerName,"\n" \
-                                            "Saving transformed data to Redis at ",storeLocationKey," in database nr: ",self.config.get('Redis','dbname'),"\n" \
-                                            "Data type: ", dataType, "\n" \
-                                            "Output channel: ", outputChannel, "\n" \
-                                            "storeLocationKey: ", storeLocationKey)
+                    #if self.DEBUG:
+                    print("-->[DTR thread] Data transformer ",transformerName,"\n" \
+                                        "Saving transformed data to Redis at ",storeLocationKey," in database nr: ",self.config.get('Redis','dbname'),"\n" \
+                                        "Data type: ", dataType, "\n" \
+                                        "Output channel: ", outputChannel, "\n" \
+                                        "storeLocationKey: ", storeLocationKey)
 
                     # Save it to Redis
                     #self.redisConn.lpush(storeLocationKey, json.dumps(transformedData))  # --> changed to ZSET

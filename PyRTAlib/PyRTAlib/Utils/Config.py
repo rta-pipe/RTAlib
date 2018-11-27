@@ -73,11 +73,11 @@ class Config(metaclass=Singleton):
         self.configs = self.parseConfigFile(filepath)
 
     def parseConfigFile(self, filepath=''):
-        if 'RTACONFIGFILE' in os.environ:
-            filepath = os.environ['RTACONFIGFILE']
+        if 'RTALIBCONFIGFILE' in os.environ:
+            filepath = os.environ['RTALIBCONFIGFILE']
         else:
             if not filepath:
-                raise Exception('[Config] Cant configure. Neither the filepath parameter or the RTACONFIGFILE environment variable have been provided.')
+                raise Exception('[Config] Cant configure. Neither the filepath parameter or the RTALIBCONFIGFILE environment variable have been provided.')
 
         configs = {}
 

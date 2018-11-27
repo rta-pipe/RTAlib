@@ -113,8 +113,8 @@ dbname:
 ```python
 from PyRTAlib.RTAInterface import RTA_DL3ASTRI_DB
 
-# The RTACONFIGFILE environment variabile is used to specify the configuration file path.
-os.environ['RTACONFIGFILE'] = './path/to/config/file'  
+# The RTALIBCONFIGFILE environment variabile is used to specify the configuration file path.
+os.environ['RTALIBCONFIGFILE'] = './path/to/config/file'  
 
 # In the class constructor is specified the database in which the events will be writed.
 RTA_DL3ASTRI = RTA_DL3ASTRI_DB('redis-basic')
@@ -133,7 +133,7 @@ The library can be also used with the following, pythonic syntax:
 ```python
 from PyRTAlib.RTAInterface import RTA_DL3ASTRI_DB
 
-os.environ['RTACONFIGFILE'] = './path/to/config/file'
+os.environ['RTALIBCONFIGFILE'] = './path/to/config/file'
 
 with RTA_DL3ASTRI_DB('mysql') as RTA_DL3ASTRI:
     RTA_DL3ASTRI.insertEvent( evtid, eventidfits, observationid, datarepositoryid, ra_deg...)
@@ -215,7 +215,7 @@ class RTA_DL3ASTRI_DB.RTA_DL3ASTRI_DB(database, configFilePath = '')
 Constructor for a RTA_DL3ASTRI_DB object.
 Arguments:
 * *database* (required) is a string that sets the database type.
-* *configFilePath* (optional) is a string that specifies the location of the configuration file (it will be overrided by the RTACONFIGFILE environment variabile, if set)
+* *configFilePath* (optional) is a string that specifies the location of the configuration file (it will be overrided by the RTALIBCONFIGFILE environment variabile, if set)
 ___
 ```python
 class RTA_DL3ASTRI_DB.insertEvent(eventidfits, time, ra_deg, dec_deg, energy, detx, dety, mcid, observationid = 0, datarepositoryid = 0, status = 1)

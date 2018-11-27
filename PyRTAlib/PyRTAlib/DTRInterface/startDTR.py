@@ -19,18 +19,12 @@
 # ==========================================================================
 
 import sys
-import os
-
-rootFolder = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
-sys.path.append(rootFolder+'/PyRTAlib/')
-
-from PyRTAlib.DTRInterface.DTR import DTR
-
+from DTR import DTR
 
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print("Please enter the path to the configuration file")
+        print("Please enter the path to the DTR configuration file")
         exit()
 
     configFilePath = sys.argv[1]

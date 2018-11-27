@@ -2,14 +2,12 @@ from abc import ABC, abstractmethod
 from os import path
 import sys
 
-rootFolder = path.dirname(path.dirname(path.realpath(__file__)))
-sys.path.append(rootFolder+'/PyRTAlib/')
-from PyRTAlib.Utils         import Config
+import configparser
 
 class DTR_Transformer(ABC):
     def __init__(self, configFilePath=''):
-
-        self.config = Config(configFilePath)
+        self.config = configparser.ConfigParser()
+        self.config.read(configFilePath)
 
 
     @abstractmethod
@@ -21,27 +19,17 @@ class DTR_Transformer(ABC):
         pass
 
     @abstractmethod
-    def getIndexForData(self):
+    def transformData(self, eventData):
         pass
 
-    #@abstractmethod
-    #def requiredKeys(self):
-    #    pass
+    @abstractmethod
+    def getIndexForRedisZSET(self):
+        pass
 
     @abstractmethod
     def getOutputChannel(self, eventData):
         pass
 
     @abstractmethod
-    def transformData(self, eventData):
-        pass
-
-    @abstractmethod
     def getStoreLocationKey(self, eventData):
         pass
-
-    #def validateModel(self, eventData, keys):
-    #    for k in keys:
-    #        if k not in eventData:
-    #            return False
-    #    return True

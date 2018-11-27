@@ -138,6 +138,7 @@ class RTA_DL_DB(ABC):
 
         # Transform data for visualization and notify GUIs
         if self.redisPub:
+            eventData['dataType'] = self.config.get('General', 'modelname')
             self.redisPub.publish(self.config.get('Dtr','inputchannel'), eventData)
 
         # Synchronous (master thread) execution /\____/\____/\____/\____/\____/\

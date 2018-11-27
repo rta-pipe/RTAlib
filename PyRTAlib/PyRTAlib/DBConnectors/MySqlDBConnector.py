@@ -167,7 +167,7 @@ class MySqlDBConnector(DBConnector):
             return self.SUCCESS_AND_COMMIT
 
         except mysql.connector.Error as err:
-            print("[MySqlConnector] streamingInsert() -> Error: {}".format(err))
+            print("[MySqlConnector] streamingInsert() -> Error: {}.\nQuery: {}".format(err,query))
             return False
 
 
@@ -190,7 +190,7 @@ class MySqlDBConnector(DBConnector):
             self.cursor.execute(query)
 
         except mysql.connector.Error as err:
-            print("[MySqlConnector] batchInsert() -> Execute query err: {}".format(err))
+            print("[MySqlConnector] batchInsert() -> Execute query err: {}.\nQuery: {}".format(err,query))
             return False
 
 

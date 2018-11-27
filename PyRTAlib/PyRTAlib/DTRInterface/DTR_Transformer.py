@@ -23,7 +23,7 @@ class DTR_Transformer(ABC):
         pass
 
     @abstractmethod
-    def getIndexForRedisZSET(self):
+    def getSortingIndex(self):
         pass
 
     @abstractmethod

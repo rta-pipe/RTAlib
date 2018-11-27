@@ -43,8 +43,6 @@ class DTR():
                                         password=self.config['Redis']['password']
                                     )
 
-        self.guiName = self.config.get('General','guiname')
-
         self.workingQueue = deque([])
 
         self.senderWorker = threading.Thread(target=self.processQueue, args=())

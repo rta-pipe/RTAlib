@@ -19,7 +19,7 @@ class DTR_Transformer(ABC):
         pass
 
     @abstractmethod
-    def transformData(self, eventData):
+    def transformData(self, inputData):
         pass
 
     @abstractmethod
@@ -27,9 +27,9 @@ class DTR_Transformer(ABC):
         pass
 
     @abstractmethod
-    def getOutputChannel(self, eventData):
+    def getOutputChannel(self, inputData):
         pass
 
     @abstractmethod
-    def getStoreLocationKey(self, eventData):
+    def getStoreLocationKey(self, inputData):
         pass

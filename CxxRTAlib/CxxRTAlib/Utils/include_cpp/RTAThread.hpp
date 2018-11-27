@@ -23,6 +23,7 @@
 
 #include "EVTbase.hpp"
 #include "DBConnector.hpp"
+#include "RedisPublisher.hpp"
 // #include "ThreadStatistic.hpp"
 
 #include "Thread.h"
@@ -38,7 +39,7 @@ using std::shared_ptr;
 
 class RTAThread : public Thread{
 public:
-	RTAThread(int idThread, Mutex* mutex, string _modelname, shared_ptr<DBConnector> _dbConnector, CTABuffer *buff) : Thread(){ //, ThreadStatistic * threadStatistic
+	RTAThread(int idThread, Mutex* mutex, string _modelname, shared_ptr<DBConnector> _dbConnector, CTABuffer *buff, shared_ptr<RedisPublisher> _redisPub, bool _BoolDTRactive, string _DTRinChannel) : Thread(){ //, ThreadStatistic * threadStatistic
 		#ifdef DEBUG
 		cout << "RTAThread Constructor" << endl;
 		// cout << "[RTAThread] threadStatistic for thread id: " << threadStatistic->thread_id << endl;
@@ -48,6 +49,9 @@ public:
 		eventBuffer = buff;
 		id = idThread;
 		mux = mutex;
+		BoolDTRactive = _BoolDTRactive;
+		DTRinChannel = _DTRinChannel;
+		redisPub = _redisPub;
 		totalEvents = 0;
 	}
 	void *run();
@@ -56,9 +60,12 @@ public:
 	Mutex* mux;
 	int totalEvents;
 	string modelname;
+	bool BoolDTRactive;
+	string DTRinChannel;
 
 	shared_ptr<DBConnector> dbConnector;
 	CTABuffer * eventBuffer;
+	shared_ptr<RedisPublisher> redisPub;
 	// ThreadStatistic * threadStatistic;
 
 };

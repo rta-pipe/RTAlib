@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
     args["datarepositoryid"] =to_string(rand());
     args["status"] =to_string(1);
     args["mcid"] =to_string(1);
-    args["insert_time"] =to_string(rand());
+    args["insert_time"] = to_string(size);
 
     events.push_back(args);
 

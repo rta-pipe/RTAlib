@@ -1,14 +1,10 @@
 from abc import ABC, abstractmethod
-from os import path
-import sys
-
 import configparser
 
 class DTR_Transformer(ABC):
     def __init__(self, configFilePath=''):
         self.config = configparser.ConfigParser()
         self.config.read(configFilePath)
-
 
     @abstractmethod
     def getName(self):
@@ -19,17 +15,17 @@ class DTR_Transformer(ABC):
         pass
 
     @abstractmethod
-    def transformData(self, inputData):
+    def getSortingIndex(self, inputData=None):
         pass
 
     @abstractmethod
-    def getSortingIndex(self):
+    def getOutputChannel(self, inputData=None):
         pass
 
     @abstractmethod
-    def getOutputChannel(self, inputData):
+    def getStoreLocationKey(self, inputData=None):
         pass
 
     @abstractmethod
-    def getStoreLocationKey(self, inputData):
+    def transformData(self, inputData=None):
         pass

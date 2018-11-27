@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     dtr = DTR(configFilePath)
 
-    dtr.addTransformer(DTR_CUSTOM_Transformer())
+    dtr.addTransformer(DTR_DQHisto_Transformer())
     #dtr.addTransformer(..)
 
     dtr.start()

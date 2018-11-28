@@ -27,5 +27,5 @@ class DTR_Transformer(ABC):
         pass
 
     @abstractmethod
-    def transformData(self, inputData=None):
+    def transformData(self, inputData):
         pass

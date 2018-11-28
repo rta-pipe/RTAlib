@@ -21,7 +21,6 @@
 from sys import argv
 from DTR import DTR
 
-from DTR_DQHisto_Transformer import DTR_DQHisto_Transformer
 
 if __name__ == '__main__':
 
@@ -33,7 +32,7 @@ if __name__ == '__main__':
 
     dtr = DTR(configFilePath)
 
-    dtr.addTransformer(DTR_DQHisto_Transformer())
+    #dtr.addTransformer(DTR_custom_Transformer())
     #dtr.addTransformer(..)
 
     dtr.start()

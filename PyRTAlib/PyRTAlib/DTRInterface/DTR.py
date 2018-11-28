@@ -43,10 +43,7 @@ class DTR():
                                         password=self.config['Redis']['password']
                                     )
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7ce6ac41a2dc6730b4fd0c92b86bf32586a9a95d
         self.workingQueue = deque([])
 
         self.senderWorker = threading.Thread(target=self.processQueue, args=())
@@ -130,17 +127,18 @@ class DTR():
 
                     transformerName = dataTransformer.getName()
                     dataType = dataTransformer.getDataType()
-                    indexData = dataTransformer.getIndexForRedisZSET()
+                    indexData = dataTransformer.getSortingIndex()
                     transformedData = dataTransformer.transformData(eventData)
                     outputChannel = dataTransformer.getOutputChannel(eventData)
                     storeLocationKey = dataTransformer.getStoreLocationKey(eventData)
 
-                    #if self.DEBUG:
-                    print("-->[DTR thread] Data transformer ",transformerName,"\n" \
+
+                    print("\n-->[DTR thread] Data transformer ",transformerName,"\n" \
                                         "Saving transformed data to Redis at ",storeLocationKey," in database nr: ",self.config.get('Redis','dbname'),"\n" \
                                         "Data type: ", dataType, "\n" \
                                         "Output channel: ", outputChannel, "\n" \
-                                        "storeLocationKey: ", storeLocationKey)
+                                        "storeLocationKey: ", storeLocationKey, "\n" \
+                                        "transformedData: ", transformedData)
 
                     # Save it to Redis
                     #self.redisConn.lpush(storeLocationKey, json.dumps(transformedData))  # --> changed to ZSET

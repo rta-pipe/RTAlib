@@ -47,60 +47,45 @@ The following features are supported:
     cd ~/RTAlib/PyRTAlib
     python setup.py install
   ```
-* Run the following script:
-  ```bash
-    cd ~/RTAlib/SetupDB
-    . setup_db.sh
-  ```
-* Complete the fields of configuration files located under RTAlib/Configs
-
-The setup_db.sh script will create 2 environment, one for testing and one for production.
-For each environment the script will create:
-* a mysql database
-* a mysql user
-* mysql tables
-* a rtalibconfig under RTAlib/Configs
+* MySql database setup:
+  * Create a mysql database and mysql user for production.
+  * Create a mysql database and mysql user for testing.
+  * Create one mysql table for each data model you want to stream with RTAlib.
+  * Create one configuration file for each data model you want to stream with RTAlib (you can put the configuration files under the Configs/ folder). Fill in the field of the configuration files (check next paragraph).
 
 
 
 ## Configuration options
 There will be one rtalibconfig configuration file for each data model.
 
-### General
-* modelname: mysql table / redis key for the data model
-* mjdref: MJDREFI+MJDREFF
-* debug: yes/y/True/'True' or any other value for False
-* batchsize: performance tuning parameter: =1 streaming strategy, >1 batch strategy
-* numberofthreads: performance tuning parameter: more than one thread may help to sustain a high-rate input
+```html
+[General]
+modelname= mysql table name / redis key for the data model
+mjdref= MJDREFI+MJDREFF
+debug= yes/y/True/'True' or any other value for False
+batchsize= performance tuning parameter: =1 streaming strategy, >1 batch strategy
+numberofthreads= performance tuning parameter: more than one thread may help to sustain a high-rate input
 
-### DTR
-The DTR system...
-* guiname:
-* active: yes/y/True/'True' or any other value for False
-* debug: yes/y/True/'True' or any other value for False
-* inputchannel:
-* outputchannel:
+[DTR]
+active= yes/y/True/'True' or any other value for False
+debug= yes/y/True/'True' or any other value for False
+inputchannel= the DTR will subscribe to this channel
 
-### MySql
-host:
-username: this field is filled by the setup_db.sh script
-password: this field is filled by the setup_db.sh script
-dbname: this field is filled by the setup_db.sh script
+[MySql]
+host=
+port=
+username=
+password=
+dbname=
 
-### Redis
-host:
-password:
-dbname:
-indexon: dictionary field (key:value,key:value)
+[Redis]
+host=
+port=
+password=
+dbname=
+indexon= <modelname>:<modelattribute> => the data model is stored in a Redis ZSET and you have to specify the attribute of the model that you want to use as the ZSET 'score'
 
-### MySqlPipelineDatabase
-active: yes/y/True/'True' or any other value for False
-debug:  yes/y/True/'True' or any other value for False
-host:
-username:
-password:
-dbname:
-
+```
 
 ## General usage
 * Specify the location of the configuration file

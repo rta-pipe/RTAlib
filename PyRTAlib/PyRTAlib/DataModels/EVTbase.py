@@ -37,7 +37,7 @@ class EVTbase:
             if val == None:
                 dictData[key] = 'NULL'
             elif isnan(val):
-                print("VAl is Nan. ",key,"=", val)
+                #print("[RTAlib warning] key=",key," = ", val)
                 dictData[key] = 'NULL'
 
 

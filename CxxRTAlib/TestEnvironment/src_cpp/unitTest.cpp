@@ -183,7 +183,7 @@ TEST(MySqlDBConnector, SelectRowsTestTable) {
 
   auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
   mySqlDBTest->connect(mux);
-  EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
+  EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM rtalib_dl_test_table") );
 
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
@@ -784,7 +784,11 @@ int main(int argc, char **argv) {
 
   string cmd = "cp " + confTestFilePath + localConfFileTestPath ;
 
-  std::system(cmd.c_str());
+
+  if ( std::system(cmd.c_str()) != 0) {
+    exit(EXIT_FAILURE);
+  }
+
 
   return RUN_ALL_TESTS();
 

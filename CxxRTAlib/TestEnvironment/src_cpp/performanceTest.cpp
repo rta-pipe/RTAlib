@@ -256,7 +256,9 @@ int main(int argc, char * argv[]) {
   string envVar(val);
   string localConfFileTestPath = envVar + "/CxxRTAlib/TestEnvironment/rtalibconfigPTest";
   string cmd = "cp " + configurationFilePath + " " + localConfFileTestPath;
-  std::system(cmd.c_str());
+  if(std::system(cmd.c_str()) != 0){
+    exit(EXIT_FAILURE);
+  }
 
   string json = "[\n";
   string jsn;

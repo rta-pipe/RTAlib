@@ -41,11 +41,13 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
   //countevts = 0;
 
   // DTR Configuratoion
-  DTRactive = config->file["DTR"]["active"].getString();
-  if ( DTRactive.compare("yes") ){
+  DTRactive = config->file["Dtr"]["active"].getString();
+  if ( DTRactive.compare("yes") == 0 ){
     BoolDTRactive = true;
     cout << "DTR attivo" << endl;
     redisPub = make_shared<RedisPublisher>(configFilePath);
+  }else{
+    BoolDTRactive = false;
   }
 
 

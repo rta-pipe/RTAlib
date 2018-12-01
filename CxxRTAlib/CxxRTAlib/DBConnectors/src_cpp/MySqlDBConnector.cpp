@@ -37,6 +37,7 @@ bool MySqlDBConnector::connect(Mutex* mux){
                                       SessionOption::DB, database);
 
                                       mux->mutexUnlock();
+
     RowResult res = mySession->sql(query).execute();
     int c = res.count();
     if (c==0){

@@ -80,10 +80,6 @@ int performance_test(vector<int> threads, vector<int> batchsizes, int numberOfEv
 
   RTA_DLTEST_DB * rtaTestDb = new RTA_DLTEST_DB(database, configFilePath);
 
-
-  timesVector.clear();
-
-
   #ifdef DEBUG
   cout << "Inserting events...\n " <<endl;
   #endif
@@ -151,12 +147,12 @@ double computeMeanTime(vector< std::chrono::duration<double> > & timesVector, in
 
 double computeMeanEvt(vector< double > & evtRateVector, int numberOfIterationPerTest){
 
-  // cout<< "[Compute mean] timesvector size: " << timesVector.size() << endl;
   double mean = 0;
 
   for(vector< double > ::iterator it=evtRateVector.begin(); it!=evtRateVector.end(); ++it) {
 
     auto currentEvtRate = *it;
+    // cout << "[currentEvtRate] current evt rate: " << currentEvtRate << endl;
 
     mean += currentEvtRate;
 
@@ -183,7 +179,7 @@ double computeStandardDeviationTime(vector< std::chrono::duration<double> > & ti
   var /= numberOfIterationPerTest;
   sd = sqrt(var);
 
-  // cout << "[compute std] std: " << sd << endl;
+  // cout << "[compute TimeStd] std: " << sd << endl;
 
   return sd;
 
@@ -198,6 +194,7 @@ double computeStandardDeviationEvt(vector< double > & evtRateVector, int numberO
   for(vector <double >::iterator it=evtRateVector.begin(); it!=evtRateVector.end(); ++it) {
 
     auto currentEvtRate = *it;
+    // cout << "\n\n[computeStandardDeviationEvt] currentEvent: " << currentEvtRate << endl;
 
     var += ( currentEvtRate - mean ) * (currentEvtRate - mean);
 
@@ -205,7 +202,7 @@ double computeStandardDeviationEvt(vector< double > & evtRateVector, int numberO
   var /= numberOfIterationPerTest;
   sd = sqrt(var);
 
-  // cout << "[compute std] std: " << sd << endl;
+  // cout << "[compute EvtStd] std: " << sd << endl;
 
   return sd;
 
@@ -237,8 +234,8 @@ int main(int argc, char * argv[]) {
   bool cleanerTrigger = atoi(argv[6]);
 
   // Test configuration
-  vector<int> threads({ 1, 8 });
-  vector<int> batchsizes({1, 10});
+  vector<int> threads({0, 8, 36, 72 });
+  vector<int> batchsizes({1, 100, 1000});
   double meanTime = 0;
   double stdTime = 0;
   double meanEvtRate = 0;
@@ -256,6 +253,7 @@ int main(int argc, char * argv[]) {
   string envVar(val);
   string localConfFileTestPath = envVar + "/CxxRTAlib/TestEnvironment/rtalibconfigPTest";
   string cmd = "cp " + configurationFilePath + " " + localConfFileTestPath;
+  cout << "cmd: " << cmd << endl;
   if(std::system(cmd.c_str()) != 0){
     exit(EXIT_FAILURE);
   }
@@ -305,30 +303,32 @@ int main(int argc, char * argv[]) {
 
         performance_test(threads, batchsizes, numberOfEvents, timesVector,evtRateVector, database, localConfFileTestPath, numberOfIterationPerTest);
 
-        meanTime = computeMeanTime(timesVector, numberOfIterationPerTest);
 
-        stdTime = computeStandardDeviationTime(timesVector, numberOfIterationPerTest, meanTime);
-
-        meanEvtRate = computeMeanEvt(evtRateVector, numberOfIterationPerTest);
-
-        stdEvtRate = computeStandardDeviationEvt(evtRateVector, numberOfIterationPerTest, meanEvtRate);
 
       }
 
-        cout << "\n\n--> Number of threads: " <<  currentThread << " , Batch size: " << currentBatchSize << endl;
-        cout << std::fixed<< std::setprecision(2) << meanEvtRate << " +- " << stdEvtRate << " Hz" << endl;
-        cout << std::fixed<< std::setprecision(2) << meanTime << " +- " << stdTime  << " s" << endl;
-        dataRate = meanEvtRate*size/1024/1024;
-        cout << dataRate << " MB/s\n\n"<< endl;
+      meanTime = computeMeanTime(timesVector, numberOfIterationPerTest);
 
-        json += " { numberOfEvents : " + to_string(numberOfEvents) +", numberofthreads : " + to_string(currentThread) + " , batchsize : " + to_string(currentBatchSize) + " , eventRate : " + to_string(meanEvtRate) + ", evt_error : " +to_string(stdEvtRate)+", time : " +to_string(meanTime)+ ", time_error :"+ to_string(stdTime)+ ", dataRate : " + to_string(dataRate)+ " },\n ";
+      stdTime = computeStandardDeviationTime(timesVector, numberOfIterationPerTest, meanTime);
 
-        jsn = json.substr(0, json.size()-3);
+      meanEvtRate = computeMeanEvt(evtRateVector, numberOfIterationPerTest);
+
+      stdEvtRate = computeStandardDeviationEvt(evtRateVector, numberOfIterationPerTest, meanEvtRate);
+
+      cout << "\n\n--> Number of threads: " <<  currentThread << " , Batch size: " << currentBatchSize << endl;
+      cout << std::fixed<< std::setprecision(2) << meanEvtRate << " +- " << stdEvtRate << " Hz" << endl;
+      cout << std::fixed<< std::setprecision(2) << meanTime << " +- " << stdTime  << " s" << endl;
+      dataRate = meanEvtRate*size/1024/1024;
+      cout << dataRate << " MB/s\n\n"<< endl;
+
+      json += " { numberOfEvents : " + to_string(numberOfEvents) +", numberofthreads : " + to_string(currentThread) + " , batchsize : " + to_string(currentBatchSize) + " , eventRate : " + to_string(meanEvtRate) + ", evt_error : " +to_string(stdEvtRate)+", time : " +to_string(meanTime)+ ", time_error :"+ to_string(stdTime)+ ", dataRate : " + to_string(dataRate)+ " },\n ";
+
+      jsn = json.substr(0, json.size()-3);
 
 
-        timesVector.clear();
-        evtRateVector.clear();
-        entry.clear();
+      timesVector.clear();
+      evtRateVector.clear();
+      entry.clear();
 
 
     }

@@ -79,7 +79,7 @@ SYSTEM= $(shell gcc -dumpmachine)
 SOURCE_DIR_CXX_SIM_TEST = TestEnvironment/src_cpp/rtaLibSim.cpp
 SOURCE_DIR_CXX_UNIT_TEST = TestEnvironment/src_cpp/unitTest.cpp
 SOURCE_DIR_CXX_PERF_TEST = TestEnvironment/src_cpp/performanceTest.cpp
-
+SOURCE_DIR_CXX_PROF_TEST = TestEnvironment/src_cpp/profiling_src/RTA_DLTEST_DB_prof.cpp
 
 ################################################################################
 #	Sources (C++)
@@ -127,18 +127,18 @@ OBJECTS_DIR_C = CxxRTAlib/obj_c
 LIB_DESTDIR = lib
 LIB_NAME = libcxxrtalib.a
 
-UNITTEST_EXE_DESTDIR = TestEnvironment/bin
+TESTING_EXE_DESTDIR = TestEnvironment/bin
 UNITTEST_EXE = unitTest
 SIMTEST_EXE = rtaLibSim
 PERFORMANCE_EXE = performanceTest
-
+PROFILING_EXE = rtaDlTestDbProf
 
 ################################################################################
 # Compiler and compilation flags (C++)
 #
 CXX = g++
 
-CXXFLAGS = -O3 -funroll-loops -std=c++11 -lpthread
+CXXFLAGS = -funroll-loops -std=c++11 -lpthread
 
 CXXFLAGS += -I$(INCLUDE_DIR_CXX_DBC) -I$(INCLUDE_DIR_CXX_DM) -I$(INCLUDE_DIR_CXX_RTA) -I$(INCLUDE_DIR_CXX_U) -I$(INCLUDE_DIR_C_U) -I$(INCLUDE_DIR_C_DBC)
 
@@ -200,11 +200,17 @@ LIBS += -L$(GTEST_DIR)/lib64 -lgtest
 ifeq ($(DEBUG),1)
 	CXXFLAGS += -DDEBUG
 endif
-ifeq ($(VALGRIND),1)
-	CXXFLAGS += -g -O0
+
+
+
+################################################################################
+# Profiling or optimizations
+#
+ifeq ($(PROFILING), 1)
+	CXXFLAGS += -pg -O0
+else
+	CXXFLAGS += -O3
 endif
-
-
 
 
 ################################################################################
@@ -273,26 +279,30 @@ makelibdir:
 	test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
 
 makeexedir:
-	test -d $(UNITTEST_EXE_DESTDIR) || mkdir -p $(UNITTEST_EXE_DESTDIR)
+	test -d $(TESTING_EXE_DESTDIR) || mkdir -p $(TESTING_EXE_DESTDIR)
 
 
 staticlib: makelibdir makeobjdir $(OBJECTS_C) $(OBJECTS)
 		test -d $(LIB_DESTDIR) || mkdir -p $(LIB_DESTDIR)
 		$(AR) $(LIB_DESTDIR)/$(LIB_NAME) $(OBJECTS_DIR)/*.o $(OBJECTS_DIR_C)/*.o
 
-tests: makeexedir unittest sim performancetest
+tests: makeexedir unittest sim performancetest profiletest
 
 unittest:
-	$(CXX) $(SOURCE_DIR_CXX_UNIT_TEST) $(CXXFLAGS) -o $(UNITTEST_EXE_DESTDIR)/$(UNITTEST_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
+	$(CXX) $(SOURCE_DIR_CXX_UNIT_TEST) $(CXXFLAGS) -o $(TESTING_EXE_DESTDIR)/$(UNITTEST_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
 
 sim:
-	$(CXX) $(SOURCE_DIR_CXX_SIM_TEST)  $(CXXFLAGS) -o $(UNITTEST_EXE_DESTDIR)/$(SIMTEST_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
+	$(CXX) $(SOURCE_DIR_CXX_SIM_TEST)  $(CXXFLAGS) -o $(TESTING_EXE_DESTDIR)/$(SIMTEST_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
 
 performancetest:
-	$(CXX) $(SOURCE_DIR_CXX_PERF_TEST) $(CXXFLAGS) -o $(UNITTEST_EXE_DESTDIR)/$(PERFORMANCE_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
+	$(CXX) $(SOURCE_DIR_CXX_PERF_TEST) $(CXXFLAGS) -o $(TESTING_EXE_DESTDIR)/$(PERFORMANCE_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
+
+profiletest:
+	$(CXX) $(SOURCE_DIR_CXX_PROF_TEST) $(CXXFLAGS) -o $(TESTING_EXE_DESTDIR)/$(PROFILING_EXE) $(OBJECTS_DIR)/*.o  $(OBJECTS_DIR_C)/*.o $(LIBS)
+
 
 clean:
 	$(DEL_FILE) $(OBJECTS_DIR)/*.o
 	$(DEL_FILE) $(OBJECTS_DIR_C)/*.o
 	$(DEL_FILE) $(LIB_DESTDIR)/*
-	$(DEL_FILE) $(UNITTEST_EXE_DESTDIR)/*
+	$(DEL_FILE) $(TESTING_EXE_DESTDIR)/*

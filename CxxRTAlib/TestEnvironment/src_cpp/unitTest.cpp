@@ -64,6 +64,8 @@ TEST(MySqlDBConnector, CorrectConnection) {
 
   EXPECT_TRUE( mySqlDBTest->connect(mux) );
 
+  mux->deleteInstance();
+  mySqlDBTest->disconnect();
   myConf->deleteInstance();
   cout << "local test path: " << localConfFileTestPath << endl;
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
@@ -96,6 +98,7 @@ TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
 
   EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
+  mux->deleteInstance();
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
@@ -126,6 +129,7 @@ TEST(MySqlDBConnector, FailedConnectionWrongUserName) {
 
   EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
+  mux->deleteInstance();
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
@@ -148,6 +152,7 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
   entry.push_back(kv);
   section["MySql"] = entry;
 
+
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath, section);
   myConf->deleteInstance();
@@ -155,6 +160,7 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
   auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
   EXPECT_FALSE( mySqlDBTest->connect(mux) );
 
+  mux->deleteInstance();
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
@@ -183,8 +189,10 @@ TEST(MySqlDBConnector, SelectRowsTestTable) {
 
   auto mySqlDBTest = make_shared<MySqlDBConnector>(0,localConfFileTestPath);
   mySqlDBTest->connect(mux);
-  EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM test_table") );
+  EXPECT_TRUE( mySqlDBTest->executeQuery("SELECT * FROM rtalib_dl_test_table") );
 
+  mySqlDBTest->disconnect();
+  mux->deleteInstance();
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
@@ -214,6 +222,8 @@ TEST(MySqlDBConnector, WriteWrongTable) {
   args["d"] = "4";
 
   EXPECT_FALSE( mySqlDBTest->insertData("lest_fable", args) );
+  mySqlDBTest->disconnect();
+  mux->deleteInstance();
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
@@ -243,6 +253,8 @@ TEST(MySqlDBConnector, InsertDataSuccefully) {
   args["d"] = "4";
 
   EXPECT_TRUE( mySqlDBTest->insertData("rtalib_test_table", args) );
+  mySqlDBTest->disconnect();
+  mux->deleteInstance();
 
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
@@ -273,6 +285,8 @@ TEST(RedisDBConnector, CorrectConnection) {
 
   EXPECT_TRUE(redisDBTest->connect(mux));
 
+  redisDBTest->disconnect();
+  mux->deleteInstance();
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
@@ -300,6 +314,8 @@ TEST(RedisDBConnector, InsertDataSuccIndexonFirst) {
 
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
 
+  redisDBTest->disconnect();
+  mux->deleteInstance();
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
@@ -328,6 +344,8 @@ TEST(RedisDBConnector, InsertDataSuccIndexonMiddle) {
 
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
 
+  redisDBTest->disconnect();
+  mux->deleteInstance();
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 
@@ -355,6 +373,8 @@ TEST(RedisDBConnector, InsertDataSuccIndexonLast) {
 
   EXPECT_TRUE( redisDBTest->insertData("testmodel", args) );
 
+  redisDBTest->disconnect();
+  mux->deleteInstance();
   myConf->deleteInstance();
   ConfigTestFileManager::writeConfigFile(localConfFileTestPath);
 }
@@ -784,7 +804,11 @@ int main(int argc, char **argv) {
 
   string cmd = "cp " + confTestFilePath + localConfFileTestPath ;
 
-  std::system(cmd.c_str());
+
+  if ( std::system(cmd.c_str()) != 0) {
+    exit(EXIT_FAILURE);
+  }
+
 
   return RUN_ALL_TESTS();
 

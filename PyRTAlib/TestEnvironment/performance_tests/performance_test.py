@@ -67,7 +67,7 @@ def synchronous_performance_test(batchsize, numberofthreads, numberOfIterationPe
     getConfig(configurationFilePath, False, reload=True)\
         .set('General', 'batchsize', batchsize)\
         .set('General', 'numberofthreads', numberofthreads)\
-        .set('Dtr', 'active', 'no')\
+        .set('Dtr', 'active', 'yes')\
         .set('MySqlPipelineDatabase', 'active', 'no')
 
     eventSecList = []
@@ -121,7 +121,7 @@ def asynchronous_performance_test(batchsize, numberofthreads, numberOfIterationP
     getConfig(configurationFilePath, False, reload=True)\
         .set('General', 'batchsize', batchsize)\
         .set('General', 'numberofthreads', numberofthreads)\
-        .set('Dtr', 'active', 'no')\
+        .set('Dtr', 'active', 'yes')\
         .set('MySqlPipelineDatabase', 'active', 'no')
 
     eventSecList = []
@@ -175,23 +175,24 @@ if __name__ == '__main__':
     if len(argv) < 5:
         print("Please enter:\
                     \n - the database to be used (mysql or redis-basic)\
+                    \n - the table name to be used\
                     \n - the number of events to be inserted\
                     \n - the number of times a test must be repeated (>1)\
                     \n - the path to the configuration file")
         exit()
 
     database = argv[1]
-    numberOfEvents = int(argv[2])
-    numberOfIterationPerTest = int(argv[3])
-    configurationFilePath = argv[4]
-    tableName = 'evt3_performance'
+    tableName = argv[2]
+    numberOfEvents = int(argv[3])
+    numberOfIterationPerTest = int(argv[4])
+    configurationFilePath = argv[5]
 
 
     utils = getUtils(database, configurationFilePath)
 
     # Test configuration
-    threads = [0, 10]#, 36, 50
-    batchsizes = [1, 100]#10, 50, 100, 200, 400, 800, 1600, 3200]
+    threads = [0, 8, 36, 72]
+    batchsizes = [1, 100, 1000]
 
     # Simulating data
     # numberOfElementsToInsert = len(threads)*len(batchsizes)*int(numberOfEvents)

@@ -36,33 +36,39 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
   numberofthreads = config->file["General"]["numberofthreads"].getInt();
   modelname = config->file["General"]["modelname"].getString();
   DTRinChannel = config->file["Dtr"]["inputchannel"].getString();
-  Mutex* mux = Mutex::getIstance();
+  mux = Mutex::getIstance();
 
   //countevts = 0;
 
   // DTR Configuratoion
-  DTRactive = config->file["DTR"]["active"].getString();
-  if ( DTRactive.compare("yes") ){
+  DTRactive = config->file["Dtr"]["active"].getString();
+  if ( DTRactive.compare("yes") == 0 ){
     BoolDTRactive = true;
     cout << "DTR attivo" << endl;
     redisPub = make_shared<RedisPublisher>(configFilePath);
+  }else{
+    BoolDTRactive = false;
   }
 
 
-  if( numberofthreads == 1 ) {
+  if( numberofthreads == 0 ) {
 
-      // Synchronous (master thread) execution
-      dbConnector = getConnector(0, database, configFilePath);
+    if( BoolDTRactive) {
+        redisPub = make_shared<RedisPublisher>(configFilePath);
+    }
 
-      if( dbConnector->connect(mux) == false ) {
+    // Synchronous (master thread) execution
+    dbConnector = getConnector(0, database, configFilePath);
 
-        cout << "CXX_RTA_DL_X_DB Connection Error!" << endl;
+    if( dbConnector->connect(mux) == false ) {
 
-        exit(EXIT_FAILURE);
+      cout << "CXX_RTA_DL_X_DB Connection Error!" << endl;
 
-      }
+      exit(EXIT_FAILURE);
 
-  }else if( numberofthreads > 1) {
+    }
+
+  }else if( numberofthreads >= 1) {
 
     // Multi threading mode
     eventBuffer = new CTABuffer("rta_dl_buffer",1000);
@@ -74,12 +80,19 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
     // }
 
     for( int i = 0; i < numberofthreads; i++ ) {
+
+      shared_ptr<RedisPublisher> redisPubThread = NULL;
+
+      if(BoolDTRactive){
+          redisPubThread = make_shared<RedisPublisher>(configFilePath);
+      }
+
       dbConnector = getConnector(i, database, configFilePath);
 
       // ThreadStatistic * ts = thread_statistics_array[i];
       // ts->printThreadId();
 
-      auto t = make_shared<RTAThread>(i, mux, modelname, dbConnector, eventBuffer, redisPub, BoolDTRactive, DTRinChannel);
+      auto t = make_shared<RTAThread>(i, mux, modelname, dbConnector, eventBuffer, redisPubThread, BoolDTRactive, DTRinChannel);
       thread_array.push_back(t);
 
     }
@@ -93,14 +106,13 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
 void RTA_DL_DB::start() {
 
 
-  if( numberofthreads == 1 ) {
+  if( numberofthreads == 0 ) {
 
   }else {
     for( int i = 0; i < numberofthreads; i++ ) {
-      //sleep(0.5);
-      #ifdef DEBUG
+      // #ifdef DEBUG
       cout << "[RTA_DL_DB] Starting thread: " <<i << endl;
-      #endif
+      // #endif
       thread_array[i]->start();
     }
   }
@@ -136,7 +148,7 @@ bool RTA_DL_DB::_insertEvent( EVTbase *event ) {
 
 
 
-  if( numberofthreads == 1 ) {
+  if( numberofthreads == 0 ) {
 
     map < string, string > eventData =  event->getData();
 
@@ -173,7 +185,7 @@ bool RTA_DL_DB::_insertEvent( EVTbase *event ) {
     return ok;
 
 
-  }else if( numberofthreads > 1 ){
+  }else if( numberofthreads >= 1 ){
 
     // Multi threading mode
     eventBuffer->put(event);
@@ -194,7 +206,7 @@ bool RTA_DL_DB::waitAndClose() {
   cout << "\n[RTA_DL_DB] waitAndClose" << endl;
   #endif
 
-  if( numberofthreads > 1 ) {
+  if( numberofthreads >= 1 ) {
 
     for(int i=0; i < numberofthreads; i++ ) {
       EVTbase * stopEvent = new EVTbase(true);
@@ -232,6 +244,7 @@ bool RTA_DL_DB::waitAndClose() {
       return false;
     }
   }
+  mux->deleteInstance();
 }
 
 int RTA_DL_DB::getNumberOfThreads() {

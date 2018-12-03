@@ -149,6 +149,7 @@ The compilation step will produce a static library and the executables for runni
 ## Running the tests
 In order to run the executables, define the following environment variables:
 ```bash
+  export RTALIBDIR=/path/to/root/RTAlib
   export LD_LIBRARY_PATH=~/rtalib_dep_libs/libraries_installed/mysql-connector-cpp-install/lib64/:$LD_LIBRARY_PATH
   export LD_LIBRARY_PATH=~/rtalib_dep_libs/libraries_installed/hiredis:$LD_LIBRARY_PATH
 ```

@@ -41,6 +41,7 @@ public:
   shared_ptr<DBConnector> dbConnector;
   shared_ptr<RedisPublisher> redisPub;
   Config * config;
+  Mutex* mux;
   CTABuffer * eventBuffer;
   bool pure_multithreading;
 

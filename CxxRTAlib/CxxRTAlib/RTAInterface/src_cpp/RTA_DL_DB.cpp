@@ -36,7 +36,7 @@ RTA_DL_DB::RTA_DL_DB(string database, string configFilePath){
   numberofthreads = config->file["General"]["numberofthreads"].getInt();
   modelname = config->file["General"]["modelname"].getString();
   DTRinChannel = config->file["Dtr"]["inputchannel"].getString();
-  Mutex* mux = Mutex::getIstance();
+  mux = Mutex::getIstance();
 
   //countevts = 0;
 
@@ -244,6 +244,7 @@ bool RTA_DL_DB::waitAndClose() {
       return false;
     }
   }
+  mux->deleteInstance();
 }
 
 int RTA_DL_DB::getNumberOfThreads() {

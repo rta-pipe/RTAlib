@@ -5,6 +5,7 @@ pipeline {
       steps {
         echo 'RTAlib Jenkins testing pipeline'
         sh 'singularity exec ../images/rtalib-env.sigm python --version'
+        sh 'pwd'
       }
     }
     stage('Creating config file') {
@@ -47,6 +48,7 @@ cat rtalibconfig_testing.conf'''
       parallel {
         stage('Unit-testing') {
           steps {
+            sh 'pwd'
             sh 'SINGULARITYENV_RTALIBCONFIGFILE=./rtalibconfig_testing singularity exec --cleanenv ../images/rtalib-env.sigm bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
           }
         }

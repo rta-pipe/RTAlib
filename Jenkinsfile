@@ -36,7 +36,7 @@ indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
 EOL
 
 cat rtalibconfig_testing.conf'''
-        sh 'SINGULARITYENV_RTALIBCONFIG=./rtalibconfig_testing singularity exec --cleanenv ../images/rtalib-env.sigm env'
+        sh 'SINGULARITYENV_RTALIBCONFIGFILE=./rtalibconfig_testing singularity exec --cleanenv ../images/rtalib-env.sigm env'
       }
     }
     stage('RTAlib testing') {

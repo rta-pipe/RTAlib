@@ -36,7 +36,6 @@ indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
 EOL
 
 cat rtalibconfig_testing.conf'''
-        sh 'SINGULARITYENV_RTALIBCONFIGFILE=./rtalibconfig_testing singularity exec --cleanenv ../images/rtalib-env.sigm env'
       }
     }
     stage('RTAlib testing') {
@@ -48,7 +47,7 @@ cat rtalibconfig_testing.conf'''
       parallel {
         stage('Unit-testing') {
           steps {
-            sh 'singularity exec ../images/rtalib-env.sigm bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
+            sh 'SINGULARITYENV_RTALIBCONFIGFILE=./rtalibconfig_testing singularity exec --cleanenv ../images/rtalib-env.sigm bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
           }
         }
         stage('Test coverage') {

@@ -10,7 +10,7 @@ pipeline {
     }
     stage('Creating config file') {
       steps {
-        sh '''cat >rtalibconfig_testing.conf <<EOL
+        sh '''cat >rtalibconfig_testing <<EOL
 [General]
 modelname=rtalib_dl_test_table
 mjdref=
@@ -36,7 +36,7 @@ dbname=1
 indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
 EOL
 
-cat rtalibconfig_testing.conf'''
+cat rtalibconfig_testing'''
       }
     }
     stage('RTAlib testing') {

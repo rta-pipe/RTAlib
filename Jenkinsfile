@@ -49,7 +49,7 @@ cat rtalibconfig_testing'''
         stage('Unit-testing') {
           steps {
             sh 'pwd'
-            sh 'SINGULARITYENV_RTALIBCONFIGFILE=./rtalibconfig_testing singularity exec --cleanenv ../images/rtalib-env.sigm bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
+            sh 'SINGULARITYENV_RTALIBCONFIG=./rtalibconfig_testing singularity exec --cleanenv ../images/rtalib-env.sigm bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
           }
         }
         stage('Test coverage') {

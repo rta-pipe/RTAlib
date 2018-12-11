@@ -13,8 +13,8 @@ pipeline {
         sh '''cat >rtalibconfig_testing <<EOL
 [General]
 modelname=rtalib_dl_test_table
-mjdref=
-debug=no
+mjdref=5000
+debug=yes
 batchsize=1
 numberofthreads=1
 
@@ -49,7 +49,7 @@ cat rtalibconfig_testing'''
         stage('Unit-testing') {
           steps {
             sh 'pwd'
-            sh 'SINGULARITYENV_RTALIBCONFIG=./rtalibconfig_testing singularity exec --cleanenv ../images/rtalib-env.sigm bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
+            sh 'SINGULARITYENV_RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing singularity exec --cleanenv ../images/rtalib-env.sigm bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
           }
         }
         stage('Test coverage') {

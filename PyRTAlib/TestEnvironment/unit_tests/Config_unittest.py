@@ -112,7 +112,7 @@ class ConfigFile(unittest.TestCase):
 
     def test_get_section(self):
         config = Config(config_file_path)
-        self.assertEqual(4, len(config.get('MySql')))
+        self.assertEqual(5, len(config.get('MySql')))
 
 
     def test_set_and_get_value(self):

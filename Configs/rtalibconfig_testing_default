@@ -12,12 +12,14 @@ inputchannel=
 
 [MySql]
 host=
+port=
 username=
 password=
 dbname=
 
 [Redis]
 host=
+port=
 password=
 dbname=
 indexon=

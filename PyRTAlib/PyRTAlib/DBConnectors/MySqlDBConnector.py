@@ -53,6 +53,7 @@ class MySqlDBConnector(DBConnector):
         connConfig = {}
         connConfig['user']       = self.config.get('MySql','username')
         connConfig['host']       = self.config.get('MySql','host')
+        connConfig['port']       = self.config.get('MySql','port', 'int')
         connConfig['database']   = self.config.get('MySql','dbname')
         connConfig['password']   = self.config.get('MySql','password')
         connConfig['use_pure']   = False

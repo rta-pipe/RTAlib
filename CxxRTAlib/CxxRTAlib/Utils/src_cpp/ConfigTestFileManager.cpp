@@ -70,12 +70,14 @@ void ConfigTestFileManager::writeConfigFile(string destinationPath, map < string
   DTRSection.push_back(DTRentries);
 
   Mentries["host"]= myConf->file["MySql"]["host"].getString();
+  Mentries["port"]= myConf->file["MySql"]["port"].getString();
   Mentries["password"]= myConf->file["MySql"]["password"].getString();
   Mentries["username"]= myConf->file["MySql"]["username"].getString();
   Mentries["dbname"]= myConf->file["MySql"]["dbname"].getString();
   MSection.push_back(Mentries);
 
   Rentries["host"]= myConf->file["Redis"]["host"].getString();
+  Rentries["port"]= myConf->file["Redis"]["port"].getString();
   Rentries["password"]= myConf->file["Redis"]["password"].getString();
   Rentries["dbname"]= myConf->file["Redis"]["dbname"].getString();
   Rentries["indexon"]= myConf->file["Redis"]["indexon"].getString();

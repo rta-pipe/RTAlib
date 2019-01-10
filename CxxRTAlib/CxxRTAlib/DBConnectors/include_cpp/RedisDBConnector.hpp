@@ -37,6 +37,7 @@ public:
                                                                         batchsize = 0;
 
                                                                         hostname = config->file["Redis"]["host"].getString();
+                                                                        port = config->file["Redis"]["port"].getInt();
                                                                         username = config->file["Redis"]["username"].getString();
                                                                         password = config->file["Redis"]["password"].getString();
                                                                         database = config->file["Redis"]["dbname"].getString();
@@ -69,6 +70,7 @@ public:
   int batchsize;
 
   string hostname;
+  int port;
   string username;
   string password;
   string database;

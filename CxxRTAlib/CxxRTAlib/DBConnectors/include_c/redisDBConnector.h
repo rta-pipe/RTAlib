@@ -30,7 +30,7 @@ extern "C" {
 #include "hiredis.h"
 #include "errno.h"
 
-redisContext * connection(int idConnector,const char *hostname, const char * password, const char * database);
+redisContext * connection(int idConnector,const char *hostname, int port, const char * password, const char * database);
 
 bool checkRedisReply(redisContext *c, redisReply * r, int idConnector, char* functionCalling);
 

@@ -27,12 +27,13 @@ bool RedisDBConnector::connect(Mutex* mux){
 
   #ifdef DEBUG
   cout << "Hostname: " << hostname << endl;
+  cout << "Port: " << port << endl;
   cout << "Database: " << database << endl;
   cout << "Batchsize: " << batchsize << endl;
   cout << "Indexon: " << indexon << endl;
   cout << "indexon_clean: " << indexon_clean << endl;
   #endif
-  c = connection(idConnector, hostname.c_str(),password.c_str(),database.c_str());
+  c = connection(idConnector, hostname.c_str(), port, password.c_str(),database.c_str());
 
   if( c != NULL ) {
 
@@ -186,7 +187,7 @@ string RedisDBConnector :: buildQuery( string modelName, int batchsize, map <str
   finalQuery += " }'";
 
   score = args[indexon_clean];
-  // cout << queryH << endl;
+  // cout << finalQuery << endl;
 
   return finalQuery;
 }

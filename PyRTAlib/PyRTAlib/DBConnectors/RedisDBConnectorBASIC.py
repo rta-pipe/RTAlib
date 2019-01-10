@@ -49,7 +49,7 @@ class RedisDBConnectorBASIC(DBConnector):
         connConfig = {}
         connConfig['host']       = self.config.get('Redis','host')
         connConfig['db']         = self.config.get('Redis','dbname')
-        connConfig['port']       = 6379
+        connConfig['port']       = self.config.get('Redis','port', 'int')
 
         password = self.config.get('Redis','password')
         if(password):

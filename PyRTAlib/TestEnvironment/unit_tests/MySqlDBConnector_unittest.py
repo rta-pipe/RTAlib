@@ -79,6 +79,11 @@ class MySqlConnector(unittest.TestCase):
         mysqlConn = MySqlDBConnector(config_file_path)
         self.assertEqual(False, mysqlConn.connect())
 
+    def test_connection_with_wrong_port(self):
+        getConfig(config_file_path, DEBUG, reload=True).set('MySql', 'port', '9991')
+        mysqlConn = MySqlDBConnector(config_file_path)
+        self.assertEqual(False, mysqlConn.connect())
+
 
     def test_connectionion_success(self):
         getConfig(config_file_path, DEBUG, reload=True)

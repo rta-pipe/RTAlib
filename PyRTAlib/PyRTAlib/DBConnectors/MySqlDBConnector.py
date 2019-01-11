@@ -71,7 +71,7 @@ class MySqlDBConnector(DBConnector):
             self.cursor = self.conn.cursor()
 
         except mysql.connector.Error as err:
-            print("[MySqlConnector] Error! connect() -> {}".format(err))
+            print("[MySqlConnector] Error! cursor() -> {}".format(err))
             self.conn.close()
             self.conn = None
             return False

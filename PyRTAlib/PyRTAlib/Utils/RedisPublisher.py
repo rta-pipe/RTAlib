@@ -26,12 +26,17 @@ class RedisPublisher(metaclass=Singleton):
 
     def __init__(self, configFilePath=''):
         self.config = Config(configFilePath)
-        self.redisConn = redis.Redis(
-                                        host=self.config.get('Redis','host'),
-                                        port=6379,
-                                        db=self.config.get('Redis','dbname'),
-                                        password=self.config.get('Redis','password')
-                                    )
+
+        connConfig = {}
+        connConfig['host']       = self.config.get('Redis','host')
+        connConfig['db']         = self.config.get('Redis','dbname')
+        connConfig['port']       = self.config.get('Redis','port', 'int')
+
+        password = self.config.get('Redis','password')
+        if(password):
+            connConfig['password'] = self.config.get('Redis','password')
+
+        self.redisConn = redis.Redis( **connConfig )
 
     def publish(self, channel, message):
         if self.config.get('General', 'debug', 'bool'):

@@ -16,7 +16,7 @@
 
 #include "redisDBConnector.h"
 
-redisContext * connection(int idConnector, const char *hostname, const char * password,const char * database) {
+redisContext * connection(int idConnector, const char *hostname, int port, const char * password,const char * database) {
 
   redisReply * reply;
 
@@ -25,7 +25,7 @@ redisContext * connection(int idConnector, const char *hostname, const char * pa
   #endif
 
 
-  int port = 6379;
+  // int port = 6379;
 
   struct timeval timeout = { 1, 500000 }; // 1.5 seconds
 

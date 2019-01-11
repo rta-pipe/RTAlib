@@ -54,6 +54,7 @@ public:
                                                                         flagTransaction = 0;
                                                                         batchsize = 0;
                                                                         hostname = config->file["MySql"]["host"].getString();
+                                                                        port = config->file["MySql"]["port"].getInt();
                                                                         username = config->file["MySql"]["username"].getString();
                                                                         password = config->file["MySql"]["password"].getString();
                                                                         database = config->file["MySql"]["dbname"].getString();
@@ -80,6 +81,7 @@ public:
   int batchsize;
 
   string hostname;
+  int port;
   string username;
   string password;
   string database;

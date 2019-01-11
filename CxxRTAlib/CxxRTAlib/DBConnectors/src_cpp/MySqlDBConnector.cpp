@@ -20,9 +20,10 @@
 bool MySqlDBConnector::connect(Mutex* mux){
 
   #ifdef DEBUG
-  cout << hostname << endl;
-  cout << username<< endl;
-  cout << database << endl;
+  cout << "hostname: " << hostname << endl;
+  cout << "port: " << port << endl;
+  cout << "username: " << username<< endl;
+  cout << "database: " << database << endl;
   #endif
 
   string query ="SELECT table_name FROM information_schema.tables where table_schema='" + database+"'";
@@ -31,7 +32,7 @@ bool MySqlDBConnector::connect(Mutex* mux){
 
     mux->mutexLock();
     mySession = make_shared<Session>( SessionOption::HOST, hostname,
-                                      SessionOption::PORT, 33060,
+                                      SessionOption::PORT, port,
                                       SessionOption::USER, username,
                                       SessionOption::PWD, password,
                                       SessionOption::DB, database);

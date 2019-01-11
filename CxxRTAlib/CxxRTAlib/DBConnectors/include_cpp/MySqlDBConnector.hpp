@@ -42,6 +42,7 @@ using mysqlx::Columns;
 using mysqlx::Type;
 using mysqlx::row_count_t;
 using mysqlx::col_count_t;
+using mysqlx::SSLMode;
 
 class MySqlDBConnector : public DBConnector {
 public:
@@ -55,6 +56,10 @@ public:
                                                                         batchsize = 0;
                                                                         hostname = config->file["MySql"]["host"].getString();
                                                                         port = config->file["MySql"]["port"].getInt();
+                                                                        if(port == 3306)
+                                                                           port = 33060; // mysqlx protocol port
+                                                                        else
+                                                                           port++;  // convention: if mysql port is not the default one (3306), mysqlx-port = mysql-port + 1 
                                                                         username = config->file["MySql"]["username"].getString();
                                                                         password = config->file["MySql"]["password"].getString();
                                                                         database = config->file["MySql"]["dbname"].getString();

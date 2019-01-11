@@ -84,6 +84,7 @@ TEST(MySqlDBConnector, FailedConnectionWrongPwd) {
   map < string, string>  kv;
 
   kv["host"]= myConf->file["MySql"]["host"].getString();
+  kv["port"]= myConf->file["MySql"]["port"].getString();
   kv["password"]= "djkfhbsal";
   kv["username"]= myConf->file["MySql"]["username"].getString();
   kv["dbname"]= myConf->file["MySql"]["dbname"].getString();
@@ -115,6 +116,7 @@ TEST(MySqlDBConnector, FailedConnectionWrongUserName) {
   map < string, string>  kv;
 
   kv["host"]= myConf->file["MySql"]["host"].getString();
+  kv["port"]= myConf->file["MySql"]["port"].getString();
   kv["password"]= myConf->file["MySql"]["password"].getString();
   kv["username"]= "sdklfhasjh";
   kv["dbname"]= myConf->file["MySql"]["dbname"].getString();
@@ -146,6 +148,7 @@ TEST(MySqlDBConnector, FailedConnectionWrongDatabase) {
   map < string, string>  kv;
 
   kv["host"]= myConf->file["MySql"]["host"].getString();
+  kv["port"]= myConf->file["MySql"]["port"].getString();
   kv["password"]= myConf->file["MySql"]["password"].getString();
   kv["username"]= myConf->file["MySql"]["username"].getString();
   kv["dbname"]= "dsfljhn";
@@ -177,6 +180,7 @@ TEST(MySqlDBConnector, SelectRowsTestTable) {
   map < string, string>  kv;
 
   kv["host"]= myConf->file["MySql"]["host"].getString();
+  kv["port"]= myConf->file["MySql"]["port"].getString();
   kv["password"]= myConf->file["MySql"]["password"].getString();
   kv["username"]= myConf->file["MySql"]["username"].getString();
   kv["dbname"]= myConf->file["MySql"]["dbname"].getString();

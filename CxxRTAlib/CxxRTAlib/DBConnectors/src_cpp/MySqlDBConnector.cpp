@@ -35,7 +35,9 @@ bool MySqlDBConnector::connect(Mutex* mux){
                                       SessionOption::PORT, port,
                                       SessionOption::USER, username,
                                       SessionOption::PWD, password,
-                                      SessionOption::DB, database);
+                                      SessionOption::DB, database,
+				      SessionOption::SSL_MODE, SSLMode::DISABLED	
+				      );
 
                                       mux->mutexUnlock();
 

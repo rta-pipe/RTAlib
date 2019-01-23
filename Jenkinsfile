@@ -41,15 +41,15 @@ EOL
 cat rtalibconfig_testing'''
       }
     }
-    stage('RTAlib testing') {
+    stage('Singularity Instance') {
       steps {
         echo 'RTAlib testing'
         sh 'mkdir -p bind_dirs/lib/mysql && mkdir -p bind_dirs/log && mkdir -p bind_dirs/run/mysqld'
-        sh 'singularity instance start --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run ../Singularity_images/rta_lib_env_service.sif rta_lib_env_service'
+        sh '$(singularity instance list | grep \'rta_lib_env_service\') || singularity instance start --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run ../Singularity_images/rta_lib_env_service.sif rta_lib_env_service'
         sh 'singularity shell instance://rta_lib_env_service'
       }
     }
-    stage('Unit-testing') {
+    stage('PyRTAlib Unit-testing') {
       parallel {
         stage('Unit-testing') {
           steps {
@@ -62,7 +62,7 @@ cat rtalibconfig_testing'''
             sh 'python PyRTAlib/TestEnvironment/unit_tests/RTA_DL_DB_unittest.py -v'
           }
         }
-        stage('Test coverage') {
+        stage('PyRTAlib Test coverage') {
           steps {
             echo 'Coverage test'
             sh 'export RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing'

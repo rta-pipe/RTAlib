@@ -58,7 +58,7 @@ which python'''
         stage('Unit-testing') {
           steps {
             sh 'pwd'
-            sh 'SINGULARITYENV_RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing singularity exec --cleanenv ../Singularity_images/rta_lib_env_service.sif source activate rtalib-env && bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
+            sh 'SINGULARITYENV_RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing singularity exec --cleanenv ../Singularity_images/rta_lib_env_service.sif conda activate rtalib-env && bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
           }
         }
         stage('PyRTAlib Test coverage') {

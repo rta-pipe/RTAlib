@@ -4,7 +4,6 @@ pipeline {
     stage('Get testing environment') {
       steps {
         echo 'RTAlib Jenkins testing pipeline'
-        sh 'singularity instance start --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run ../Singularity_images/rta_lib_env_service.sif rta_lib_env_service'
         sh 'pwd'
       }
     }

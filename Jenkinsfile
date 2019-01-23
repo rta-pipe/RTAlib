@@ -45,10 +45,11 @@ cat rtalibconfig_testing'''
       steps {
         echo 'RTAlib testing'
         sh 'mkdir -p bind_dirs/lib/mysql && mkdir -p bind_dirs/log && mkdir -p bind_dirs/run/mysqld'
-        sh 'set +e'
-        sh 'singularity instance start --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run ../Singularity_images/rta_lib_env_service.sif rta_lib_env_service'
-        sh 'set -e'
-        sh 'singularity shell instance://rta_lib_env_service'
+        sh '''set +e;
+singularity instance start --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run ../Singularity_images/rta_lib_env_service.sif rta_lib_env_service
+set -e;'''
+        sh '''singularity shell instance://rta_lib_env_service;
+which python'''
         sh 'which python'
       }
     }

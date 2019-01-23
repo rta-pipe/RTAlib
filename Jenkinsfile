@@ -58,13 +58,7 @@ which python'''
         stage('Unit-testing') {
           steps {
             sh 'pwd'
-            sh 'export RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing'
-            sh 'conda activate rtalib-env'
-            sh 'python PyRTAlib/TestEnvironment/unit_tests/Config_unittest.py -v'
-            sh 'python PyRTAlib/TestEnvironment/unit_tests/MySqlDBConnector_unittest.py -v'
-            sh '''python PyRTAlib/TestEnvironment/unit_tests/RedisDBConnector_unittest.py -v
-'''
-            sh 'python PyRTAlib/TestEnvironment/unit_tests/RTA_DL_DB_unittest.py -v'
+            sh 'SINGULARITYENV_RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing singularity exec --cleanenv ../Singularity_images/rta_lib_env_service.sif source activate rtalib-env && bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
           }
         }
         stage('PyRTAlib Test coverage') {

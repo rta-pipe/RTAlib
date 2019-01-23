@@ -57,7 +57,7 @@ cat rtalibconfig_testing'''
           steps {
             sh 'pwd'
             sh 'export RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing'
-            sh 'source activate rtalib-env'
+            sh 'conda activate rtalib-env'
             sh 'python PyRTAlib/TestEnvironment/unit_tests/Config_unittest.py -v'
             sh 'python PyRTAlib/TestEnvironment/unit_tests/MySqlDBConnector_unittest.py -v'
             sh '''python PyRTAlib/TestEnvironment/unit_tests/RedisDBConnector_unittest.py -v

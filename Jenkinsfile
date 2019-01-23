@@ -4,7 +4,7 @@ pipeline {
     stage('Get testing environment') {
       steps {
         echo 'RTAlib Jenkins testing pipeline'
-        sh 'singularity exec ../images/rtalib-env.sigm python --version'
+        sh 'singularity instance start --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run ../Singularity_images/rta_lib_env_service.sif rta_lib_env_service'
         sh 'pwd'
       }
     }
@@ -25,12 +25,14 @@ inputchannel=
 
 [MySql]
 host=127.0.0.1
+port=60307
 username=tester
-password={NAe3[]<
-dbname=rtalib_db
+password=SingMysqlTester2018
+dbname=rtalib_db_test
 
 [Redis]
 host=127.0.0.1
+port=63800
 password=
 dbname=1
 indexon=rtalib_dl_test_table:timerealtt,rtalib_test_table:a
@@ -42,6 +44,7 @@ cat rtalibconfig_testing'''
     stage('RTAlib testing') {
       steps {
         echo 'RTAlib testing'
+        sh 'singularity shell instance://rta_lib_env_service'
       }
     }
     stage('Unit-testing') {
@@ -49,12 +52,18 @@ cat rtalibconfig_testing'''
         stage('Unit-testing') {
           steps {
             sh 'pwd'
-            sh 'SINGULARITYENV_RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing singularity exec --cleanenv ../images/rtalib-env.sigm bash PyRTAlib/TestEnvironment/unit_tests/run_unit_tests.sh'
+            sh 'export RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing'
+            sh 'python RTAlib/PyRTAlib/TestEnvironment/unit_tests/Config_unittest.py -v'
+            sh 'python RTAlib/PyRTAlib/TestEnvironment/unit_tests/MySqlDBConnector_unittest.py -v'
+            sh '''python RTAlib/PyRTAlib/TestEnvironment/unit_tests/RedisDBConnector_unittest.py -v
+'''
+            sh 'python RTAlib/PyRTAlib/TestEnvironment/unit_tests/RTA_DL_DB_unittest.py -v'
           }
         }
         stage('Test coverage') {
           steps {
             echo 'Coverage test'
+            sh 'export RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing'
           }
         }
       }

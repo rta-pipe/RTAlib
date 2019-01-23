@@ -65,7 +65,6 @@ which python'''
           steps {
             echo 'Coverage test'
             sh 'export RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing'
-            sh 'source activate rtalib-env'
           }
         }
       }

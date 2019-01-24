@@ -42,22 +42,22 @@ cat rtalibconfig_testing'''
     }
     stage('Singularity Instance ') {
       steps {
-        echo 'RTAlib testing'
-        sh 'mkdir -p bind_dirs/lib/mysql && mkdir -p bind_dirs/log && mkdir -p bind_dirs/run/mysqld'
-        sh '''set +e;
-singularity instance start --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run ../Singularity_images/rta_lib_env_service.sif rta_lib_env_service
-set -e;'''
-        sh '''singularity shell instance://rta_lib_env_service;
-which python'''
-        sh 'which python'
+        echo 'Running the singularity container for the rtalib environment'
+        sh 'mkdir -p bind_dirs/lib/mysql && mkdir -p bind_dirs/log && mkdir -p bind_dirs/run/mysqld && mkdir -p bind_dirs/jenkins_rtalib'
+        sh 'singularity instance start --bind /var/lib:bind_dirs/lib --bind /var/lib/mysql:bind_dirs/lib/mysql --bind /var/log:bind_dirs/log --bind /var/run:bind_dirs/run --bind /var/lib/jenkins/workspace/RTAlib_master:bind_dirs/jenkins_rtalib ../singularity_images/rta_lib_env_service.sif rta_lib_env_service'
       }
     }
     stage('PyRTAlib Unit-testing') {
       parallel {
         stage('Unit-testing') {
           steps {
-            sh 'pwd'
-            sh 'SINGULARITYENV_RTALIBCONFIG=/var/jenkins_home/workspace/RTAlib_master/rtalibconfig_testing singularity exec --cleanenv ../Singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python PyRTAlib/TestEnvironment/unit_tests/RTA_DL_DB_unittest.py -v'
+            sh '''SINGULARITYENV_RTALIBCONFIG=/bind_dirs/jenkins_rtalib/rtalibconfig_testing singularity exec --bind /var/lib:bind_dirs/lib --bind /var/lib/mysql:bind_dirs/lib/mysql --bind /var/log:bind_dirs/log --bind /var/run:bind_dirs/run --bind /var/lib/jenkins/workspace/RTAlib_master:bind_dirs/jenkins_rtalib --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /bind_dirs/jenkins_rtalib/PyRTAlib/TestEnvironment/unit_tests/Config_unittest.py -v
+
+SINGULARITYENV_RTALIBCONFIG=/bind_dirs/jenkins_rtalib/rtalibconfig_testing singularity exec --bind /var/lib:bind_dirs/lib --bind /var/lib/mysql:bind_dirs/lib/mysql --bind /var/log:bind_dirs/log --bind /var/run:bind_dirs/run --bind /var/lib/jenkins/workspace/RTAlib_master:bind_dirs/jenkins_rtalib --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /bind_dirs/jenkins_rtalib/PyRTAlib/TestEnvironment/unit_tests/MySqlDBConnector_unittest.py -v
+
+SINGULARITYENV_RTALIBCONFIG=/bind_dirs/jenkins_rtalib/rtalibconfig_testing singularity exec --bind /var/lib:bind_dirs/lib --bind /var/lib/mysql:bind_dirs/lib/mysql --bind /var/log:bind_dirs/log --bind /var/run:bind_dirs/run --bind /var/lib/jenkins/workspace/RTAlib_master:bind_dirs/jenkins_rtalib --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /bind_dirs/jenkins_rtalib/PyRTAlib/TestEnvironment/unit_tests/RedisDBConnector_unittest.py -v
+
+SINGULARITYENV_RTALIBCONFIG=/bind_dirs/jenkins_rtalib/rtalibconfig_testing singularity exec --bind /var/lib:bind_dirs/lib --bind /var/lib/mysql:bind_dirs/lib/mysql --bind /var/log:bind_dirs/log --bind /var/run:bind_dirs/run --bind /var/lib/jenkins/workspace/RTAlib_master:bind_dirs/jenkins_rtalib --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /bind_dirs/jenkins_rtalib/PyRTAlib/TestEnvironment/unit_tests/RTA_DL_DB_unittest.py -v'''
           }
         }
         stage('PyRTAlib Test coverage') {

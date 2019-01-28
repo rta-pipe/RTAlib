@@ -71,7 +71,7 @@ cat rtalibconfig_testing'''
     }
     stage('Test reporting') {
       steps {
-        junit '/bind_dirs/rtalib_jenkins/test-reports/*.xml'
+        junit '/home/jenkins/test-reports/*.xml'
       }
     }
   }

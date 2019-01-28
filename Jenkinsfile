@@ -69,10 +69,10 @@ cat rtalibconfig_testing'''
         }
       }
     }
-    stage('Test reporting') {
-      steps {
-        junit '/home/jenkins/test-reports/*.xml'
-      }
+  }
+  post {
+    always {
+      junit '/home/jenkins/test-reports/*.xml'
     }
   }
 }

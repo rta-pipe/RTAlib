@@ -147,5 +147,5 @@ class ConfigFile(unittest.TestCase):
         self.assertEqual(False, config.get('General', 'debug', 'bool'))
 
 if __name__ == '__main__':
-
+    import xmlrunner
     unittest.main(testRunner=xmlrunner.XMLTestRunner(output='test-reports'))

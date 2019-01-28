@@ -46,28 +46,24 @@ cat rtalibconfig_testing'''
         sh '/usr/local/bin/singularity --version'
         sh '/usr/local/bin/singularity instance.stop rta_lib_env_service'
         sh 'rm -rf bind_dirs'
-        sh 'mkdir -p bind_dirs/lib/mysql && mkdir -p bind_dirs/log && mkdir -p bind_dirs/run/mysqld && mkdir -p bind_dirs/jenkins_rtalib'
+        sh 'mkdir -p bind_dirs/lib/mysql && mkdir -p bind_dirs/log && mkdir -p bind_dirs/run/mysqld && mkdir -p bind_dirs/rtalib_jenkins'
         sh 'ls /usr/local/bin/'
         sleep 2
-        sh '/usr/local/bin/singularity instance.start --bind /var/lib:bind_dirs/lib --bind /var/lib/mysql:bind_dirs/lib/mysql --bind /var/log:bind_dirs/log --bind /var/run:bind_dirs/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/var/lib/jenkins/workspace/RTAlib_jenkins_master ../singularity_images/rta_lib_env_service.sif rta_lib_env_service'
-        waitUntil() {
-          sh '/usr/bin/mysql -utester -pSingMysqlTester2018'
-          sleep 1
-        }
-
+        sh '/usr/local/bin/singularity instance.start --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/bind_dirs/rtalib_jenkins --cleanenv ../singularity_images/rta_lib_env_service.sif rta_lib_env_service'
+        sleep 2
       }
     }
     stage('PyRTAlib Unit-testing') {
       parallel {
         stage('Unit-testing') {
           steps {
-            sh '''SINGULARITYENV_RTALIBCONFIG=/var/lib/jenkins/workspace/RTAlib_jenkins_master/rtalibconfig_testing /usr/local/bin/singularity exec --bind /var/lib:bind_dirs/lib --bind /var/lib/mysql:bind_dirs/lib/mysql --bind /var/log:bind_dirs/log --bind /var/run:bind_dirs/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/var/lib/jenkins/workspace/RTAlib_jenkins_master --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /var/lib/jenkins/workspace/RTAlib_jenkins_master/PyRTAlib/TestEnvironment/unit_tests/Config_unittest.py -v
+            sh '''SINGULARITYENV_RTALIBCONFIG=/var/lib/jenkins/workspace/RTAlib_jenkins_master/rtalibconfig_testing /usr/local/bin/singularity exec --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/bind_dirs/rtalib_jenkins --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /var/lib/jenkins/workspace/RTAlib_jenkins_master/PyRTAlib/TestEnvironment/unit_tests/Config_unittest.py -v
 
-SINGULARITYENV_RTALIBCONFIG=/var/lib/jenkins/workspace/RTAlib_jenkins_master/rtalibconfig_testing /usr/local/bin/singularity exec --bind /var/lib:bind_dirs/lib --bind /var/lib/mysql:bind_dirs/lib/mysql --bind /var/log:bind_dirs/log --bind /var/run:bind_dirs/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/var/lib/jenkins/workspace/RTAlib_jenkins_master --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /var/lib/jenkins/workspace/RTAlib_jenkins_master/PyRTAlib/TestEnvironment/unit_tests/MySqlDBConnector_unittest.py -v
+SINGULARITYENV_RTALIBCONFIG=/var/lib/jenkins/workspace/RTAlib_jenkins_master/rtalibconfig_testing /usr/local/bin/singularity exec --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/bind_dirs/rtalib_jenkins --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /var/lib/jenkins/workspace/RTAlib_jenkins_master/PyRTAlib/TestEnvironment/unit_tests/MySqlDBConnector_unittest.py -v
 
-SINGULARITYENV_RTALIBCONFIG=/var/lib/jenkins/workspace/RTAlib_jenkins_master/rtalibconfig_testing /usr/local/bin/singularity exec --bind /var/lib:bind_dirs/lib --bind /var/lib/mysql:bind_dirs/lib/mysql --bind /var/log:bind_dirs/log --bind /var/run:bind_dirs/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/var/lib/jenkins/workspace/RTAlib_jenkins_master --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /var/lib/jenkins/workspace/RTAlib_jenkins_master/PyRTAlib/TestEnvironment/unit_tests/RedisDBConnector_unittest.py -v
+SINGULARITYENV_RTALIBCONFIG=/var/lib/jenkins/workspace/RTAlib_jenkins_master/rtalibconfig_testing /usr/local/bin/singularity exec --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/bind_dirs/rtalib_jenkins --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /var/lib/jenkins/workspace/RTAlib_jenkins_master/PyRTAlib/TestEnvironment/unit_tests/RedisDBConnector_unittest.py -v
 
-SINGULARITYENV_RTALIBCONFIG=/var/lib/jenkins/workspace/RTAlib_jenkins_master/rtalibconfig_testing /usr/local/bin/singularity exec --bind /var/lib:bind_dirs/lib --bind /var/lib/mysql:bind_dirs/lib/mysql --bind /var/log:bind_dirs/log --bind /var/run:bind_dirs/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/var/lib/jenkins/workspace/RTAlib_jenkins_master --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /var/lib/jenkins/workspace/RTAlib_jenkins_master/PyRTAlib/TestEnvironment/unit_tests/RTA_DL_DB_unittest.py -v'''
+SINGULARITYENV_RTALIBCONFIG=/var/lib/jenkins/workspace/RTAlib_jenkins_master/rtalibconfig_testing /usr/local/bin/singularity exec --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/bind_dirs/rtalib_jenkins --cleanenv ../singularity_images/rta_lib_env_service.sif /opt/anaconda3/envs/rtalib-env/bin/python /var/lib/jenkins/workspace/RTAlib_jenkins_master/PyRTAlib/TestEnvironment/unit_tests/RTA_DL_DB_unittest.py -v'''
           }
         }
         stage('PyRTAlib Test coverage') {

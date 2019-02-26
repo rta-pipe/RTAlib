@@ -44,7 +44,6 @@ cat rtalibconfig_testing'''
       steps {
         echo 'Running the singularity container for the rtalib environment'
         sh '/usr/local/bin/singularity --version'
-        sh '/usr/local/bin/singularity instance.stop rta_lib_env_service'
         sh 'rm -rf bind_dirs'
         sh 'mkdir -p bind_dirs/lib/mysql && mkdir -p bind_dirs/log && mkdir -p bind_dirs/run/mysqld && mkdir -p bind_dirs/rtalib_jenkins'
         sh 'ls /usr/local/bin/'

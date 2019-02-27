@@ -47,9 +47,6 @@ cat rtalibconfig_testing'''
         sh 'rm -rf bind_dirs'
         sh 'mkdir -p bind_dirs/lib/mysql && mkdir -p bind_dirs/log && mkdir -p bind_dirs/run/mysqld && mkdir -p bind_dirs/rtalib_jenkins'
         sh 'ls /usr/local/bin/'
-        sleep 2
-        sh '/usr/local/bin/singularity instance.start --bind bind_dirs/lib:/var/lib --bind bind_dirs/lib/mysql:/var/lib/mysql --bind bind_dirs/log:/var/log --bind bind_dirs/run:/var/run --bind /var/lib/jenkins/workspace/RTAlib_jenkins_master:/bind_dirs/rtalib_jenkins --cleanenv ../singularity_images/rta_lib_env_service.sif rta_lib_env_service'
-        sleep 2
       }
     }
     stage('PyRTAlib Unit-testing') {
